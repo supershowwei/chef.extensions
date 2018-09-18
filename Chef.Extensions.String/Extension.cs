@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -57,6 +58,17 @@ namespace Chef.Extensions.String
         public static List<T> Split<T>(this string me, char separator, Func<string, T> selector)
         {
             return me.Split(separator).Select(selector).ToList();
+        }
+
+        public static string Format(this string me, IDictionary dict)
+        {
+            var result = me;
+            foreach (DictionaryEntry entry in dict)
+            {
+                result = me.Replace($"{{{entry.Key}}}", entry.Value.ToString());
+            }
+
+            return result;
         }
     }
 }
