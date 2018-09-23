@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.FormControl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper", "Chef.Extensions.Dapper\Chef.Extensions.Dapper.csproj", "{040C5A56-6B70-43CB-B580-8AAA9DA608A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Double", "Chef.Extensions.Double\Chef.Extensions.Double.csproj", "{A208FF29-2BAA-4BE4-8BD4-CA8FACFC353C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{040C5A56-6B70-43CB-B580-8AAA9DA608A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{040C5A56-6B70-43CB-B580-8AAA9DA608A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{040C5A56-6B70-43CB-B580-8AAA9DA608A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A208FF29-2BAA-4BE4-8BD4-CA8FACFC353C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A208FF29-2BAA-4BE4-8BD4-CA8FACFC353C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A208FF29-2BAA-4BE4-8BD4-CA8FACFC353C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A208FF29-2BAA-4BE4-8BD4-CA8FACFC353C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
