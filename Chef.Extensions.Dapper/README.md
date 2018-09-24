@@ -1,6 +1,3 @@
-﻿# Chef.Extensions.Dapper
-
-
 ## List of Methods
 
 ### PolymorphicQuery&lt;T&gt;(sql [, param] [, discriminator])
