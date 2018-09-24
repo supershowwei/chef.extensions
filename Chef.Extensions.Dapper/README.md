@@ -18,4 +18,4 @@ Do polymorphic query and return only one of base type.
 
 ## Custom RowParser
 
-Default is getting row parser by finding derive type with matching discriminator value precisely. We can implement *`IRowParserProvider`* and assign to `Chef.Extensions.Dapper.Extension.RowParserProvider` change default row parser.
+Default is getting row parser by finding derive type with matching discriminator value precisely. We can implement *`IRowParserProvider`* and assign to `Chef.Extensions.Dapper.Extension.RowParserProvider` to change default row parser.
