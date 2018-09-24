@@ -46,8 +46,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Chef.Extensions.Dapper\DefaultRowParserProvider.cs">
+      <Link>Dapper\DefaultRowParserProvider.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.Dapper\Extension.cs">
       <Link>Dapper\Extension.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Dapper\IRowParserProvider.cs">
+      <Link>Dapper\IRowParserProvider.cs</Link>
     </Compile>
     <Compile Include="..\Chef.Extensions.Data\Extension.cs">
       <Link>Data\Extension.cs</Link>
