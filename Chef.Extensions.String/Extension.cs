@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Chef.Extensions.String
 {
@@ -69,6 +70,16 @@ namespace Chef.Extensions.String
             }
 
             return result;
+        }
+
+        public static string ToBase64(this string me)
+        {
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(me));
+        }
+
+        public static string ToBase64(this string me, Encoding encoding)
+        {
+            return Convert.ToBase64String(encoding.GetBytes(me));
         }
     }
 }
