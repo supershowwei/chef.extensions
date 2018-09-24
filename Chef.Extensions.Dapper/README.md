@@ -16,6 +16,14 @@ Do polymorphic query and return only one of base type.
 > **param**: object (Default is null)<br />
 > **discriminator**: string (Default is "Discriminator")
 
+### GenerateParam(param [, prefix] [, suffix])
+
+Generate `DynamicParameters` and return a `Dictionary<string, string>` for building sql statement.
+
+> **param**: DynamicParameters<br />
+> **prefix**: string (Default is "")<br />
+> **suffix**: string (Default is "")
+
 ## Custom RowParser
 
 Default is getting row parser by finding derive type with matching discriminator value precisely. We can implement *`IRowParserProvider`* and assign to `Chef.Extensions.Dapper.Extension.RowParserProvider` to change default row parser.
