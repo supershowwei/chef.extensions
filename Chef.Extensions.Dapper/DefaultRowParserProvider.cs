@@ -32,7 +32,7 @@ namespace Chef.Extensions.Dapper
             return (Func<IDataReader, T>)RowParsers[key];
         }
 
-        private static Type FindConcreteType(string typeName, Type baseType)
+        private static System.Type FindConcreteType(string typeName, System.Type baseType)
         {
             return Assembly.GetAssembly(baseType)
                 .GetTypes()

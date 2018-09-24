@@ -21,6 +21,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper", "C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Double", "Chef.Extensions.Double\Chef.Extensions.Double.csproj", "{A208FF29-2BAA-4BE4-8BD4-CA8FACFC353C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Type", "Chef.Extensions.Type\Chef.Extensions.Type.csproj", "{7D6D41AB-DF92-4EAC-9A37-6D62ABF351DB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dictionary", "Chef.Extensions.Dictionary\Chef.Extensions.Dictionary.csproj", "{0782168D-5C7E-4579-9EDD-EE15A52CB8CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +67,14 @@ Global
 		{A208FF29-2BAA-4BE4-8BD4-CA8FACFC353C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A208FF29-2BAA-4BE4-8BD4-CA8FACFC353C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A208FF29-2BAA-4BE4-8BD4-CA8FACFC353C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D6D41AB-DF92-4EAC-9A37-6D62ABF351DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D6D41AB-DF92-4EAC-9A37-6D62ABF351DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D6D41AB-DF92-4EAC-9A37-6D62ABF351DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D6D41AB-DF92-4EAC-9A37-6D62ABF351DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0782168D-5C7E-4579-9EDD-EE15A52CB8CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0782168D-5C7E-4579-9EDD-EE15A52CB8CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0782168D-5C7E-4579-9EDD-EE15A52CB8CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0782168D-5C7E-4579-9EDD-EE15A52CB8CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

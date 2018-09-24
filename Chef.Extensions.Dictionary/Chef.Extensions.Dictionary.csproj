@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9DC5A75E-0696-43D5-B19C-DEA6C0417D2D}</ProjectGuid>
+    <ProjectGuid>{0782168D-5C7E-4579-9EDD-EE15A52CB8CE}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Chef.Extensions</RootNamespace>
-    <AssemblyName>Chef.Extensions</AssemblyName>
+    <RootNamespace>Chef.Extensions.Dictionary</RootNamespace>
+    <AssemblyName>Chef.Extensions.Dictionary</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -31,13 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper, Version=1.50.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapper.1.50.5\lib\net451\Dapper.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,43 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Chef.Extensions.Dapper\DefaultRowParserProvider.cs">
-      <Link>Dapper\DefaultRowParserProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Dapper\Extension.cs">
-      <Link>Dapper\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Dapper\IRowParserProvider.cs">
-      <Link>Dapper\IRowParserProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Data\Extension.cs">
-      <Link>Data\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.DateTime\Extension.cs">
-      <Link>DateTime\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Dictionary\Extension.cs">
-      <Link>Dictionary\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Double\Extension.cs">
-      <Link>Double\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.FormControl\Extension.cs">
-      <Link>FormControl\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.List\Extension.cs">
-      <Link>List\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.String\Extension.cs">
-      <Link>String\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Type\Extension.cs">
-      <Link>Type\Extension.cs</Link>
-    </Compile>
+    <Compile Include="Extension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
