@@ -46,6 +46,8 @@
   <ItemGroup>
     <Compile Include="DefaultRowParserProvider.cs" />
     <Compile Include="Extension.cs" />
+    <Compile Include="Extensions\DictionaryExtension.cs" />
+    <Compile Include="Extensions\TypeExtension.cs" />
     <Compile Include="IRowParserProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

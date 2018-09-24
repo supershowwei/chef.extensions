@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Chef.Extensions.Dapper.Extensions;
 using Dapper;
 
 namespace Chef.Extensions.Dapper
@@ -56,6 +57,39 @@ namespace Chef.Extensions.Dapper
             }
 
             return result.Single();
+        }
+
+        public static Dictionary<string, string> GenerateParam(
+            this object value,
+            DynamicParameters param,
+            string prefix = "",
+            string suffix = "")
+        {
+            var columns = new Dictionary<string, string>();
+
+            if (value == null) return columns;
+
+            foreach (var property in value.GetType().GetProperties())
+            {
+                var propertyType = property.PropertyType;
+                var propertyValue = property.GetValue(value);
+
+                if (propertyValue == null) continue;
+
+                if (propertyType.IsUserDefined())
+                {
+                    columns.AddRange(GenerateParam(propertyValue, param, $"{prefix}{property.Name}_", suffix));
+                }
+                else
+                {
+                    var columnName = $"{prefix}{property.Name}";
+
+                    columns.Add(columnName, $"@{columnName}{suffix}");
+                    param.Add($"{columnName}{suffix}", propertyValue);
+                }
+            }
+
+            return columns;
         }
     }
 }
