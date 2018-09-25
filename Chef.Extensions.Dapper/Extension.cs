@@ -59,7 +59,7 @@ namespace Chef.Extensions.Dapper
             return result.Single();
         }
 
-        public static Dictionary<string, string> GenerateParam(
+        public static DynamicParameters GenerateParam(
             this object value,
             out Dictionary<string, string> columns,
             string prefix = "",
@@ -93,7 +93,7 @@ namespace Chef.Extensions.Dapper
                 }
             }
 
-            return columns;
+            return param;
         }
     }
 }
