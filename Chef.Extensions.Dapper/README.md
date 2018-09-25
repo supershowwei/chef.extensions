@@ -18,7 +18,7 @@ Do polymorphic query and return only one of base type.
 
 ### GenerateParam(param [, prefix] [, suffix])
 
-Generate `DynamicParameters` and return a `Dictionary<string, string>` for building sql statement.
+Generate `DynamicParameters` and output a `Dictionary<string, string>` for building sql statement.
 
 > **param**: DynamicParameters<br />
 > **prefix**: string (Default is "")<br />
