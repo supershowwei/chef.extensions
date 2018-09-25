@@ -61,13 +61,14 @@ namespace Chef.Extensions.Dapper
 
         public static Dictionary<string, string> GenerateParam(
             this object value,
-            DynamicParameters param,
+            out Dictionary<string, string> columns,
             string prefix = "",
             string suffix = "")
         {
-            var columns = new Dictionary<string, string>();
+            var param = new DynamicParameters();
+            columns = new Dictionary<string, string>();
 
-            if (value == null) return columns;
+            if (value == null) return null;
 
             foreach (var property in value.GetType().GetProperties())
             {
@@ -78,7 +79,10 @@ namespace Chef.Extensions.Dapper
 
                 if (propertyType.IsUserDefined())
                 {
-                    columns.AddRange(GenerateParam(propertyValue, param, $"{prefix}{property.Name}_", suffix));
+                    var subParam = propertyValue.GenerateParam(out var subColumns, $"{prefix}{property.Name}_", suffix);
+
+                    columns.AddRange(subColumns);
+                    param.AddDynamicParams(subParam);
                 }
                 else
                 {
