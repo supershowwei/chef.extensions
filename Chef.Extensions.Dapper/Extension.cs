@@ -44,19 +44,16 @@ namespace Chef.Extensions.Dapper
             object param = null,
             string discriminator = "Discriminator")
         {
-            var result = new List<T>();
+            return cnn.PolymorphicQuery<T>(sql, param, discriminator).Single();
+        }
 
-            using (var reader = cnn.ExecuteReader(sql, param))
-            {
-                while (reader.Read())
-                {
-                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader);
-
-                    result.Add(parser(reader));
-                }
-            }
-
-            return result.Single();
+        public static T PolymorphicQuerySingleOrDefault<T>(
+            this IDbConnection cnn,
+            string sql,
+            object param = null,
+            string discriminator = "Discriminator")
+        {
+            return cnn.PolymorphicQuery<T>(sql, param, discriminator).SingleOrDefault();
         }
 
         public static DynamicParameters GenerateParam(
