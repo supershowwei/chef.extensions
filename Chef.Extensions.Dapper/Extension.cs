@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Chef.Extensions.Dapper.Extensions;
@@ -44,7 +45,24 @@ namespace Chef.Extensions.Dapper
             object param = null,
             string discriminator = "Discriminator")
         {
-            return cnn.PolymorphicQuery<T>(sql, param, discriminator).Single();
+            var result = default(T);
+            var count = 0;
+
+            using (var reader = cnn.ExecuteReader(sql, param))
+            {
+                while (reader.Read())
+                {
+                    if (++count > 1) throw new InvalidOperationException("Sequence contains more than one element.");
+
+                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader);
+
+                    result = parser(reader);
+                }
+            }
+
+            if (count == 0) throw new InvalidOperationException("Sequence contains no elements.");
+
+            return result;
         }
 
         public static T PolymorphicQuerySingleOrDefault<T>(
@@ -53,7 +71,22 @@ namespace Chef.Extensions.Dapper
             object param = null,
             string discriminator = "Discriminator")
         {
-            return cnn.PolymorphicQuery<T>(sql, param, discriminator).SingleOrDefault();
+            var result = default(T);
+
+            using (var reader = cnn.ExecuteReader(sql, param))
+            {
+                var count = 0;
+                while (reader.Read())
+                {
+                    if (++count > 1) throw new InvalidOperationException("Sequence contains more than one element.");
+
+                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader);
+
+                    result = parser(reader);
+                }
+            }
+
+            return result;
         }
 
         public static DynamicParameters GenerateParam(
