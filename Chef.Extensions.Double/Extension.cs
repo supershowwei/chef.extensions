@@ -13,5 +13,15 @@ namespace Chef.Extensions.Double
         {
             return Math.Round(me, digits, mode);
         }
+
+        public static int ToInt32(this double me)
+        {
+            return Convert.ToInt32(me);
+        }
+
+        public static long ToInt64(this double me)
+        {
+            return Convert.ToInt64(me);
+        }
     }
 }
