@@ -89,6 +89,48 @@ namespace Chef.Extensions.Dapper
             return result;
         }
 
+        public static T PolymorphicQueryFirst<T>(
+            this IDbConnection cnn,
+            string sql,
+            object param = null,
+            string discriminator = "Discriminator")
+        {
+            using (var reader = cnn.ExecuteReader(sql, param))
+            {
+                while (reader.Read())
+                {
+                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader);
+
+                    return parser(reader);
+                }
+            }
+
+            throw new InvalidOperationException("Sequence contains no elements.");
+        }
+
+        public static T PolymorphicQueryFirstOrDefault<T>(
+            this IDbConnection cnn,
+            string sql,
+            object param = null,
+            string discriminator = "Discriminator")
+        {
+            var result = default(T);
+
+            using (var reader = cnn.ExecuteReader(sql, param))
+            {
+                while (reader.Read())
+                {
+                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader);
+
+                    result = parser(reader);
+
+                    break;
+                }
+            }
+
+            return result;
+        }
+
         public static DynamicParameters GenerateParam(
             this object value,
             out Dictionary<string, string> columns,
