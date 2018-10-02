@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Type", "Che
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dictionary", "Chef.Extensions.Dictionary\Chef.Extensions.Dictionary.csproj", "{0782168D-5C7E-4579-9EDD-EE15A52CB8CE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Boolean", "Chef.Extensions.Boolean\Chef.Extensions.Boolean.csproj", "{10B28FFF-838D-4985-89DD-AB8DDE017BB0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{0782168D-5C7E-4579-9EDD-EE15A52CB8CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0782168D-5C7E-4579-9EDD-EE15A52CB8CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0782168D-5C7E-4579-9EDD-EE15A52CB8CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10B28FFF-838D-4985-89DD-AB8DDE017BB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10B28FFF-838D-4985-89DD-AB8DDE017BB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10B28FFF-838D-4985-89DD-AB8DDE017BB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10B28FFF-838D-4985-89DD-AB8DDE017BB0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
