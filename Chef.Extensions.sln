@@ -29,6 +29,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper.NET4
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper.NET461", "Chef.Extensions.Dapper.NET461\Chef.Extensions.Dapper.NET461.csproj", "{B71FDDF8-2E42-4010-AD43-F48F0369FD10}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.String.NET451", "Chef.Extensions.String.NET451\Chef.Extensions.String.NET451.csproj", "{611F57E0-D2CB-4C13-856F-B25011D5E903}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.String.NET461", "Chef.Extensions.String.NET461\Chef.Extensions.String.NET461.csproj", "{A391D72C-9C4D-41F0-820A-3A51E54AAE70}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +91,14 @@ Global
 		{B71FDDF8-2E42-4010-AD43-F48F0369FD10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B71FDDF8-2E42-4010-AD43-F48F0369FD10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B71FDDF8-2E42-4010-AD43-F48F0369FD10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{611F57E0-D2CB-4C13-856F-B25011D5E903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{611F57E0-D2CB-4C13-856F-B25011D5E903}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{611F57E0-D2CB-4C13-856F-B25011D5E903}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{611F57E0-D2CB-4C13-856F-B25011D5E903}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A391D72C-9C4D-41F0-820A-3A51E54AAE70}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A391D72C-9C4D-41F0-820A-3A51E54AAE70}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A391D72C-9C4D-41F0-820A-3A51E54AAE70}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A391D72C-9C4D-41F0-820A-3A51E54AAE70}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
