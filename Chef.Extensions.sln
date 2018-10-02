@@ -65,6 +65,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.IEnumerable
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.IEnumerable.NET461", "Chef.Extensions.IEnumerable.NET461\Chef.Extensions.IEnumerable.NET461.csproj", "{9604AC1F-0672-425B-8F7E-7D291E9E975A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Type.NET461", "Chef.Extensions.Type.NET461\Chef.Extensions.Type.NET461.csproj", "{AF555EA6-DCA5-4897-866B-18CB4A3F8CA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Type.NET451", "Chef.Extensions.Type.NET451\Chef.Extensions.Type.NET451.csproj", "{2C07D3D9-92DC-46CF-8362-5017E8BA868D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -195,6 +199,14 @@ Global
 		{9604AC1F-0672-425B-8F7E-7D291E9E975A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9604AC1F-0672-425B-8F7E-7D291E9E975A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9604AC1F-0672-425B-8F7E-7D291E9E975A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF555EA6-DCA5-4897-866B-18CB4A3F8CA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF555EA6-DCA5-4897-866B-18CB4A3F8CA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF555EA6-DCA5-4897-866B-18CB4A3F8CA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF555EA6-DCA5-4897-866B-18CB4A3F8CA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C07D3D9-92DC-46CF-8362-5017E8BA868D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C07D3D9-92DC-46CF-8362-5017E8BA868D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C07D3D9-92DC-46CF-8362-5017E8BA868D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C07D3D9-92DC-46CF-8362-5017E8BA868D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
