@@ -37,6 +37,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Boolean.NET
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Boolean.NET461", "Chef.Extensions.Boolean.NET461\Chef.Extensions.Boolean.NET461.csproj", "{48A6D4AB-B7ED-4C93-AB85-116BE5C778B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Double.NET451", "Chef.Extensions.Double.NET451\Chef.Extensions.Double.NET451.csproj", "{F60FD88C-0621-43DA-8CDF-C7255CAC00EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Double.NET461", "Chef.Extensions.Double.NET461\Chef.Extensions.Double.NET461.csproj", "{4EECF567-ACD8-4ED8-B80C-5309515DB2A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -111,6 +115,14 @@ Global
 		{48A6D4AB-B7ED-4C93-AB85-116BE5C778B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48A6D4AB-B7ED-4C93-AB85-116BE5C778B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48A6D4AB-B7ED-4C93-AB85-116BE5C778B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F60FD88C-0621-43DA-8CDF-C7255CAC00EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F60FD88C-0621-43DA-8CDF-C7255CAC00EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F60FD88C-0621-43DA-8CDF-C7255CAC00EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F60FD88C-0621-43DA-8CDF-C7255CAC00EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EECF567-ACD8-4ED8-B80C-5309515DB2A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EECF567-ACD8-4ED8-B80C-5309515DB2A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EECF567-ACD8-4ED8-B80C-5309515DB2A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EECF567-ACD8-4ED8-B80C-5309515DB2A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
