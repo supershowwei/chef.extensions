@@ -41,6 +41,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Double.NET4
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Double.NET461", "Chef.Extensions.Double.NET461\Chef.Extensions.Double.NET461.csproj", "{4EECF567-ACD8-4ED8-B80C-5309515DB2A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.List.NET461", "Chef.Extensions.List.NET461\Chef.Extensions.List.NET461.csproj", "{2CABB043-09A7-4127-9E79-56A8A34A91BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.List.NET451", "Chef.Extensions.List.NET451\Chef.Extensions.List.NET451.csproj", "{22C45645-8DC0-4275-8A49-2B2561FE5468}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,6 +127,14 @@ Global
 		{4EECF567-ACD8-4ED8-B80C-5309515DB2A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4EECF567-ACD8-4ED8-B80C-5309515DB2A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4EECF567-ACD8-4ED8-B80C-5309515DB2A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CABB043-09A7-4127-9E79-56A8A34A91BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CABB043-09A7-4127-9E79-56A8A34A91BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CABB043-09A7-4127-9E79-56A8A34A91BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CABB043-09A7-4127-9E79-56A8A34A91BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22C45645-8DC0-4275-8A49-2B2561FE5468}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22C45645-8DC0-4275-8A49-2B2561FE5468}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22C45645-8DC0-4275-8A49-2B2561FE5468}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22C45645-8DC0-4275-8A49-2B2561FE5468}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
