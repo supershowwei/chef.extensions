@@ -57,6 +57,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dictionary.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dictionary.NET461", "Chef.Extensions.Dictionary.NET461\Chef.Extensions.Dictionary.NET461.csproj", "{BB2A0E39-C561-480E-946D-DA9ED55E5C69}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.FormControl.NET461", "Chef.Extensions.FormControl.NET461\Chef.Extensions.FormControl.NET461.csproj", "{C7B05883-A8DB-4322-A791-D045D56A0F8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.FormControl.NET451", "Chef.Extensions.FormControl.NET451\Chef.Extensions.FormControl.NET451.csproj", "{0585F4EA-4314-41FA-90D1-22DABA87CF55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -171,6 +175,14 @@ Global
 		{BB2A0E39-C561-480E-946D-DA9ED55E5C69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB2A0E39-C561-480E-946D-DA9ED55E5C69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB2A0E39-C561-480E-946D-DA9ED55E5C69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7B05883-A8DB-4322-A791-D045D56A0F8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7B05883-A8DB-4322-A791-D045D56A0F8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7B05883-A8DB-4322-A791-D045D56A0F8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7B05883-A8DB-4322-A791-D045D56A0F8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0585F4EA-4314-41FA-90D1-22DABA87CF55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0585F4EA-4314-41FA-90D1-22DABA87CF55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0585F4EA-4314-41FA-90D1-22DABA87CF55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0585F4EA-4314-41FA-90D1-22DABA87CF55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
