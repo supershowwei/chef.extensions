@@ -4,15 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{040C5A56-6B70-43CB-B580-8AAA9DA608A6}</ProjectGuid>
+    <ProjectGuid>{CB3C580D-4AF4-491C-A4E9-FCA8F2773445}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Chef.Extensions.Dapper</RootNamespace>
     <AssemblyName>Chef.Extensions.Dapper</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -45,11 +44,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DefaultRowParserProvider.cs" />
-    <Compile Include="Extension.cs" />
-    <Compile Include="Extensions\DictionaryExtension.cs" />
-    <Compile Include="Extensions\TypeExtension.cs" />
-    <Compile Include="IRowParserProvider.cs" />
+    <Compile Include="..\Chef.Extensions.Dapper\DefaultRowParserProvider.cs">
+      <Link>DefaultRowParserProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Dapper\Extension.cs">
+      <Link>Extension.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Dapper\Extensions\DictionaryExtension.cs">
+      <Link>Extensions\DictionaryExtension.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Dapper\Extensions\TypeExtension.cs">
+      <Link>Extensions\TypeExtension.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Dapper\IRowParserProvider.cs">
+      <Link>IRowParserProvider.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

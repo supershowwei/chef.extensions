@@ -25,6 +25,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dictionary"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Boolean", "Chef.Extensions.Boolean\Chef.Extensions.Boolean.csproj", "{10B28FFF-838D-4985-89DD-AB8DDE017BB0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper.NET451", "Chef.Extensions.Dapper.NET451\Chef.Extensions.Dapper.NET451.csproj", "{CB3C580D-4AF4-491C-A4E9-FCA8F2773445}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper.NET461", "Chef.Extensions.Dapper.NET461\Chef.Extensions.Dapper.NET461.csproj", "{B71FDDF8-2E42-4010-AD43-F48F0369FD10}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +79,14 @@ Global
 		{10B28FFF-838D-4985-89DD-AB8DDE017BB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10B28FFF-838D-4985-89DD-AB8DDE017BB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10B28FFF-838D-4985-89DD-AB8DDE017BB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB3C580D-4AF4-491C-A4E9-FCA8F2773445}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB3C580D-4AF4-491C-A4E9-FCA8F2773445}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB3C580D-4AF4-491C-A4E9-FCA8F2773445}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB3C580D-4AF4-491C-A4E9-FCA8F2773445}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B71FDDF8-2E42-4010-AD43-F48F0369FD10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B71FDDF8-2E42-4010-AD43-F48F0369FD10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B71FDDF8-2E42-4010-AD43-F48F0369FD10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B71FDDF8-2E42-4010-AD43-F48F0369FD10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
