@@ -51,7 +51,7 @@ Do polymorphic inserting.
 
 Suppose the `Food` table is:
 
-![](https://i.imgur.com/y0JR2VM.png)
+![](https://i.imgur.com/Mw6EErT.png)
 
 Base class `Food` and derived classes:
 
@@ -88,9 +88,9 @@ Base class `Food` and derived classes:
         f.Id
        ,f.[Name]
        ,f.Discriminator
-       ,f.Dessert_Calorie AS Calorie
-       ,f.DryGoods_CountryOfOrigin AS CountryOfOrigin
-       ,f.Delicatessen_Chef AS Chef
+       ,f.Calorie
+       ,f.CountryOfOrigin
+       ,f.Chef
     FROM Food f
     WHERE f.Id IN (1, 2, 4)";
     
@@ -154,9 +154,9 @@ The executed results:
                     ,ShelfLife_Months
                     ,ShelfLife_Days
                     ,Discriminator
-                    ,Dessert_Calorie
-                    ,DryGoods_CountryOfOrigin
-                    ,Delicatessen_Chef)
+                    ,Calorie
+                    ,CountryOfOrigin
+                    ,Chef)
         VALUES (@Name
                ,@ShelfLife_Months
                ,@ShelfLife_Days
@@ -170,7 +170,7 @@ The executed results:
 
 Split hierarchical properties by underscore as `ShelfLife` in example. The executed result is:
 
-![](https://i.imgur.com/2D94baL.png)
+![](https://i.imgur.com/g5tCZJ3.png)
 
 ## Custom RowParser
 
