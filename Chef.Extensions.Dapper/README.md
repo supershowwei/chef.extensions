@@ -174,4 +174,4 @@ Split hierarchical properties by underscore as `ShelfLife` in example. The execu
 
 ## Custom RowParser
 
-Default is getting row parser by finding derive type with matching discriminator value precisely. We can implement *`IRowParserProvider`* and assign to `Chef.Extensions.Dapper.Extension.RowParserProvider` to change default row parser.
+Default is getting row parser by finding derived type with matching discriminator value precisely. We can implement *`IRowParserProvider`* and assign to `Chef.Extensions.Dapper.Extension.RowParserProvider` to change default row parser.
