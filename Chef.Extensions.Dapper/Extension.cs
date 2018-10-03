@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using System.Linq;
-using Chef.Extensions.Dapper.Extensions;
+using System.Text.RegularExpressions;
 using Dapper;
 
 namespace Chef.Extensions.Dapper
@@ -131,41 +133,67 @@ namespace Chef.Extensions.Dapper
             return result;
         }
 
-        public static DynamicParameters GenerateParam(
-            this object value,
-            out Dictionary<string, string> columns,
-            string prefix = "",
-            string suffix = "")
+        public static void PolymorphicInsert(this IDbConnection cnn, string sql, object param)
         {
-            var param = new DynamicParameters();
-            columns = new Dictionary<string, string>();
+            if (param == null) throw new ArgumentException($"'{nameof(param)}' is null.");
 
-            if (value == null) return null;
+            var props = Regex.Matches(sql, "@([^\\s,)]+)").Cast<Match>().Select(m => m.Groups[1].Value).ToList();
 
-            foreach (var property in value.GetType().GetProperties())
+            if (props.Count == 0) throw new ArgumentException($"'{nameof(sql)}' has no parameters.");
+
+            if (param is IEnumerable objs)
             {
-                var propertyType = property.PropertyType;
-                var propertyValue = property.GetValue(value);
+                var parameters = new List<object>();
 
-                if (propertyValue == null) continue;
-
-                if (propertyType.IsUserDefined())
+                var any = false;
+                foreach (var obj in objs)
                 {
-                    var subParam = propertyValue.GenerateParam(out var subColumns, $"{prefix}{property.Name}_", suffix);
+                    any = true;
 
-                    columns.AddRange(subColumns);
-                    param.AddDynamicParams(subParam);
+                    parameters.Add(GetParameter(props, obj));
                 }
-                else
-                {
-                    var columnName = $"{prefix}{property.Name}";
 
-                    columns.Add(columnName, $"@{columnName}{suffix}");
-                    param.Add($"{columnName}{suffix}", propertyValue);
-                }
+                if (!any) throw new ArgumentException($"'{nameof(param)}' is empty.");
+
+                cnn.Execute(sql, parameters);
+            }
+            else
+            {
+                cnn.Execute(sql, GetParameter(props, param));
+            }
+        }
+
+        private static ExpandoObject GetParameter(List<string> props, object obj)
+        {
+            var expando = (IDictionary<string, object>)new ExpandoObject();
+
+            foreach (var prop in props)
+            {
+                expando[prop] = GetObjValue(prop, obj);
             }
 
-            return param;
+            return (ExpandoObject)expando;
+        }
+
+        private static object GetObjValue(string propName, object obj)
+        {
+            var objType = obj.GetType();
+
+            int underscoreIndex;
+            if ((underscoreIndex = propName.IndexOf('_')) < 0)
+            {
+                var objProp = objType.GetProperty(propName);
+
+                return objProp == null ? null : objProp.GetValue(obj);
+            }
+            else
+            {
+                var objProp = objType.GetProperty(propName.Substring(0, underscoreIndex));
+
+                return objProp == null
+                           ? null
+                           : GetObjValue(propName.Substring(underscoreIndex + 1), objProp.GetValue(obj));
+            }
         }
     }
 }
