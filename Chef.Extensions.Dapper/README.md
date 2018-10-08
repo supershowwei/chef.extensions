@@ -55,7 +55,7 @@ Suppose the `Food` table is:
 
 Base class `Food` and derived classes:
 
-```
+```cs
     public abstract class Food
     {
         public int Id { get; set; }
