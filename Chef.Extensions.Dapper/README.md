@@ -56,48 +56,50 @@ Suppose the `Food` table is:
 Base class `Food` and derived classes:
 
 ```cs
-    public abstract class Food
-    {
-        public int Id { get; set; }
+public abstract class Food
+{
+    public int Id { get; set; }
 
-        public string Name { get; set; }
+    public string Name { get; set; }
 
-        public string Discriminator => this.GetType().Name;
-    }
+    public string Discriminator => this.GetType().Name;
+}
 
-    public class Dessert : Food
-    {
-        public int Calorie { get; set; }
-    }
+public class Dessert : Food
+{
+    public int Calorie { get; set; }
+}
 
-    public class DryGoods : Food
-    {
-        public string CountryOfOrigin { get; set; }
-    }
+public class DryGoods : Food
+{
+    public string CountryOfOrigin { get; set; }
+}
 
-    public class Delicatessen : Food
-    {
-        public string Chef { get; set; }
-    }
+public class Delicatessen : Food
+{
+    public string Chef { get; set; }
+}
 ```
 
 ### Query foods that Id is 1, 2, 4 and return polymorphic results.
 
-    using (var db = new SqlConnection(connectionString))
-    {
-        var sql = @"
-    SELECT
-        f.Id
-       ,f.[Name]
-       ,f.Discriminator
-       ,f.Calorie
-       ,f.CountryOfOrigin
-       ,f.Chef
-    FROM Food f
-    WHERE f.Id IN (1, 2, 4)";
-    
-        var results = db.PolymorphicQuery<Food>(sql);
-    }
+```cs
+using (var db = new SqlConnection(connectionString))
+{
+    var sql = @"
+SELECT
+    f.Id
+   ,f.[Name]
+   ,f.Discriminator
+   ,f.Calorie
+   ,f.CountryOfOrigin
+   ,f.Chef
+FROM Food f
+WHERE f.Id IN (1, 2, 4)";
+
+    var results = db.PolymorphicQuery<Food>(sql);
+}
+```
 
 The executed results:
 
