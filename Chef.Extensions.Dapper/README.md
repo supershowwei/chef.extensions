@@ -103,74 +103,78 @@ WHERE f.Id IN (1, 2, 4)";
 
 The executed results:
 
-    [
-      {
-        "$type": "LabForm462.Model.Data.Dessert, LabForm462",
-        "Calorie": 300,
-        "Id": 1,
-        "Name": "蛋糕",
-        "Discriminator": "Dessert"
-      },
-      {
-        "$type": "LabForm462.Model.Data.DryGoods, LabForm462",
-        "CountryOfOrigin": "台灣",
-        "Id": 2,
-        "Name": "乾香菇",
-        "Discriminator": "DryGoods"
-      },
-      {
-        "$type": "LabForm462.Model.Data.Delicatessen, LabForm462",
-        "Chef": "Johnny",
-        "Id": 4,
-        "Name": "涼拌毛豆",
-        "Discriminator": "Delicatessen"
-      }
-    ]
+```json
+[
+  {
+    "$type": "LabForm462.Model.Data.Dessert, LabForm462",
+    "Calorie": 300,
+    "Id": 1,
+    "Name": "蛋糕",
+    "Discriminator": "Dessert"
+  },
+  {
+    "$type": "LabForm462.Model.Data.DryGoods, LabForm462",
+    "CountryOfOrigin": "台灣",
+    "Id": 2,
+    "Name": "乾香菇",
+    "Discriminator": "DryGoods"
+  },
+  {
+    "$type": "LabForm462.Model.Data.Delicatessen, LabForm462",
+    "Chef": "Johnny",
+    "Id": 4,
+    "Name": "涼拌毛豆",
+    "Discriminator": "Delicatessen"
+  }
+]
+```
 
 ### Insert polymorphic collection to database.
 
-    var foods = new List<Food>
-                    {
-                        new Dessert
-                            {
-                                Name = "Cake111",
-                                Calorie = 100,
-                                ShelfLife = new ShelfLife { Months = 0, Days = 3 }
-                            },
-                        new DryGoods
-                            {
-                                Name = "Shiitake222",
-                                CountryOfOrigin = "Taiwan",
-                                ShelfLife = new ShelfLife { Months = 12, Days = 0 }
-                            },
-                        new Delicatessen
-                            {
-                                Name = "Bun333",
-                                Chef = "Mary",
-                                ShelfLife = new ShelfLife { Months = 0, Days = 3 }
-                            }
-                    };
-    
-    using (var db = new SqlConnection(connectionString))
-    {
-        var sql = @"
-    INSERT INTO Food([Name]
-                    ,ShelfLife_Months
-                    ,ShelfLife_Days
-                    ,Discriminator
-                    ,Calorie
-                    ,CountryOfOrigin
-                    ,Chef)
-        VALUES (@Name
-               ,@ShelfLife_Months
-               ,@ShelfLife_Days
-               ,@Discriminator
-               ,@Calorie
-               ,@CountryOfOrigin
-               ,@Chef);";
-    
-        db.PolymorphicInsert(sql, foods);
-    }
+```cs
+var foods = new List<Food>
+                {
+                    new Dessert
+                        {
+                            Name = "Cake111",
+                            Calorie = 100,
+                            ShelfLife = new ShelfLife { Months = 0, Days = 3 }
+                        },
+                    new DryGoods
+                        {
+                            Name = "Shiitake222",
+                            CountryOfOrigin = "Taiwan",
+                            ShelfLife = new ShelfLife { Months = 12, Days = 0 }
+                        },
+                    new Delicatessen
+                        {
+                            Name = "Bun333",
+                            Chef = "Mary",
+                            ShelfLife = new ShelfLife { Months = 0, Days = 3 }
+                        }
+                };
+
+using (var db = new SqlConnection(connectionString))
+{
+    var sql = @"
+INSERT INTO Food([Name]
+                ,ShelfLife_Months
+                ,ShelfLife_Days
+                ,Discriminator
+                ,Calorie
+                ,CountryOfOrigin
+                ,Chef)
+    VALUES (@Name
+           ,@ShelfLife_Months
+           ,@ShelfLife_Days
+           ,@Discriminator
+           ,@Calorie
+           ,@CountryOfOrigin
+           ,@Chef);";
+
+    db.PolymorphicInsert(sql, foods);
+}
+```
 
 Split hierarchical properties by underscore as `ShelfLife` in example. The executed result is:
 
