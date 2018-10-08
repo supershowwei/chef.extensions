@@ -55,6 +55,7 @@ Suppose the `Food` table is:
 
 Base class `Food` and derived classes:
 
+```
     public abstract class Food
     {
         public int Id { get; set; }
@@ -78,6 +79,7 @@ Base class `Food` and derived classes:
     {
         public string Chef { get; set; }
     }
+```
 
 ### Query foods that Id is 1, 2, 4 and return polymorphic results.
 
