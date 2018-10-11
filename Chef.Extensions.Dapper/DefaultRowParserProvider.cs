@@ -12,6 +12,7 @@ namespace Chef.Extensions.Dapper
     internal class DefaultRowParserProvider : IRowParserProvider
     {
         private static readonly Dictionary<string, object> RowParsers = new Dictionary<string, object>();
+        private static readonly MD5 MD5 = MD5.Create();
 
         public Func<IDataReader, T> GetRowParser<T>(string discriminator, IDataReader reader, string sql)
         {
@@ -36,10 +37,7 @@ namespace Chef.Extensions.Dapper
 
         private static string Hash(string value)
         {
-            using (var md5 = MD5.Create())
-            {
-                return BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(value)));
-            }
+            return BitConverter.ToString(MD5.ComputeHash(Encoding.UTF8.GetBytes(value)));
         }
 
         private static Type FindConcreteType(string typeName, Type baseType)
