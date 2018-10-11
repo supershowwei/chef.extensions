@@ -5,6 +5,6 @@ namespace Chef.Extensions.Dapper
 {
     public interface IRowParserProvider
     {
-        Func<IDataReader, T> GetRowParser<T>(string discriminator, IDataReader reader);
+        Func<IDataReader, T> GetRowParser<T>(string discriminator, IDataReader reader, string sql);
     }
 }

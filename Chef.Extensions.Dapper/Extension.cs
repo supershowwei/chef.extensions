@@ -32,7 +32,7 @@ namespace Chef.Extensions.Dapper
             {
                 while (reader.Read())
                 {
-                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader);
+                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader, sql);
 
                     result.Add(parser(reader));
                 }
@@ -56,7 +56,7 @@ namespace Chef.Extensions.Dapper
                 {
                     if (++count > 1) throw new InvalidOperationException("Sequence contains more than one element.");
 
-                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader);
+                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader, sql);
 
                     result = parser(reader);
                 }
@@ -82,7 +82,7 @@ namespace Chef.Extensions.Dapper
                 {
                     if (++count > 1) throw new InvalidOperationException("Sequence contains more than one element.");
 
-                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader);
+                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader, sql);
 
                     result = parser(reader);
                 }
@@ -101,7 +101,7 @@ namespace Chef.Extensions.Dapper
             {
                 while (reader.Read())
                 {
-                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader);
+                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader, sql);
 
                     return parser(reader);
                 }
@@ -122,7 +122,7 @@ namespace Chef.Extensions.Dapper
             {
                 while (reader.Read())
                 {
-                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader);
+                    var parser = RowParserProvider.GetRowParser<T>(discriminator, reader, sql);
 
                     result = parser(reader);
 
