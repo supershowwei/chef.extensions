@@ -12,5 +12,22 @@ namespace Chef.Extensions.IEnumerable
                 action(element);
             }
         }
+
+        public static bool Any<T>(this IEnumerable<T> me, Func<T, bool> predicate, out T result)
+        {
+            result = default(T);
+
+            foreach (var element in me)
+            {
+                if (predicate(element))
+                {
+                    result = element;
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }
