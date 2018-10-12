@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Chef.Extensions.IEnumerable
 {
@@ -11,6 +12,11 @@ namespace Chef.Extensions.IEnumerable
             {
                 action(element);
             }
+        }
+
+        public static bool IsNullOrEmpty<T>(this IEnumerable<T> me)
+        {
+            return me == null || !me.Any();
         }
 
         public static bool Any<T>(this IEnumerable<T> me, Func<T, bool> predicate, out T result)
