@@ -4,7 +4,7 @@
 
 Round double value to int with default AwayFromZero mode.
 
-> **mode**: MidpointRounding (Default is "AwayFromZero")
+> **mode**: MidpointRounding (Default is AwayFromZero)
 
 ### Round(digits [, mode])
 
