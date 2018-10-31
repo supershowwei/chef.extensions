@@ -10,7 +10,7 @@ Round double value to int with default AwayFromZero mode.
 
 Round double value with default AwayFromZero mode.
 
-> **digits**: int (Default is "Discriminator")<br />
+> **digits**: int<br />
 > **mode**: MidpointRounding (Default is AwayFromZero)
 
 ### ToInt32()
