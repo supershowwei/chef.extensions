@@ -4,6 +4,42 @@ namespace Chef.Extensions.DateTime
 {
     public static class Extension
     {
+        public static System.DateTime SetYear(this System.DateTime me, int year)
+        {
+            return new System.DateTime(year, me.Month, me.Day, me.Hour, me.Minute, me.Second);
+        }
+
+        public static System.DateTime SetMonth(this System.DateTime me, int month)
+        {
+            return new System.DateTime(me.Year, month, me.Day, me.Hour, me.Minute, me.Second);
+        }
+
+        public static System.DateTime SetDay(this System.DateTime me, int day)
+        {
+            return new System.DateTime(me.Year, me.Month, day, me.Hour, me.Minute, me.Second);
+        }
+
+        public static System.DateTime SetHour(this System.DateTime me, int hour)
+        {
+            return new System.DateTime(me.Year, me.Month, me.Day, hour, me.Minute, me.Second);
+        }
+
+        public static System.DateTime SetMinute(this System.DateTime me, int minute)
+        {
+            return new System.DateTime(me.Year, me.Month, me.Day, me.Hour, minute, me.Second);
+        }
+
+
+        public static System.DateTime SetSecond(this System.DateTime me, int second)
+        {
+            return new System.DateTime(me.Year, me.Month, me.Day, me.Hour, me.Minute, second);
+        }
+
+        public static System.DateTime SpecifyDate(this System.DateTime me, int year, int month, int day)
+        {
+            return new System.DateTime(year, month, day, me.Hour, me.Minute, me.Second);
+        }
+
         public static System.DateTime SpecifyTime(this System.DateTime me, int hour, int minute, int second)
         {
             return new System.DateTime(me.Year, me.Month, me.Day, hour, minute, second);
