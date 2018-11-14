@@ -29,7 +29,6 @@ namespace Chef.Extensions.DateTime
             return new System.DateTime(me.Year, me.Month, me.Day, me.Hour, minute, me.Second);
         }
 
-
         public static System.DateTime SetSecond(this System.DateTime me, int second)
         {
             return new System.DateTime(me.Year, me.Month, me.Day, me.Hour, me.Minute, second);

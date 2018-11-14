@@ -47,6 +47,13 @@ Do polymorphic inserting.
 > **sql**: string<br />
 > **param**: object
 
+### HierarchyInsert(sql, param)
+
+Do hierarchy inserting.
+
+> **sql**: string<br />
+> **param**: object
+
 ## Examples
 
 Suppose the `Food` table is:

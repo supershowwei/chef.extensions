@@ -135,6 +135,11 @@ namespace Chef.Extensions.Dapper
 
         public static void PolymorphicInsert(this IDbConnection cnn, string sql, object param)
         {
+            HierarchyInsert(cnn, sql, param);
+        }
+
+        public static void HierarchyInsert(this IDbConnection cnn, string sql, object param)
+        {
             if (param == null) throw new ArgumentException($"'{nameof(param)}' is null.");
 
             var props = Regex.Matches(sql, "@([^\\s,)]+)").Cast<Match>().Select(m => m.Groups[1].Value).ToList();
@@ -145,15 +150,12 @@ namespace Chef.Extensions.Dapper
             {
                 var parameters = new List<object>();
 
-                var any = false;
                 foreach (var obj in objs)
                 {
-                    any = true;
-
                     parameters.Add(GetParameter(props, obj));
                 }
 
-                if (!any) throw new ArgumentException($"'{nameof(param)}' is empty.");
+                if (!parameters.Any()) throw new ArgumentException($"'{nameof(param)}' is empty.");
 
                 cnn.Execute(sql, parameters);
             }
