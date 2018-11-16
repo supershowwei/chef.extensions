@@ -39,9 +39,19 @@ namespace Chef.Extensions.DateTime
             return new System.DateTime(year, month, day, me.Hour, me.Minute, me.Second);
         }
 
+        public static System.DateTime SpecifyDate(this System.DateTime me, System.DateTime date)
+        {
+            return new System.DateTime(date.Year, date.Month, date.Day, me.Hour, me.Minute, me.Second);
+        }
+
         public static System.DateTime SpecifyTime(this System.DateTime me, int hour, int minute, int second)
         {
             return new System.DateTime(me.Year, me.Month, me.Day, hour, minute, second);
+        }
+
+        public static System.DateTime SpecifyTime(this System.DateTime me, System.DateTime time)
+        {
+            return new System.DateTime(me.Year, me.Month, me.Day, time.Hour, time.Minute, time.Second);
         }
 
         public static System.DateTime ToDateTime(this string me, string format)
