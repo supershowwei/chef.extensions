@@ -13,3 +13,4 @@
   > format by {key} pattern
 - ToBase64
   > default UTF8 encoding
+- SplitOmitEmptyEntries
