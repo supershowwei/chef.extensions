@@ -66,8 +66,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CacheView.cs" />
     <Compile Include="Extension.cs" />
     <Compile Include="JsonNetResult.cs" />
+    <Compile Include="MD5.cs" />
     <Compile Include="ObjectLocker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

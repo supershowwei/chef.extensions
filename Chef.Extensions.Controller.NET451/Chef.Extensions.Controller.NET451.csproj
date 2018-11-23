@@ -66,11 +66,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Chef.Extensions.Controller\CacheView.cs">
+      <Link>CacheView.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.Controller\Extension.cs">
       <Link>Extension.cs</Link>
     </Compile>
     <Compile Include="..\Chef.Extensions.Controller\JsonNetResult.cs">
       <Link>JsonNetResult.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Controller\MD5.cs">
+      <Link>MD5.cs</Link>
     </Compile>
     <Compile Include="..\Chef.Extensions.Controller\ObjectLocker.cs">
       <Link>ObjectLocker.cs</Link>
