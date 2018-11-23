@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Web.Caching;
 using System.Web.Mvc;
@@ -90,7 +91,7 @@ namespace Chef.Extensions.Controller
 
             var viewEngineResult = FindView(me, viewName);
             var viewPath = ((RazorView)viewEngineResult.View).ViewPath;
-            var graduation = GetCurrentGraduation(duration);
+            var graduation = GetCurrentGraduation(DateTime.Now, duration);
 
             etag = Hash(viewPath, graduation.ToString("yyyy-MM-dd HH:mm:ss"));
 
@@ -98,6 +99,18 @@ namespace Chef.Extensions.Controller
             if (!string.IsNullOrEmpty(cacheControl) && cacheControl.Contains("must-refresh"))
             {
                 me.HttpContext.Cache.Remove(etag);
+
+                var match = Regex.Match(cacheControl, @"must-refresh=(\d+)");
+                if (match.Success)
+                {
+                    var mustRefresh = int.Parse(match.Groups[1].Value);
+
+                    if (mustRefresh > 0)
+                    {
+                        graduation = GetCurrentGraduation(DateTime.Now.AddSeconds(mustRefresh), duration);
+                        etag = Hash(viewPath, graduation.ToString("yyyy-MM-dd HH:mm:ss"));
+                    }
+                }
             }
 
             var output = (string)me.HttpContext.Cache[etag];
@@ -170,9 +183,9 @@ namespace Chef.Extensions.Controller
             }
         }
 
-        private static DateTime GetCurrentGraduation(int duration)
+        private static DateTime GetCurrentGraduation(DateTime now, int duration)
         {
-            var dayOfSecond = Convert.ToInt32(DateTime.Now.Subtract(DateTime.Now.Date).TotalSeconds);
+            var dayOfSecond = Convert.ToInt32(now.Subtract(now.Date).TotalSeconds);
 
             return DateTime.Now.Date.AddSeconds(dayOfSecond - dayOfSecond % duration);
         }
