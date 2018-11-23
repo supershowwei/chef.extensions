@@ -72,6 +72,9 @@
     <Compile Include="..\Chef.Extensions.Controller\JsonNetResult.cs">
       <Link>JsonNetResult.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.Controller\ObjectLocker.cs">
+      <Link>ObjectLocker.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="Extension.cs" />
     <Compile Include="JsonNetResult.cs" />
+    <Compile Include="ObjectLocker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
