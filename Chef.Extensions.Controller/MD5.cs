@@ -5,11 +5,11 @@ namespace Chef.Extensions.Controller
 {
     internal class MD5
     {
-        public static string Hash(string value, string salt)
+        public static string Hash(string value)
         {
             using (var md5 = System.Security.Cryptography.MD5.Create())
             {
-                var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(string.Concat(value, salt)));
+                var hash = md5.ComputeHash(Encoding.UTF8.GetBytes(value));
 
                 return BitConverter.ToString(hash).Replace("-", string.Empty).ToLowerInvariant();
             }

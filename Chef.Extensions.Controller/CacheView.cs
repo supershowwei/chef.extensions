@@ -5,7 +5,7 @@
         public CacheView(string output)
         {
             this.Output = output;
-            this.Checksum = MD5.Hash(output, string.Empty);
+            this.Checksum = MD5.Hash(output);
         }
 
         public string Output { get; }

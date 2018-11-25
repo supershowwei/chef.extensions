@@ -81,71 +81,85 @@ namespace Chef.Extensions.Controller
             object model,
             int duration = 900)
         {
-            if (NotModified(me.Request.Headers["If-None-Match"], me.HttpContext.Cache, out var requestChecksum))
+            var requestIdentity = GenerateIdentity(me.Request.Headers["If-None-Match"]);
+
+            if (NotModified(requestIdentity, me.HttpContext.Cache, out var modifiedCacheView))
             {
                 return new HttpStatusCodeResult(HttpStatusCode.NotModified);
+            }
+
+            if (modifiedCacheView != null)
+            {
+                me.Response.Headers["ETag"] = $"{requestIdentity.CacheKey}-{modifiedCacheView.Checksum}";
+
+                return new ContentResult { Content = modifiedCacheView.Output, ContentType = "text/html" };
             }
 
             var viewEngineResult = FindView(me, viewName);
             var viewPath = ((RazorView)viewEngineResult.View).ViewPath;
 
-            string cacheKey;
+            var cacheKey = MD5.Hash(viewPath);
             CacheView cacheView;
 
-            if (MustRefresh(me.Request.Headers["Cache-Control"], out var deltaSeconds))
+            if (MustRefresh(me.Request.Headers["Cache-Control"], out var prolongedDuration))
             {
-                var graduation = GetGraduation(DateTime.Now.AddSeconds(deltaSeconds), duration);
-                cacheKey = MD5.Hash(viewPath, graduation.ToString("yyyy-MM-dd HH:mm:ss"));
-
                 cacheView = new CacheView(Render(me, viewEngineResult, model));
 
-                TryCache(cacheKey, cacheView, graduation.AddSeconds(duration), me.HttpContext.Cache, viewPath);
+                TryCache(cacheKey, cacheView, duration + prolongedDuration, me.HttpContext.Cache, viewPath);
             }
             else
             {
-                var graduation = GetGraduation(DateTime.Now, duration);
-                cacheKey = MD5.Hash(viewPath, graduation.ToString("yyyy-MM-dd HH:mm:ss"));
-
                 if ((cacheView = me.HttpContext.Cache[cacheKey] as CacheView) == null)
                 {
                     cacheView = new CacheView(Render(me, viewEngineResult, model));
 
-                    TryCache(cacheKey, cacheView, graduation.AddSeconds(duration), me.HttpContext.Cache, viewPath);
+                    TryCache(cacheKey, cacheView, duration, me.HttpContext.Cache, viewPath);
+                }
+
+                me.Response.Headers["ETag"] = $"{cacheKey}-{cacheView.Checksum}";
+
+                if (requestIdentity != null && requestIdentity.Checksum.Equals(cacheView.Checksum))
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.NotModified);
                 }
             }
 
             viewEngineResult.ViewEngine.ReleaseView(me.ControllerContext, viewEngineResult.View);
 
-            me.Response.Headers["ETag"] = $"{cacheKey}-{cacheView.Checksum}";
-
-            if (!string.IsNullOrEmpty(requestChecksum) && requestChecksum.Equals(cacheView.Checksum))
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.NotModified);
-            }
-
             return new ContentResult { Content = cacheView.Output, ContentType = "text/html" };
         }
 
-        private static bool NotModified(string ifNoneMatch, Cache container, out string requestChecksum)
+        private static CacheViewIdentity GenerateIdentity(string ifNoneMatch)
         {
-            requestChecksum = null;
-
-            if (string.IsNullOrEmpty(ifNoneMatch)) return false;
+            if (string.IsNullOrEmpty(ifNoneMatch)) return null;
 
             var match = Regex.Match(ifNoneMatch, "([^-]+)-(.+)");
 
-            if (!match.Success) return false;
+            if (!match.Success) return null;
 
-            requestChecksum = match.Groups[2].Value;
-
-            var cacheView = container[match.Groups[1].Value] as CacheView;
-
-            return cacheView != null && requestChecksum.Equals(cacheView.Checksum);
+            return new CacheViewIdentity { CacheKey = match.Groups[1].Value, Checksum = match.Groups[2].Value };
         }
 
-        private static bool MustRefresh(string cacheControl, out int deltaSeconds)
+        private static bool NotModified(CacheViewIdentity identity, Cache container, out CacheView modifiedCacheView)
         {
-            deltaSeconds = 0;
+            modifiedCacheView = null;
+
+            if (identity == null) return false;
+
+            var cacheView = container[identity.CacheKey] as CacheView;
+
+            if (cacheView == null) return false;
+
+            if (identity.Checksum.Equals(cacheView.Checksum)) return true;
+
+            modifiedCacheView = cacheView;
+
+            return false;
+        }
+
+        private static bool MustRefresh(string cacheControl, out int prolongedDuration)
+        {
+            prolongedDuration = 0;
 
             if (string.IsNullOrEmpty(cacheControl)) return false;
 
@@ -153,7 +167,7 @@ namespace Chef.Extensions.Controller
 
             if (!match.Success) return false;
 
-            if (match.Groups.Count > 1) int.TryParse(match.Groups[1].Value, out deltaSeconds);
+            if (match.Groups.Count > 1) int.TryParse(match.Groups[1].Value, out prolongedDuration);
 
             return true;
         }
@@ -189,19 +203,14 @@ namespace Chef.Extensions.Controller
             return writer.ToString();
         }
 
-        private static void TryCache(
-            string key,
-            CacheView value,
-            DateTime absoluteExpiration,
-            Cache container,
-            string lockedKey)
+        private static void TryCache(string key, CacheView value, int duration, Cache container, string lockedKey)
         {
             object locked;
             if (Monitor.TryEnter(locked = ObjectLocker.Instance.GetLockObject(lockedKey)))
             {
                 try
                 {
-                    container.Insert(key, value, null, absoluteExpiration, Cache.NoSlidingExpiration);
+                    container.Insert(key, value, null, DateTime.Now.AddSeconds(duration), Cache.NoSlidingExpiration);
                 }
                 catch
                 {
@@ -212,13 +221,6 @@ namespace Chef.Extensions.Controller
                     Monitor.Exit(locked);
                 }
             }
-        }
-
-        private static DateTime GetGraduation(DateTime time, int duration)
-        {
-            var dayOfSecond = Convert.ToInt32(time.Subtract(time.Date).TotalSeconds);
-
-            return DateTime.Now.Date.AddSeconds(dayOfSecond - dayOfSecond % duration);
         }
     }
 }

@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CacheView.cs" />
+    <Compile Include="CacheViewIdentity.cs" />
     <Compile Include="Extension.cs" />
     <Compile Include="JsonNetResult.cs" />
     <Compile Include="MD5.cs" />
