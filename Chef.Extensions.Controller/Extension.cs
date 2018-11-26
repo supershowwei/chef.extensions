@@ -101,11 +101,11 @@ namespace Chef.Extensions.Controller
             var cacheKey = MD5.Hash(viewPath);
             CacheView cacheView;
 
-            if (MustRefresh(me.Request.Headers["Cache-Control"], out var prolongedDuration))
+            if (MustRefresh(me.Request.Headers["Cache-Control"], out var prolonged))
             {
                 cacheView = new CacheView(Render(me, viewEngineResult, model));
 
-                TryCache(cacheKey, cacheView, duration + prolongedDuration, me.HttpContext.Cache, viewPath);
+                TryCache(cacheKey, cacheView, duration + prolonged, me.HttpContext.Cache, viewPath);
             }
             else
             {
@@ -116,12 +116,12 @@ namespace Chef.Extensions.Controller
                     TryCache(cacheKey, cacheView, duration, me.HttpContext.Cache, viewPath);
                 }
 
-                me.Response.Headers["ETag"] = $"{cacheKey}-{cacheView.Checksum}";
-
-                if (requestIdentity != null && requestIdentity.Checksum.Equals(cacheView.Checksum))
+                if (NotModified(requestIdentity, cacheKey, cacheView.Checksum))
                 {
                     return new HttpStatusCodeResult(HttpStatusCode.NotModified);
                 }
+
+                me.Response.Headers["ETag"] = $"{cacheKey}-{cacheView.Checksum}";
             }
 
             viewEngineResult.ViewEngine.ReleaseView(me.ControllerContext, viewEngineResult.View);
@@ -157,9 +157,18 @@ namespace Chef.Extensions.Controller
             return false;
         }
 
-        private static bool MustRefresh(string cacheControl, out int prolongedDuration)
+        private static bool NotModified(CacheViewIdentity identity, string cacheKey, string checksum)
         {
-            prolongedDuration = 0;
+            if (identity == null) return false;
+            if (!identity.Checksum.Equals(checksum)) return false;
+            if (!identity.CacheKey.Equals(cacheKey)) return false;
+
+            return true;
+        }
+
+        private static bool MustRefresh(string cacheControl, out int prolonged)
+        {
+            prolonged = 0;
 
             if (string.IsNullOrEmpty(cacheControl)) return false;
 
@@ -167,7 +176,7 @@ namespace Chef.Extensions.Controller
 
             if (!match.Success) return false;
 
-            if (match.Groups.Count > 1) int.TryParse(match.Groups[1].Value, out prolongedDuration);
+            if (match.Groups.Count > 1) int.TryParse(match.Groups[1].Value, out prolonged);
 
             return true;
         }
