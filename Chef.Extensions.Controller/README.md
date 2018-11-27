@@ -3,7 +3,12 @@
 ### 以 Json.NET 來取代 JsonResult 的序列化元件
 
 ```csharp
-- public static JsonNetResult Jsonet(this System.Web.Mvc.Controller me, object data);
+public static JsonNetResult Jsonet(this System.Web.Mvc.Controller me, object data);
+public static JsonNetResult Jsonet(this System.Web.Mvc.Controller me, object data, string contentType);
+public static JsonNetResult Jsonet(this System.Web.Mvc.Controller me, object data, string contentType, Encoding contentEncoding);
+public static JsonNetResult Jsonet(this System.Web.Mvc.Controller me, object data, JsonRequestBehavior behavior);
+public static JsonNetResult Jsonet(this System.Web.Mvc.Controller me, object data, string contentType, JsonRequestBehavior behavior);
+public static JsonNetResult Jsonet(this System.Web.Mvc.Controller me, object data, string contentType, Encoding contentEncoding, JsonRequestBehavior behavior);
 ```
 
 
