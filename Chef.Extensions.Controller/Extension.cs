@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -14,7 +15,9 @@ namespace Chef.Extensions.Controller
         public static void HeatViews(this System.Web.Mvc.Controller me)
         {
             var root = me.Server.MapPath("~/");
-            var files = Directory.GetFiles(root, "*.cshtml", SearchOption.AllDirectories);
+            var files = Directory.GetFiles(root, "*.cshtml", SearchOption.AllDirectories)
+                .GroupBy(x => Path.GetDirectoryName(x))
+                .Select(g => g.First());
 
             foreach (var file in files)
             {
