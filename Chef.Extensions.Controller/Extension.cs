@@ -11,6 +11,34 @@ namespace Chef.Extensions.Controller
 {
     public static class Extension
     {
+        public static void HeatViews(this System.Web.Mvc.Controller me)
+        {
+            var root = me.Server.MapPath("~/");
+            var files = Directory.GetFiles(root, "*.cshtml", SearchOption.AllDirectories);
+
+            foreach (var file in files)
+            {
+                var viewName = $"~/{file.Replace(root, string.Empty).Replace("\\", "/")}";
+                var viewEngineResult = ViewEngines.Engines.FindView(me.ControllerContext, viewName, string.Empty);
+
+                try
+                {
+                    viewEngineResult.View.Render(
+                        new ViewContext(
+                            me.ControllerContext,
+                            viewEngineResult.View,
+                            me.ViewData,
+                            me.TempData,
+                            TextWriter.Null),
+                        TextWriter.Null);
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+        }
+
         public static JsonNetResult Jsonet(this System.Web.Mvc.Controller me, object data)
         {
             return Jsonet(me, data, null, null, JsonRequestBehavior.DenyGet);
