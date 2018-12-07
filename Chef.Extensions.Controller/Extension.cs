@@ -15,7 +15,10 @@ namespace Chef.Extensions.Controller
         public static void HeatViews(this System.Web.Mvc.Controller me)
         {
             var root = me.Server.MapPath("~/");
-            var files = Directory.GetFiles(root, "*.cshtml", SearchOption.AllDirectories)
+
+            var files = new[] { "Area", "Views" }.Select(x => Path.Combine(root, x))
+                .Where(x => Directory.Exists(x))
+                .SelectMany(x => Directory.GetFiles(x, "*.cshtml", SearchOption.AllDirectories))
                 .GroupBy(x => Path.GetDirectoryName(x))
                 .Select(g => g.First());
 
