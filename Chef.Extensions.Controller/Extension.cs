@@ -137,7 +137,7 @@ namespace Chef.Extensions.Controller
                     TryCache(cacheKey, cacheView, duration, me.HttpContext.Cache, viewPath);
                 }
 
-                if (NotModified(me.Request, cacheKey, cacheView.Checksum))
+                if (NotModified(me.ViewBag.CacheViewIdentity, cacheKey, cacheView.Checksum))
                 {
                     return new HttpStatusCodeResult(HttpStatusCode.NotModified);
                 }
@@ -150,10 +150,8 @@ namespace Chef.Extensions.Controller
             return new ContentResult { Content = cacheView.Output, ContentType = "text/html" };
         }
 
-        private static bool NotModified(HttpRequestBase request, string cacheKey, string checksum)
+        private static bool NotModified(CacheViewIdentity identity, string cacheKey, string checksum)
         {
-            var identity = CacheViewIdentity.Create(request["If-None-Match"]);
-
             if (identity == null) return false;
             if (!identity.Checksum.Equals(checksum)) return false;
             if (!identity.CacheKey.Equals(cacheKey)) return false;

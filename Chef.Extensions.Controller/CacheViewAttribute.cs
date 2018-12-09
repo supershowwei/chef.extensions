@@ -12,6 +12,8 @@ namespace Chef.Extensions.Controller
 
             var requestIdentity = CacheViewIdentity.Create(httpContext.Request.Headers["If-None-Match"]);
 
+            filterContext.Controller.ViewBag.CacheViewIdentity = requestIdentity;
+
             if (NotModified(requestIdentity, httpContext.Cache, out var modifiedCacheView))
             {
                 filterContext.Result = new HttpStatusCodeResult(HttpStatusCode.NotModified);
