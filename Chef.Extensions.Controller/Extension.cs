@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Web;
 using System.Web.Caching;
 using System.Web.Mvc;
 
@@ -115,20 +116,6 @@ namespace Chef.Extensions.Controller
             object model,
             int duration = 900)
         {
-            var requestIdentity = GenerateIdentity(me.Request.Headers["If-None-Match"]);
-
-            if (NotModified(requestIdentity, me.HttpContext.Cache, out var modifiedCacheView))
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.NotModified);
-            }
-
-            if (modifiedCacheView != null)
-            {
-                me.Response.Headers["ETag"] = $"{requestIdentity.CacheKey}-{modifiedCacheView.Checksum}";
-
-                return new ContentResult { Content = modifiedCacheView.Output, ContentType = "text/html" };
-            }
-
             var viewEngineResult = FindView(me, viewName);
             var viewPath = ((RazorView)viewEngineResult.View).ViewPath;
 
@@ -150,7 +137,7 @@ namespace Chef.Extensions.Controller
                     TryCache(cacheKey, cacheView, duration, me.HttpContext.Cache, viewPath);
                 }
 
-                if (NotModified(requestIdentity, cacheKey, cacheView.Checksum))
+                if (NotModified(me.Request, cacheKey, cacheView.Checksum))
                 {
                     return new HttpStatusCodeResult(HttpStatusCode.NotModified);
                 }
@@ -163,36 +150,10 @@ namespace Chef.Extensions.Controller
             return new ContentResult { Content = cacheView.Output, ContentType = "text/html" };
         }
 
-        private static CacheViewIdentity GenerateIdentity(string ifNoneMatch)
+        private static bool NotModified(HttpRequestBase request, string cacheKey, string checksum)
         {
-            if (string.IsNullOrEmpty(ifNoneMatch)) return null;
+            var identity = CacheViewIdentity.Create(request["If-None-Match"]);
 
-            var match = Regex.Match(ifNoneMatch, "([^-]+)-(.+)");
-
-            if (!match.Success) return null;
-
-            return new CacheViewIdentity { CacheKey = match.Groups[1].Value, Checksum = match.Groups[2].Value };
-        }
-
-        private static bool NotModified(CacheViewIdentity identity, Cache container, out CacheView modifiedCacheView)
-        {
-            modifiedCacheView = null;
-
-            if (identity == null) return false;
-
-            var cacheView = container[identity.CacheKey] as CacheView;
-
-            if (cacheView == null) return false;
-
-            if (identity.Checksum.Equals(cacheView.Checksum)) return true;
-
-            modifiedCacheView = cacheView;
-
-            return false;
-        }
-
-        private static bool NotModified(CacheViewIdentity identity, string cacheKey, string checksum)
-        {
             if (identity == null) return false;
             if (!identity.Checksum.Equals(checksum)) return false;
             if (!identity.CacheKey.Equals(cacheKey)) return false;

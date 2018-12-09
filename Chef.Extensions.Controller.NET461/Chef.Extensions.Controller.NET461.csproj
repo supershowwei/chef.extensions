@@ -69,6 +69,9 @@
     <Compile Include="..\Chef.Extensions.Controller\CacheView.cs">
       <Link>CacheView.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.Controller\CacheViewAttribute.cs">
+      <Link>CacheViewAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.Controller\CacheViewIdentity.cs">
       <Link>CacheViewIdentity.cs</Link>
     </Compile>
