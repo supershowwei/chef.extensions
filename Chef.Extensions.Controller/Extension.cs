@@ -116,26 +116,20 @@ namespace Chef.Extensions.Controller
             object model,
             int duration = 900)
         {
-            var viewEngineResult = FindView(me, viewName);
-            var viewPath = ((RazorView)viewEngineResult.View).ViewPath;
+            if (model != null) me.ViewData.Model = model;
 
-            var cacheKey = MD5.Hash(viewPath);
+            var viewEngineResult = FindView(me, viewName);
+
+            var cacheKey = MD5.Hash(((RazorView)viewEngineResult.View).ViewPath);
             CacheView cacheView;
 
             if (MustRefresh(me.Request.Headers["Cache-Control"], out var prolonged))
             {
-                cacheView = new CacheView(Render(me, viewEngineResult, model));
-
-                TryCache(cacheKey, cacheView, duration + prolonged, me.HttpContext.Cache, viewPath);
+                cacheView = RenderAndCacheForcibly(me, viewEngineResult.View, cacheKey, duration + prolonged);
             }
             else
             {
-                if ((cacheView = me.HttpContext.Cache[cacheKey] as CacheView) == null)
-                {
-                    cacheView = new CacheView(Render(me, viewEngineResult, model));
-
-                    TryCache(cacheKey, cacheView, duration, me.HttpContext.Cache, viewPath);
-                }
+                cacheView = RenderAndCache(me, viewEngineResult.View, cacheKey, duration);
 
                 if (NotModified(me.ViewBag.CacheViewIdentity, cacheKey, cacheView.Checksum))
                 {
@@ -150,13 +144,13 @@ namespace Chef.Extensions.Controller
             return new ContentResult { Content = cacheView.Output, ContentType = "text/html" };
         }
 
-        private static bool NotModified(CacheViewIdentity identity, string cacheKey, string checksum)
+        private static ViewEngineResult FindView(System.Web.Mvc.Controller controller, string viewName)
         {
-            if (identity == null) return false;
-            if (!identity.Checksum.Equals(checksum)) return false;
-            if (!identity.CacheKey.Equals(cacheKey)) return false;
+            viewName = string.IsNullOrEmpty(viewName)
+                           ? controller.ControllerContext.RouteData.GetRequiredString("action")
+                           : viewName;
 
-            return true;
+            return controller.ViewEngineCollection.FindView(controller.ControllerContext, viewName, string.Empty);
         }
 
         private static bool MustRefresh(string cacheControl, out int prolonged)
@@ -174,55 +168,77 @@ namespace Chef.Extensions.Controller
             return true;
         }
 
-        private static ViewEngineResult FindView(System.Web.Mvc.Controller controller, string viewName)
+        private static CacheView RenderAndCacheForcibly(
+            System.Web.Mvc.Controller controller,
+            IView view,
+            string cacheKey,
+            int duration)
         {
-            viewName = string.IsNullOrEmpty(viewName)
-                           ? controller.ControllerContext.RouteData.GetRequiredString("action")
-                           : viewName;
+            CacheView cacheView;
 
-            return controller.ViewEngineCollection.FindView(controller.ControllerContext, viewName, string.Empty);
+            lock (ObjectLocker.Instance.GetLockObject(cacheKey))
+            {
+                cacheView = new CacheView(Render(controller, view));
+
+                controller.HttpContext.Cache.Insert(
+                    cacheKey,
+                    cacheView,
+                    null,
+                    DateTime.Now.AddSeconds(duration),
+                    Cache.NoSlidingExpiration);
+            }
+
+            return cacheView;
         }
 
-        private static string Render(
+        private static CacheView RenderAndCache(
             System.Web.Mvc.Controller controller,
-            ViewEngineResult viewEngineResult,
-            object model)
+            IView view,
+            string cacheKey,
+            int duration)
         {
-            if (model != null) controller.ViewData.Model = model;
+            CacheView cacheView;
 
+            if ((cacheView = controller.HttpContext.Cache[cacheKey] as CacheView) == null)
+            {
+                lock (ObjectLocker.Instance.GetLockObject(cacheKey))
+                {
+                    if ((cacheView = controller.HttpContext.Cache[cacheKey] as CacheView) == null)
+                    {
+                        cacheView = new CacheView(Render(controller, view));
+
+                        controller.HttpContext.Cache.Insert(
+                            cacheKey,
+                            cacheView,
+                            null,
+                            DateTime.Now.AddSeconds(duration),
+                            Cache.NoSlidingExpiration);
+                    }
+                }
+            }
+
+            return cacheView;
+        }
+
+        private static string Render(System.Web.Mvc.Controller controller, IView view)
+        {
             var writer = new StringWriter();
 
-            viewEngineResult.View.Render(
-                new ViewContext(
-                    controller.ControllerContext,
-                    viewEngineResult.View,
-                    controller.ViewData,
-                    controller.TempData,
-                    writer),
+            view.Render(
+                new ViewContext(controller.ControllerContext, view, controller.ViewData, controller.TempData, writer),
                 writer);
 
             // TODO: Replace \r\n
             return writer.ToString();
         }
 
-        private static void TryCache(string key, CacheView value, int duration, Cache container, string lockedKey)
+        private static bool NotModified(CacheViewIdentity identity, string cacheKey, string checksum)
         {
-            object locked;
-            if (Monitor.TryEnter(locked = ObjectLocker.Instance.GetLockObject(lockedKey)))
-            {
-                try
-                {
-                    container.Insert(key, value, null, DateTime.Now.AddSeconds(duration), Cache.NoSlidingExpiration);
-                }
-                catch
-                {
-                    // ignored
-                }
-                finally
-                {
-                    Monitor.Exit(locked);
-                }
-            }
+            if (identity == null) return false;
+            if (!identity.Checksum.Equals(checksum)) return false;
+            if (!identity.CacheKey.Equals(cacheKey)) return false;
+
+            return true;
         }
     }
 }
