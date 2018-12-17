@@ -4,6 +4,8 @@ using System.Linq;
 
 namespace Chef.Extensions.IEnumerable
 {
+    public delegate TReturn Func<in T, TResult, out TReturn>(T arg, out TResult result);
+
     public static class Extension
     {
         public static void ForEach<T>(this IEnumerable<T> me, Action<T> action)
@@ -34,6 +36,27 @@ namespace Chef.Extensions.IEnumerable
             }
 
             return false;
+        }
+
+        public static IEnumerable<TResult> SelectWhere<T, TResult>(
+            this IEnumerable<T> me,
+            Func<T, bool> predicate,
+            Func<T, TResult> selector)
+        {
+            foreach (var item in me)
+            {
+                if (predicate(item)) yield return selector(item);
+            }
+        }
+
+        public static IEnumerable<TResult> SelectWhere<T, TResult>(
+            this IEnumerable<T> me,
+            Func<T, TResult, bool> predicate)
+        {
+            foreach (var item in me)
+            {
+                if (predicate(item, out var result)) yield return result;
+            }
         }
     }
 }
