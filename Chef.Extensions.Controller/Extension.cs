@@ -21,7 +21,8 @@ namespace Chef.Extensions.Controller
                 .Where(x => Directory.Exists(x))
                 .SelectMany(x => Directory.GetFiles(x, "*.cshtml", SearchOption.AllDirectories))
                 .GroupBy(x => Path.GetDirectoryName(x))
-                .Select(g => g.First());
+                .Select(g => g.First())
+                .OrderBy(x => Path.GetFileName(x).StartsWith("_") ? 0 : 1);
 
             foreach (var file in files)
             {
