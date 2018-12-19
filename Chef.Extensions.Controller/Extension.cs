@@ -18,10 +18,9 @@ namespace Chef.Extensions.Controller
             var files = new[] { "Area", "Views" }.Select(x => Path.Combine(root, x))
                 .Where(x => Directory.Exists(x))
                 .SelectMany(x => Directory.GetFiles(x, "*.cshtml", SearchOption.AllDirectories))
-                .GroupBy(x => Path.GetDirectoryName(x))
-                .Select(g => g.First())
                 .OrderBy(x => Path.GetFileName(x).StartsWith("_") ? 0 : 1)
-                .ThenBy(x => x.Contains("Shared") ? 0 : 1);
+                .GroupBy(x => Path.GetDirectoryName(x))
+                .Select(g => g.First());
 
             foreach (var file in files)
             {
