@@ -20,7 +20,8 @@ namespace Chef.Extensions.Controller
                 .SelectMany(x => Directory.GetFiles(x, "*.cshtml", SearchOption.AllDirectories))
                 .GroupBy(x => Path.GetDirectoryName(x))
                 .Select(g => g.First())
-                .OrderBy(x => Path.GetFileName(x).StartsWith("_") ? 0 : 1);
+                .OrderBy(x => Path.GetFileName(x).StartsWith("_") ? 0 : 1)
+                .ThenBy(x => x.Contains("Shared") ? 0 : 1);
 
             foreach (var file in files)
             {
