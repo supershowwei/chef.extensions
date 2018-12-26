@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Web;
 using System.Web.Caching;
 using System.Web.Mvc;
 
@@ -9,6 +10,8 @@ namespace Chef.Extensions.Controller
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             var httpContext = filterContext.HttpContext;
+
+            httpContext.Response.Cache.SetCacheability(HttpCacheability.Public);
 
             var requestIdentity = CacheViewIdentity.Create(httpContext.Request.Headers["If-None-Match"]);
 
