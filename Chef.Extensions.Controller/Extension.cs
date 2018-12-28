@@ -132,15 +132,17 @@ namespace Chef.Extensions.Controller
 
                 if (NotModified(me.ViewBag.CacheViewIdentity, cacheKey, cacheView.Checksum))
                 {
-                    return new HttpStatusCodeResult(HttpStatusCode.NotModified);
+                    return new HttpStatusCodeResult(HttpStatusCode.NotModified).SetCacheHeader(
+                        me.Response,
+                        $"{cacheKey}-{cacheView.Checksum}");
                 }
-
-                me.Response.Headers["ETag"] = $"{cacheKey}-{cacheView.Checksum}";
             }
 
             viewEngineResult.ViewEngine.ReleaseView(me.ControllerContext, viewEngineResult.View);
 
-            return new ContentResult { Content = cacheView.Output, ContentType = "text/html" };
+            return new ContentResult { Content = cacheView.Output, ContentType = "text/html" }.SetCacheHeader(
+                me.Response,
+                $"{cacheKey}-{cacheView.Checksum}");
         }
 
         private static ViewEngineResult FindView(System.Web.Mvc.Controller controller, string viewName)

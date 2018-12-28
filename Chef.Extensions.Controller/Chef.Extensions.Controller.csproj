@@ -66,6 +66,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActionResultExtension.cs" />
     <Compile Include="CacheView.cs" />
     <Compile Include="CacheViewIdentity.cs" />
     <Compile Include="CacheViewAttribute.cs" />

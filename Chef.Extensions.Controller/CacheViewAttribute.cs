@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Web;
 using System.Web.Caching;
 using System.Web.Mvc;
 
@@ -11,24 +10,25 @@ namespace Chef.Extensions.Controller
         {
             var httpContext = filterContext.HttpContext;
 
-            httpContext.Response.Cache.SetCacheability(HttpCacheability.Public);
-
             var requestIdentity = CacheViewIdentity.Create(httpContext.Request.Headers["If-None-Match"]);
 
             filterContext.Controller.ViewBag.CacheViewIdentity = requestIdentity;
 
             if (NotModified(requestIdentity, httpContext.Cache, out var modifiedCacheView))
             {
-                filterContext.Result = new HttpStatusCodeResult(HttpStatusCode.NotModified);
+                filterContext.Result = new HttpStatusCodeResult(HttpStatusCode.NotModified).SetCacheHeader(
+                    httpContext.Response,
+                    $"{requestIdentity.CacheKey}-{requestIdentity.Checksum}");
 
                 return;
             }
 
             if (modifiedCacheView != null)
             {
-                httpContext.Response.Headers["ETag"] = $"{requestIdentity.CacheKey}-{modifiedCacheView.Checksum}";
-
-                filterContext.Result = new ContentResult { Content = modifiedCacheView.Output, ContentType = "text/html" };
+                filterContext.Result =
+                    new ContentResult { Content = modifiedCacheView.Output, ContentType = "text/html" }.SetCacheHeader(
+                        httpContext.Response,
+                        $"{requestIdentity.CacheKey}-{modifiedCacheView.Checksum}");
 
                 return;
             }
