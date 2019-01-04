@@ -45,6 +45,46 @@ namespace Chef.Extensions.Controller
             }
         }
 
+        public static HttpStatusCodeResult HttpOK(this System.Web.Mvc.Controller me)
+        {
+            return HttpStatus(me, HttpStatusCode.OK);
+        }
+
+        public static HttpStatusCodeResult HttpNotModified(this System.Web.Mvc.Controller me)
+        {
+            return HttpStatus(me, HttpStatusCode.NotModified);
+        }
+
+        public static HttpStatusCodeResult HttpBadRequest(this System.Web.Mvc.Controller me)
+        {
+            return HttpStatus(me, HttpStatusCode.BadRequest);
+        }
+
+        public static HttpStatusCodeResult HttpUnauthorized(this System.Web.Mvc.Controller me)
+        {
+            return HttpStatus(me, HttpStatusCode.Unauthorized);
+        }
+
+        public static HttpStatusCodeResult HttpForbidden(this System.Web.Mvc.Controller me)
+        {
+            return HttpStatus(me, HttpStatusCode.Forbidden);
+        }
+
+        public static HttpStatusCodeResult HttpInternalServerError(this System.Web.Mvc.Controller me)
+        {
+            return HttpStatus(me, HttpStatusCode.InternalServerError);
+        }
+
+        public static HttpStatusCodeResult HttpStatus(this System.Web.Mvc.Controller me, HttpStatusCode statusCode)
+        {
+            return new HttpStatusCodeResult(statusCode);
+        }
+
+        public static HttpStatusCodeResult HttpStatus(this System.Web.Mvc.Controller me, int statusCode)
+        {
+            return new HttpStatusCodeResult(statusCode);
+        }
+
         public static JsonNetResult Jsonet(this System.Web.Mvc.Controller me, object data)
         {
             return Jsonet(me, data, null, null);
