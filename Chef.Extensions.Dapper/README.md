@@ -140,26 +140,26 @@ The executed results:
 
 ```cs
 var foods = new List<Food>
+            {
+                new Dessert
                 {
-                    new Dessert
-                        {
-                            Name = "Cake111",
-                            Calorie = 100,
-                            ShelfLife = new ShelfLife { Months = 0, Days = 3 }
-                        },
-                    new DryGoods
-                        {
-                            Name = "Shiitake222",
-                            CountryOfOrigin = "Taiwan",
-                            ShelfLife = new ShelfLife { Months = 12, Days = 0 }
-                        },
-                    new Delicatessen
-                        {
-                            Name = "Bun333",
-                            Chef = "Mary",
-                            ShelfLife = new ShelfLife { Months = 0, Days = 3 }
-                        }
-                };
+                    Name = "Cake111",
+                    Calorie = 100,
+                    ShelfLife = new ShelfLife { Months = 0, Days = 3 }
+                },
+                new DryGoods
+                {
+                    Name = "Shiitake222",
+                    CountryOfOrigin = "Taiwan",
+                    ShelfLife = new ShelfLife { Months = 12, Days = 0 }
+                },
+                new Delicatessen
+                {
+                    Name = "Bun333",
+                    Chef = "Mary",
+                    ShelfLife = new ShelfLife { Months = 0, Days = 3 }
+                }
+            };
 
 using (var db = new SqlConnection(connectionString))
 {
