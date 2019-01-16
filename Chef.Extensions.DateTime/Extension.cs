@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 
 namespace Chef.Extensions.DateTime
 {
@@ -57,6 +58,40 @@ namespace Chef.Extensions.DateTime
         public static System.DateTime ToDateTime(this string me, string format)
         {
             return System.DateTime.ParseExact(me, format, CultureInfo.InvariantCulture);
+        }
+
+        public static int DiffYears(this System.DateTime me, System.DateTime value)
+        {
+            var diff = me.Year - value.Year;
+
+            return Math.Abs(diff);
+        }
+
+        public static int DiffMonths(this System.DateTime me, System.DateTime value)
+        {
+            var diff = ((me.Year - value.Year) * 12) + me.Month - value.Month;
+
+            return Math.Abs(diff);
+        }
+
+        public static int DiffDays(this System.DateTime me, System.DateTime value)
+        {
+            return Math.Abs(Convert.ToInt32(Math.Floor(me.Subtract(value).TotalDays)));
+        }
+
+        public static int DiffHours(this System.DateTime me, System.DateTime value)
+        {
+            return Math.Abs(Convert.ToInt32(Math.Floor(me.Subtract(value).TotalHours)));
+        }
+
+        public static int DiffMinutes(this System.DateTime me, System.DateTime value)
+        {
+            return Math.Abs(Convert.ToInt32(Math.Floor(me.Subtract(value).TotalMinutes)));
+        }
+
+        public static int DiffSeconds(this System.DateTime me, System.DateTime value)
+        {
+            return Math.Abs(Convert.ToInt32(Math.Floor(me.Subtract(value).TotalSeconds)));
         }
     }
 }
