@@ -35,54 +35,54 @@ namespace Chef.Extensions.DateTime
             return new System.DateTime(me.Year, me.Month, me.Day, me.Hour, me.Minute, second, me.Millisecond);
         }
 
-        public static System.DateTime StopYear(this System.DateTime me, int year)
+        public static System.DateTime StopYear(this System.DateTime me)
         {
-            return new System.DateTime(year, 1, 1, 0, 0, 0, 0);
+            return new System.DateTime(me.Year, 1, 1, 0, 0, 0, 0);
         }
 
-        public static System.DateTime StopMonth(this System.DateTime me, int month)
+        public static System.DateTime StopMonth(this System.DateTime me)
         {
-            return new System.DateTime(me.Year, month, 1, 0, 0, 0, 0);
+            return new System.DateTime(me.Year, me.Month, 1, 0, 0, 0, 0);
         }
 
-        public static System.DateTime StopDay(this System.DateTime me, int day)
+        public static System.DateTime StopDay(this System.DateTime me)
         {
             return new System.DateTime(me.Year, me.Month, me.Day, 0, 0, 0, 0);
         }
 
-        public static System.DateTime StopHour(this System.DateTime me, int hour)
+        public static System.DateTime StopHour(this System.DateTime me)
         {
-            return new System.DateTime(me.Year, me.Month, me.Day, hour, 0, 0, 0);
+            return new System.DateTime(me.Year, me.Month, me.Day, me.Hour, 0, 0, 0);
         }
 
-        public static System.DateTime StopMinute(this System.DateTime me, int minute)
+        public static System.DateTime StopMinute(this System.DateTime me)
         {
-            return new System.DateTime(me.Year, me.Month, me.Day, me.Hour, minute, 0, 0);
+            return new System.DateTime(me.Year, me.Month, me.Day, me.Hour, me.Minute, 0, 0);
         }
 
-        public static System.DateTime StopSecond(this System.DateTime me, int second)
+        public static System.DateTime StopSecond(this System.DateTime me)
         {
-            return new System.DateTime(me.Year, me.Month, me.Day, me.Hour, me.Minute, second, 0);
+            return new System.DateTime(me.Year, me.Month, me.Day, me.Hour, me.Minute, me.Second, 0);
         }
 
         public static System.DateTime SpecifyDate(this System.DateTime me, int year, int month, int day)
         {
-            return new System.DateTime(year, month, day, me.Hour, me.Minute, me.Second);
+            return new System.DateTime(year, month, day, me.Hour, me.Minute, me.Second, me.Millisecond);
         }
 
         public static System.DateTime SpecifyDate(this System.DateTime me, System.DateTime date)
         {
-            return new System.DateTime(date.Year, date.Month, date.Day, me.Hour, me.Minute, me.Second);
+            return new System.DateTime(date.Year, date.Month, date.Day, me.Hour, me.Minute, me.Second, me.Millisecond);
         }
 
-        public static System.DateTime SpecifyTime(this System.DateTime me, int hour, int minute, int second)
+        public static System.DateTime SpecifyTime(this System.DateTime me, int hour, int minute, int second, int millisecond = 0)
         {
-            return new System.DateTime(me.Year, me.Month, me.Day, hour, minute, second);
+            return new System.DateTime(me.Year, me.Month, me.Day, hour, minute, second, millisecond);
         }
 
         public static System.DateTime SpecifyTime(this System.DateTime me, System.DateTime time)
         {
-            return new System.DateTime(me.Year, me.Month, me.Day, time.Hour, time.Minute, time.Second);
+            return new System.DateTime(me.Year, me.Month, me.Day, time.Hour, time.Minute, time.Second, time.Millisecond);
         }            
 
         public static System.DateTime ToDateTime(this string me, string format)
