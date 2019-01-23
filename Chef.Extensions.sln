@@ -71,6 +71,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Controller.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Agility", "Chef.Extensions.Agility\Chef.Extensions.Agility.csproj", "{B7A6BE55-51CF-45EA-91A5-8CBA12972646}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Agility.NET451", "Chef.Extensions.Agility.NET451\Chef.Extensions.Agility.NET451.csproj", "{816B6E42-4D60-4251-8F2D-6DF939424E74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Agility.NET461", "Chef.Extensions.Agility.NET461\Chef.Extensions.Agility.NET461.csproj", "{3E1FF27F-6B35-45BE-8264-8218066094F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -351,6 +355,22 @@ Global
 		{B7A6BE55-51CF-45EA-91A5-8CBA12972646}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
 		{B7A6BE55-51CF-45EA-91A5-8CBA12972646}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
 		{B7A6BE55-51CF-45EA-91A5-8CBA12972646}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{816B6E42-4D60-4251-8F2D-6DF939424E74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{816B6E42-4D60-4251-8F2D-6DF939424E74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{816B6E42-4D60-4251-8F2D-6DF939424E74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{816B6E42-4D60-4251-8F2D-6DF939424E74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{816B6E42-4D60-4251-8F2D-6DF939424E74}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{816B6E42-4D60-4251-8F2D-6DF939424E74}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{816B6E42-4D60-4251-8F2D-6DF939424E74}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{816B6E42-4D60-4251-8F2D-6DF939424E74}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{3E1FF27F-6B35-45BE-8264-8218066094F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E1FF27F-6B35-45BE-8264-8218066094F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E1FF27F-6B35-45BE-8264-8218066094F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E1FF27F-6B35-45BE-8264-8218066094F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E1FF27F-6B35-45BE-8264-8218066094F0}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{3E1FF27F-6B35-45BE-8264-8218066094F0}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{3E1FF27F-6B35-45BE-8264-8218066094F0}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{3E1FF27F-6B35-45BE-8264-8218066094F0}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
