@@ -13,6 +13,11 @@ namespace Chef.Extensions.String
             return string.IsNullOrEmpty(me);
         }
 
+        public static bool IsNullOrWhiteSpace(this string me)
+        {
+            return string.IsNullOrWhiteSpace(me);
+        }
+
         public static string Left(this string me, int length)
         {
             length = Math.Max(length, 0);
@@ -27,33 +32,24 @@ namespace Chef.Extensions.String
             return me.Length > length ? me.Substring(me.Length - length, length) : me;
         }
 
-        public static bool EqualsIgnoreCase(
-            this string me,
-            string value,
-            StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+        public static bool EqualsIgnoreCase(this string me, string value)
         {
-            return me != null && me.Equals(value, comparisonType);
+            return me.Equals(value, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static bool StartsWithIgnoreCase(
-            this string me,
-            string value,
-            StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+        public static bool StartsWithIgnoreCase(this string me, string value)
         {
-            return me.StartsWith(value, comparisonType);
+            return me.StartsWith(value, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static bool EndsWithIgnoreCase(
-            this string me,
-            string value,
-            StringComparison comparisonType = StringComparison.InvariantCultureIgnoreCase)
+        public static bool EndsWithIgnoreCase(this string me, string value)
         {
-            return me.EndsWith(value, comparisonType);
+            return me.EndsWith(value, StringComparison.OrdinalIgnoreCase);
         }
 
         public static bool ContainsIgnoreCase(this string me, string value)
         {
-            return me != null && me.IndexOf(value, StringComparison.InvariantCultureIgnoreCase) >= 0;
+            return me.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         public static List<T> Split<T>(this string me, char separator, Func<string, T> selector)
@@ -74,7 +70,7 @@ namespace Chef.Extensions.String
 
         public static string ToBase64(this string me)
         {
-            return me.ToBase64(Encoding.UTF8);
+            return ToBase64(me, Encoding.UTF8);
         }
 
         public static string ToBase64(this string me, Encoding encoding)
