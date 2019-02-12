@@ -81,6 +81,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.ActionFilte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.ActionFilter.NET461", "Chef.Extensions.ActionFilter.NET461\Chef.Extensions.ActionFilter.NET461.csproj", "{BE85B6F5-4068-41B8-A587-DD505F286D31}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Object", "Chef.Extensions.Object\Chef.Extensions.Object.csproj", "{35EAF676-CCA4-4D53-891A-5CF68AB85A82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Object.NET451", "Chef.Extensions.Object.NET451\Chef.Extensions.Object.NET451.csproj", "{C1FE200C-5868-4B9A-A662-CDFDAB7378DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Object.NET461", "Chef.Extensions.Object.NET461\Chef.Extensions.Object.NET461.csproj", "{B9CB7D00-F2B5-4F33-8C06-97C985FDB8F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -401,6 +407,30 @@ Global
 		{BE85B6F5-4068-41B8-A587-DD505F286D31}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
 		{BE85B6F5-4068-41B8-A587-DD505F286D31}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
 		{BE85B6F5-4068-41B8-A587-DD505F286D31}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{35EAF676-CCA4-4D53-891A-5CF68AB85A82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35EAF676-CCA4-4D53-891A-5CF68AB85A82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35EAF676-CCA4-4D53-891A-5CF68AB85A82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35EAF676-CCA4-4D53-891A-5CF68AB85A82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35EAF676-CCA4-4D53-891A-5CF68AB85A82}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{35EAF676-CCA4-4D53-891A-5CF68AB85A82}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{35EAF676-CCA4-4D53-891A-5CF68AB85A82}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{35EAF676-CCA4-4D53-891A-5CF68AB85A82}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{C1FE200C-5868-4B9A-A662-CDFDAB7378DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1FE200C-5868-4B9A-A662-CDFDAB7378DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1FE200C-5868-4B9A-A662-CDFDAB7378DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1FE200C-5868-4B9A-A662-CDFDAB7378DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1FE200C-5868-4B9A-A662-CDFDAB7378DF}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{C1FE200C-5868-4B9A-A662-CDFDAB7378DF}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{C1FE200C-5868-4B9A-A662-CDFDAB7378DF}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{C1FE200C-5868-4B9A-A662-CDFDAB7378DF}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{B9CB7D00-F2B5-4F33-8C06-97C985FDB8F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9CB7D00-F2B5-4F33-8C06-97C985FDB8F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9CB7D00-F2B5-4F33-8C06-97C985FDB8F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9CB7D00-F2B5-4F33-8C06-97C985FDB8F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9CB7D00-F2B5-4F33-8C06-97C985FDB8F2}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{B9CB7D00-F2B5-4F33-8C06-97C985FDB8F2}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{B9CB7D00-F2B5-4F33-8C06-97C985FDB8F2}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{B9CB7D00-F2B5-4F33-8C06-97C985FDB8F2}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
