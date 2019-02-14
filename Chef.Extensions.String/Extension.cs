@@ -70,7 +70,7 @@ namespace Chef.Extensions.String
 
         public static string ToBase64(this string me)
         {
-            return ToBase64(me, Encoding.UTF8);
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(me));
         }
 
         public static string ToBase64(this string me, Encoding encoding)
