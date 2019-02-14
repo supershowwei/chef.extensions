@@ -328,3 +328,7 @@ Return property names.
 ### GetPropertyNames(string prefix)
 
 Return property names concatenated prefix.
+
+### IsMatch(string pattern)
+
+Return true if case insensitive regular expression matched, otherwise return false.

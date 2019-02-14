@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Chef.Extensions.String
 {
@@ -86,6 +87,11 @@ namespace Chef.Extensions.String
         public static string[] SplitOmitEmptyEntries(this string me, params string[] separator)
         {
             return me.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public static bool IsMatch(this string me, string pattern)
+        {
+            return Regex.IsMatch(me, pattern, RegexOptions.IgnoreCase);
         }
     }
 }
