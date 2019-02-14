@@ -52,9 +52,9 @@ namespace Chef.Extensions.String
             return me.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        public static List<T> Split<T>(this string me, char separator, Func<string, T> selector)
+        public static T[] Split<T>(this string me, char separator, Func<string, T> selector)
         {
-            return me.Split(separator).Select(selector).ToList();
+            return me.Split(separator).Select(selector).ToArray();
         }
 
         public static string Format(this string me, IDictionary dict)
