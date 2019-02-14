@@ -4,11 +4,11 @@ A collection of useful extension methods without reference other packages.
 
 ## Chef.Extensions.Boolean
 
-### public static T IIF<T>(this bool me, T trueValue, T falseValue)
+### public static T IIF&lt;T&gt;(this bool me, T trueValue, T falseValue)
 
 Return `trueValue` if true, return `falseValue` if false.
 
-### public static T IIF<T>(this bool me, Func<T> trueValue, Func<T> falseValue)
+### public static T IIF&lt;T&gt;(this bool me, Func&lt;T&gt; trueValue, Func&lt;T&gt; falseValue)
 
 Execute and return `trueValue function` if true, execute and return `falseValue function` if false.
 
