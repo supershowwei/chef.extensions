@@ -89,9 +89,19 @@ namespace Chef.Extensions.String
             return me.Split(separator, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        public static bool IsMatch(this string me, string pattern)
+        public static bool IsMatch(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
         {
-            return Regex.IsMatch(me, pattern, RegexOptions.IgnoreCase);
+            return Regex.IsMatch(me, pattern, options);
+        }
+
+        public static Match Match(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
+        {
+            return Regex.Match(me, pattern, options);
+        }
+
+        public static Match[] Matches(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
+        {
+            return Regex.Matches(me, pattern, options).Cast<Match>().ToArray();
         }
     }
 }

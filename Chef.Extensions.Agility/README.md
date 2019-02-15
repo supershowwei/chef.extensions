@@ -329,6 +329,14 @@ Return property names.
 
 Return property names concatenated prefix.
 
-### IsMatch(string pattern)
+### IsMatch(string pattern, , RegexOptions options = RegexOptions.IgnoreCase)
 
-Return true if case insensitive regular expression matched, otherwise return false.
+Return true if regular expression matched, otherwise return false. Default is case insensitive.
+
+### Match(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
+
+Return regular expression matched result. Default is case insensitive.
+
+### Matches(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
+
+Return regular expression matched results. Default is case insensitive.
