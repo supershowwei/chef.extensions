@@ -242,6 +242,10 @@ Example:
     
     // numbers is [1, 2].
 
+### TakeLast&lt;T&gt;(int count)
+
+Returns a specified number of contiguous elements from the end of a sequence.
+
 ## Chef.Extensions.Object
 
 ### ToExpando()

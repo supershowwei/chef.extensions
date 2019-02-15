@@ -58,5 +58,43 @@ namespace Chef.Extensions.IEnumerable
                 if (predicate(item, out var result)) yield return result;
             }
         }
+
+        public static IEnumerable<T> TakeLast<T>(this IEnumerable<T> me, int count)
+        {
+            Queue<T> queue;
+
+            using (var enumerator = me.GetEnumerator())
+            {
+                if (!enumerator.MoveNext()) yield break;
+
+                queue = new Queue<T>();
+                queue.Enqueue(enumerator.Current);
+
+                while (enumerator.MoveNext())
+                {
+                    if (queue.Count < count)
+                    {
+                        queue.Enqueue(enumerator.Current);
+                    }
+                    else
+                    {
+                        do
+                        {
+                            queue.Dequeue();
+                            queue.Enqueue(enumerator.Current);
+                        }
+                        while (enumerator.MoveNext());
+
+                        break;
+                    }
+                }
+            }
+
+            do
+            {
+                yield return queue.Dequeue();
+            }
+            while (queue.Count > 0);
+        }
     }
 }
