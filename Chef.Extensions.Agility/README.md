@@ -244,7 +244,7 @@ Example:
 
 ### TakeLast&lt;T&gt;(int count)
 
-Returns a specified number of contiguous elements from the end of a sequence.
+Returns a specified number of contiguous elements from the end of a original sequence.
 
 ## Chef.Extensions.Object
 
