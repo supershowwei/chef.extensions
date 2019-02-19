@@ -69,6 +69,18 @@ namespace Chef.Extensions.String
             return result;
         }
 
+        public static string Concat(this string me, params string[] values)
+        {
+            var sb = new StringBuilder(me);
+
+            foreach (var value in values)
+            {
+                sb.Append(value);
+            }
+
+            return sb.ToString();
+        }
+
         public static string ToBase64(this string me)
         {
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(me));

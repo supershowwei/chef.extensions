@@ -21,6 +21,11 @@ namespace Chef.Extensions.IEnumerable
             return me == null || !me.Any();
         }
 
+        public static bool IsNotEmpty<T>(this IEnumerable<T> me)
+        {
+            return me != null && me.Any();
+        }
+
         public static bool Any<T>(this IEnumerable<T> me, Func<T, bool> predicate, out T result)
         {
             result = default(T);

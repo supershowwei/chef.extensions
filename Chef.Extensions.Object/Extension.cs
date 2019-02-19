@@ -5,6 +5,11 @@ namespace Chef.Extensions.Object
 {
     public static class Extension
     {
+        public static bool IsNotNull(this object me)
+        {
+            return me != null;
+        }
+
         public static ExpandoObject ToExpando(this object me)
         {
             IDictionary<string, object> expando = new ExpandoObject();

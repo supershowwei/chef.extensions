@@ -224,6 +224,10 @@ Execute Action&lt;T&gt; iteratively.
 
 Check if IEnumerable&lt;T&gt; is null or empty.
 
+### IsNotEmpty&lt;T&gt;()
+
+Check if IEnumerable&lt;T&gt; is not null and not empty.
+
 ### Any&lt;T&gt;(Func&lt;T, bool&gt; predicate, out T result)
 
 Check if any item predicated and return first predicated item.
@@ -247,6 +251,10 @@ Example:
 Returns a specified number of contiguous elements from the end of a original sequence.
 
 ## Chef.Extensions.Object
+
+### IsNotNull()
+
+Return true if object is null, otherwise false.
 
 ### ToExpando()
 
@@ -302,6 +310,10 @@ Example:
     var newValue = oldValue.Format(replacements);
     
     // newValue is "abcdeee".
+
+### Concat(params string[] values)
+
+Concatenates strings.
 
 ### ToBase64()
 
