@@ -58,6 +58,11 @@ namespace Chef.Extensions.String
             return me.Split(separator).Select(selector).ToArray();
         }
 
+        public static T[] Split<T>(this string me, string separator, Func<string, T> selector)
+        {
+            return me.Split(new[] { separator }, StringSplitOptions.None).Select(selector).ToArray();
+        }
+
         public static string Format(this string me, IDictionary dict)
         {
             var result = me;
@@ -69,7 +74,7 @@ namespace Chef.Extensions.String
             return result;
         }
 
-        public static string Concat(this string me, params string[] values)
+        public static string Concats(this string me, params string[] values)
         {
             var sb = new StringBuilder(me);
 

@@ -556,37 +556,101 @@ Example:
 
 Check if string is null or empty.
 
+Example:
+
+    var result = "".IsNullOrEmpty();
+    
+    // result is true.
+
 ### IsNullOrWhiteSpace()
 
 Check if string is null, empty, or white space.
+
+Example:
+
+    var result = " \t\r\n".IsNullOrWhiteSpace();
+    
+    // result is true.
 
 ### Left(int length)
 
 Get characters of length from left.
 
+Example:
+
+    var result = "abcdefg".Left(3);
+    
+    // result is "abc".
+
 ### Right(int length)
 
 Get characters of length from right.
+
+Example:
+
+    var result = "abcdefg".Right(3);
+    
+    // result is "efg".
 
 ### EqualsIgnoreCase(string value)
 
 `Equals` case insensitive.
 
+Example:
+
+    var result = "abcdefg".EqualsIgnoreCase("AbcDefG");
+    
+    // result is true.
+
 ### StartsWithIgnoreCase(string value)
 
 `StartsWith` case insensitive.
+
+Example:
+
+    var result = "abcdefg".StartsWithIgnoreCase("AbC");
+    
+    // result is true.
 
 ### EndsWithIgnoreCase(string value)
 
 `EndsWith` case insensitive.
 
+Example:
+
+    var result = "abcdefg".EndsWithIgnoreCase("FG");
+    
+    // result is true.
+
 ### ContainsIgnoreCase(string value)
 
 `Contains` case insensitive.
 
+Example:
+
+    var result = "abcdefg".ContainsIgnoreCase("cDe");
+    
+    // result is true.
+
 ### Split&lt;T&gt;(char separator, Func&lt;string, T&gt; selector)
 
-Split string to T[].
+Split string to T[] by char separator.
+
+Example:
+
+    var result = "1,2,3,4".Split(',', x => int.Parse(x));
+    
+    // result is [1,2,3,4].
+
+### Split&lt;T&gt;(string separator, Func&lt;string, T&gt; selector)
+
+Split string to T[] by string separator.
+
+Example:
+
+    var result = "1,,2,,3,,4".Split(",,", x => int.Parse(x));
+    
+    // result is [1,2,3,4].
 
 ### Format(IDictionary dict)
 
@@ -601,37 +665,83 @@ Example:
     
     // newValue is "abcdeee".
 
-### Concat(params string[] values)
+### Concats(params string[] values)
 
 Concatenates strings.
+
+Example:
+
+    var result = "123".Concats("456", "789", "abc");
+    
+    // result is "123456789abc".
 
 ### ToBase64()
 
 Encode a string to Base64.（Encoding is UTF8）
 
+Example:
+
+    var result = "許功蓋".ToBase64();
+    
+    // result is "6Kix5Yqf6JOL"
+
 ### ToBase64(Encoding encoding)
 
 Encode a string to Base64.
+
+Example:
+
+    var result = "許功蓋".ToBase64(Encoding.GetEncoding("Big5"));
+    
+    // result is "s1ylXLtc"
 
 ### SplitOmitEmptyEntries(params char[] separator)
 
 Split a string without empty entries using char separators.
 
+Example:
+
+    var result = "1,,2,3,4".SplitOmitEmptyEntries(',');
+    
+    // result is ["1","2","3","4"]
+
 ### SplitOmitEmptyEntries(params string[] separator)
 
 Split a string without empty entries using string separators.
+
+Example:
+
+    var result = "1,,,,2,,3,,4".SplitOmitEmptyEntries(",,");
+    
+    // result is ["1","2","3","4"]
 
 ### IsMatch(string pattern, , RegexOptions options = RegexOptions.IgnoreCase)
 
 Return true if regular expression matched, otherwise return false. Default is case insensitive.
 
+Example:
+
+    var result = "qwerTYUiop".IsMatch("tyu");
+    
+    // result is true.
+
 ### Match(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
 
 Return regular expression matched result. Default is case insensitive.
 
+Example:
+
+    var match = "qwerTYUiop".Match("tyu");
+
 ### Matches(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
 
 Return regular expression matched results. Default is case insensitive.
+
+Example:
+
+    var matches = "qwtyuerTYUiop".Matches("tyu");
+    
+    // matches.Length is 2.
 
 ## Chef.Extensions.Type
 
@@ -639,10 +749,36 @@ Return regular expression matched results. Default is case insensitive.
 
 Check if Type is user defined.
 
+Example:
+
+    public class Person
+    {
+        public string Name { get; set; }
+    
+        public int Age { get; set; }
+    }
+
+    var result1 = typeof(Person).IsUserDefined();
+    var result2 = typeof(string).IsUserDefined();
+    
+    // result1 is true, result2 is false.
+
 ### GetPropertyNames()
 
 Return property names.
 
+Example:
+
+    var result = new { Name = "1", Age = 2 }.GetType().GetPropertyNames();
+    
+    // result is ["Name","Age"]
+
 ### GetPropertyNames(string prefix)
 
 Return property names concatenated prefix.
+
+Example:
+
+    var result = new { Name = "1", Age = 2 }.GetType().GetPropertyNames("kkk.");
+    
+    // result is ["kkk.Name","kkk.Age"]
