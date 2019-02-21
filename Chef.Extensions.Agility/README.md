@@ -2,6 +2,12 @@
 
 A collection of useful extension methods without reference other packages.
 
+## Chef.Extensions.Assembly
+
+### GetCurrentDirectory()
+
+Return directory of assembly executing location.
+
 ## Chef.Extensions.Boolean
 
 ### IIF&lt;T&gt;(T trueValue, T falseValue)

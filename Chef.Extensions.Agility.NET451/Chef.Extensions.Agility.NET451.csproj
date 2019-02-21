@@ -41,6 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Chef.Extensions.Assembly\Extension.cs">
+      <Link>Assembly\Extension.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.Boolean\Extension.cs">
       <Link>Boolean\Extension.cs</Link>
     </Compile>
