@@ -120,5 +120,12 @@ namespace Chef.Extensions.String
         {
             return Regex.Matches(me, pattern, options).Cast<Match>().ToArray();
         }
+
+        public static T ParseEnum<T>(this string me) where T : struct, IConvertible
+        {
+            if (!typeof(T).IsEnum) throw new ArgumentException("T must be an enumerated type.");
+
+            return (T)Enum.Parse(typeof(T), me, true);
+        }
     }
 }

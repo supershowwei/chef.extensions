@@ -743,6 +743,25 @@ Example:
     
     // matches.Length is 2.
 
+### ParseEnum&lt;T&gt;()
+
+Case insensitive parse string to enum type.
+
+Example:
+
+    public enum MachineStatus
+    {
+        Provisioning,
+        Staging,
+        Running,
+        Stopping,
+        Terminated
+    }
+    
+    var result = "STAGING".ParseEnum<MachineStatus>();
+    
+    // result is MachineStatus.Staging
+
 ## Chef.Extensions.Type
 
 ### IsUserDefined()
