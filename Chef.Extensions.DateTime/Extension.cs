@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 
 namespace Chef.Extensions.DateTime
 {
@@ -84,11 +83,6 @@ namespace Chef.Extensions.DateTime
         {
             return new System.DateTime(me.Year, me.Month, me.Day, time.Hour, time.Minute, time.Second, time.Millisecond);
         }            
-
-        public static System.DateTime ToDateTime(this string me, string format)
-        {
-            return System.DateTime.ParseExact(me, format, CultureInfo.InvariantCulture);
-        }
 
         public static int DiffYears(this System.DateTime me, System.DateTime value)
         {

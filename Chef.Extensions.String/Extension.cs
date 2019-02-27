@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -126,6 +127,16 @@ namespace Chef.Extensions.String
             if (!typeof(T).IsEnum) throw new ArgumentException("T must be an enumerated type.");
 
             return (T)Enum.Parse(typeof(T), me, true);
+        }
+
+        public static System.DateTime ToDateTime(this string me)
+        {
+            return System.DateTime.Parse(me);
+        }
+
+        public static System.DateTime ToDateTime(this string me, string format)
+        {
+            return System.DateTime.ParseExact(me, format, CultureInfo.InvariantCulture);
         }
     }
 }

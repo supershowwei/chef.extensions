@@ -200,16 +200,6 @@ Example:
     
     // datetime is 2018/12/21 01:01:01.111
 
-### ToDateTime(string format)
-
-It return result of `DateTime.ParseExact(me, format, CultureInfo.InvariantCulture)`.
-
-Example:
-
-    var result = "20180112123456".ToDateTime("yyyyMMddHHmmss");
-    
-    // result is 2018-01-12 12:34:56
-
 ### DiffYears(DateTime value)
 
 Get date difference in `Years`.
@@ -761,6 +751,26 @@ Example:
     var result = "STAGING".ParseEnum<MachineStatus>();
     
     // result is MachineStatus.Staging
+
+### ToDateTime()
+
+It return result of `DateTime.Parse(s)`.
+
+Example:
+
+    var result = "2019-02-18T15:00:42.984-08:00".ToDateTime();
+    
+    // result is 2019-02-18 07:00:42.984
+
+### ToDateTime(string format)
+
+It return result of `DateTime.ParseExact(s, format, CultureInfo.InvariantCulture)`.
+
+Example:
+
+    var result = "20180112123456".ToDateTime("yyyyMMddHHmmss");
+    
+    // result is 2018-01-12 12:34:56
 
 ## Chef.Extensions.Type
 
