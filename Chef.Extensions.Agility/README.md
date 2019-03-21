@@ -706,6 +706,16 @@ Example:
     
     // result is "s1ylXLtc"
 
+### Split(params string[] separator)
+
+Split a string using string separators.
+
+Example:
+
+    var result = "1,,,,2,,3,,4".Split(",,");
+    
+    // result is ["1","","2","3","4"]
+
 ### SplitOmitEmptyEntries(params char[] separator)
 
 Split a string without empty entries using char separators.

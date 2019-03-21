@@ -97,6 +97,11 @@ namespace Chef.Extensions.String
             return Convert.ToBase64String(encoding.GetBytes(me));
         }
 
+        public static string[] Split(this string me, params string[] separator)
+        {
+            return me.Split(separator, StringSplitOptions.None);
+        }
+
         public static string[] SplitOmitEmptyEntries(this string me, params char[] separator)
         {
             return me.Split(separator, StringSplitOptions.RemoveEmptyEntries);
