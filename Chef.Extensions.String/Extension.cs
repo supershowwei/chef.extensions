@@ -126,7 +126,7 @@ namespace Chef.Extensions.String
         {
             if (!typeof(T).IsEnum) throw new ArgumentException("T must be an enumerated type.");
 
-            return (T)Enum.Parse(typeof(T), me, true);
+            return (T)System.Enum.Parse(typeof(T), me, true);
         }
 
         public static System.DateTime ToDateTime(this string me)

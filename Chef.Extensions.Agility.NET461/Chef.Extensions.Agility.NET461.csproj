@@ -56,6 +56,9 @@
     <Compile Include="..\Chef.Extensions.Double\Extension.cs">
       <Link>Double\Extension.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.Enum\Extension.cs">
+      <Link>Enum\Extension.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.IEnumerable\Extension.cs">
       <Link>IEnumerable\Extension.cs</Link>
     </Compile>

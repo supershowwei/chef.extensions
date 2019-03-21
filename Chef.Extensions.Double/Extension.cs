@@ -38,12 +38,12 @@ namespace Chef.Extensions.Double
             return Math.Floor(me * power) / power;
         }
 
-        public static int ToInt32(this double me)
+        public static int ToInt(this double me)
         {
             return Convert.ToInt32(me);
         }
 
-        public static long ToInt64(this double me)
+        public static long ToLong(this double me)
         {
             return Convert.ToInt64(me);
         }

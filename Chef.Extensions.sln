@@ -57,6 +57,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Object", "C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Assembly", "Chef.Extensions.Assembly\Chef.Extensions.Assembly.csproj", "{E0942488-66B7-4C0C-9318-2AD13252D66D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Enum", "Chef.Extensions.Enum\Chef.Extensions.Enum.csproj", "{DDDB1BD5-86A8-4F43-B4E5-389FB011B011}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -281,6 +283,14 @@ Global
 		{E0942488-66B7-4C0C-9318-2AD13252D66D}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
 		{E0942488-66B7-4C0C-9318-2AD13252D66D}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
 		{E0942488-66B7-4C0C-9318-2AD13252D66D}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{DDDB1BD5-86A8-4F43-B4E5-389FB011B011}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDDB1BD5-86A8-4F43-B4E5-389FB011B011}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDDB1BD5-86A8-4F43-B4E5-389FB011B011}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDDB1BD5-86A8-4F43-B4E5-389FB011B011}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDDB1BD5-86A8-4F43-B4E5-389FB011B011}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{DDDB1BD5-86A8-4F43-B4E5-389FB011B011}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{DDDB1BD5-86A8-4F43-B4E5-389FB011B011}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{DDDB1BD5-86A8-4F43-B4E5-389FB011B011}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -371,29 +371,50 @@ Example:
     
     // num1 = 1.4, num2 = 1.5, num3 = 1.6
 
-### ToInt32()
+### ToInt()
 
 Convert a double to int.
 
 Example:
 
-    var num1 = 1.4.ToInt32();
-    var num2 = 1.5.ToInt32();
-    var num3 = 1.6.ToInt32();
+    var num1 = 1.4.ToInt();
+    var num2 = 1.5.ToInt();
+    var num3 = 1.6.ToInt();
     
     // num1 = 1, num2 = 2, num3 = 2
 
-### ToInt64()
+### ToLong()
 
 Convert a double to long.
 
 Example:
 
-    var num1 = 1.4.ToInt64();
-    var num2 = 1.5.ToInt64();
-    var num3 = 1.6.ToInt64();
+    var num1 = 1.4.ToLong();
+    var num2 = 1.5.ToLong();
+    var num3 = 1.6.ToLong();
     
     // num1 = 1, num2 = 2, num3 = 2
+
+## Chef.Extensions.Enum
+
+### GetDescription()
+
+Return description if Enum field has DescriptionAttribute, otherwise return enum name.
+
+Example:
+
+    public enum SomeKind
+    {
+        [Description("A new one.")]
+        New,
+        Old
+    }
+
+    var result1 = SomeKind.New.GetDescription();
+    var result2 = SomeKind.Old.GetDescription();
+    
+    // result1 is "A new one.".
+    // result2 is "Old".
 
 ## Chef.Extensions.IEnumerable
 
