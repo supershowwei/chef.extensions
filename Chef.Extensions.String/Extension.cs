@@ -138,5 +138,20 @@ namespace Chef.Extensions.String
         {
             return System.DateTime.ParseExact(me, format, CultureInfo.InvariantCulture);
         }
+
+        public static int ToInt(this string me)
+        {
+            return int.Parse(me);
+        }
+
+        public static long ToLong(this string me)
+        {
+            return long.Parse(me);
+        }
+
+        public static double ToDouble(this string me)
+        {
+            return double.Parse(me);
+        }
     }
 }

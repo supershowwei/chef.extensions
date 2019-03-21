@@ -772,6 +772,36 @@ Example:
     
     // result is 2018-01-12 12:34:56
 
+### ToInt()
+
+Parse string to int.
+
+Example:
+
+    var result = "123".ToInt();
+    
+    // result is 123.
+
+### ToLong()
+
+Parse string to long.
+
+Example:
+
+    var result = "123456".ToLong();
+    
+    // result is 123456.
+
+### ToDouble()
+
+Parse string to double.
+
+Example:
+
+    var result = "123.456".ToDouble();
+    
+    // result is 123.456.
+
 ## Chef.Extensions.Type
 
 ### IsUserDefined()
