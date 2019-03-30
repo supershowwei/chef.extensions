@@ -1,4 +1,6 @@
-## List of Methods
+## Polymorphic Query
+
+Parse data what query from database to polymorphism.
 
 ### PolymorphicQuery&lt;T&gt;(sql [, param] [, discriminator])
 
@@ -190,3 +192,13 @@ Split hierarchical properties by underscore as `ShelfLife` in example. The execu
 ## Custom RowParser
 
 Default is getting row parser by finding derived type with matching discriminator value precisely. We can implement *`IRowParserProvider`* and assign to `Chef.Extensions.Dapper.Extension.RowParserProvider` to change default row parser.
+
+## Immutable Query
+
+Dapper maps data to immutable class, and the constructor fitting parameters count and sequence must be matched. There are some immutable query extension methods that do not need fitting parameters count and sequence.
+
+    public static IEnumerable<T> ImmutableQuery<T>(this IDbConnection cnn, string sql, object param = null);
+    public static T ImmutableQueryFirst<T>(this IDbConnection cnn, string sql, object param = null);
+    public static T ImmutableQueryFirstOrDefault<T>(this IDbConnection cnn, string sql, object param = null);
+    public static T ImmutableQuerySingle<T>(this IDbConnection cnn, string sql, object param = null);
+    public static T ImmutableQuerySingleOrDefault<T>(this IDbConnection cnn, string sql, object param = null);

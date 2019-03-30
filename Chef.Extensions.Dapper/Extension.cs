@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using Chef.Extensions.Dapper.Extensions;
 using Dapper;
 
 namespace Chef.Extensions.Dapper
@@ -26,19 +28,15 @@ namespace Chef.Extensions.Dapper
             object param = null,
             string discriminator = "Discriminator")
         {
-            var result = new List<T>();
-
             using (var reader = cnn.ExecuteReader(sql, param))
             {
                 while (reader.Read())
                 {
                     var parser = RowParserProvider.GetRowParser<T>(discriminator, reader, sql);
 
-                    result.Add(parser(reader));
+                    yield return parser(reader);
                 }
             }
-
-            return result;
         }
 
         public static T PolymorphicQuerySingle<T>(
@@ -163,6 +161,95 @@ namespace Chef.Extensions.Dapper
             {
                 cnn.Execute(sql, GetParameter(props, param));
             }
+        }
+
+        public static IEnumerable<T> ImmutableQuery<T>(this IDbConnection cnn, string sql, object param = null)
+        {
+            using (var reader = cnn.ExecuteReader(sql, param))
+            {
+                while (reader.Read())
+                {
+                    var constructor = typeof(T).GetConstructors().First();
+
+                    yield return (T)Activator.CreateInstance(typeof(T), constructor.GetArguments(reader));
+                }
+            }
+        }
+
+        public static T ImmutableQuerySingle<T>(this IDbConnection cnn, string sql, object param = null)
+        {
+            var result = default(T);
+            var count = 0;
+
+            using (var reader = cnn.ExecuteReader(sql, param))
+            {
+                while (reader.Read())
+                {
+                    if (++count > 1) throw new InvalidOperationException("Sequence contains more than one element.");
+
+                    var constructor = typeof(T).GetConstructors().First();
+
+                    result = (T)Activator.CreateInstance(typeof(T), constructor.GetArguments(reader));
+                }
+            }
+
+            if (count == 0) throw new InvalidOperationException("Sequence contains no elements.");
+
+            return result;
+        }
+
+        public static T ImmutableQuerySingleOrDefault<T>(this IDbConnection cnn, string sql, object param = null)
+        {
+            var result = default(T);
+
+            using (var reader = cnn.ExecuteReader(sql, param))
+            {
+                var count = 0;
+                while (reader.Read())
+                {
+                    if (++count > 1) throw new InvalidOperationException("Sequence contains more than one element.");
+
+                    var constructor = typeof(T).GetConstructors().First();
+
+                    result = (T)Activator.CreateInstance(typeof(T), constructor.GetArguments(reader));
+                }
+            }
+
+            return result;
+        }
+
+        public static T ImmutableQueryFirst<T>(this IDbConnection cnn, string sql, object param = null)
+        {
+            using (var reader = cnn.ExecuteReader(sql, param))
+            {
+                while (reader.Read())
+                {
+                    var constructor = typeof(T).GetConstructors().First();
+
+                    return (T)Activator.CreateInstance(typeof(T), constructor.GetArguments(reader));
+                }
+            }
+
+            throw new InvalidOperationException("Sequence contains no elements.");
+        }
+
+        public static T ImmutableQueryFirstOrDefault<T>(this IDbConnection cnn, string sql, object param = null)
+        {
+            var result = default(T);
+
+            using (var reader = cnn.ExecuteReader(sql, param))
+            {
+                while (reader.Read())
+                {
+                    var constructor = typeof(T).GetConstructors().First();
+
+                    result = (T)Activator.CreateInstance(typeof(T), constructor.GetArguments(reader));
+
+                    break;
+                }
+            }
+
+            return result;
         }
 
         private static ExpandoObject GetParameter(List<string> props, object obj)
