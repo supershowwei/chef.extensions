@@ -50,6 +50,9 @@
     <Compile Include="..\Chef.Extensions.LiteDB\Extension.cs">
       <Link>Extension.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.LiteDB\Extensions\IEnumerableExtension.cs">
+      <Link>Extensions\IEnumerableExtension.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

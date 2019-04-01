@@ -13,10 +13,6 @@ LiteDB do not support deserializing immutable object, like this:
             this.Goods = goods;
         }
 
-        public Member()
-        {
-        }
-
         public int Id { get; }
 
         public string Name { get; }
@@ -28,7 +24,7 @@ LiteDB do not support deserializing immutable object, like this:
         public IReadOnlyDictionary<int, string> Goods { get; }
     }
 
-When I use `Find<Member>()` to query objects, the content of objects will be empty or null. I extend `LiteCollection<T>` to solve this problem, the following are extension methods:
+I extend `LiteCollection<T>` to solve this problem, the following are extension methods:
 
     public static IEnumerable<T> FindAll<T>(this LiteCollection<T> me);
     public static IEnumerable<T> FindAsImmutability<T>(this LiteCollection<T> me, Query query, int skip = 0, int limit = int.MaxValue);
@@ -36,5 +32,3 @@ When I use `Find<Member>()` to query objects, the content of objects will be emp
     public static T FindAsImmutabilityById<T>(this LiteCollection<T> me, BsonValue id);
     public static T FindOneAsImmutability<T>(this LiteCollection<T> me, Query query);
     public static T FindOneAsImmutability<T>(this LiteCollection<T> me, Expression<Func<T, bool>> predicate);
-
-When use these extension methods must declare a parameterless constructor.

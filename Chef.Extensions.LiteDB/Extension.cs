@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Chef.Extensions.LiteDB.Extensions;
 using LiteDB;
 
 namespace Chef.Extensions.LiteDB
@@ -21,49 +22,19 @@ namespace Chef.Extensions.LiteDB
 
         private static readonly Dictionary<Type, PropertyInfo> IdentityProps = new Dictionary<Type, PropertyInfo>();
 
-        private static readonly Dictionary<string, BackingField> BackingFields = new Dictionary<string, BackingField>();
-
         public static T ToImmutability<T>(this BsonDocument me)
         {
             if (me == null) return default(T);
 
-            var result = Activator.CreateInstance<T>();
-            var resultType = typeof(T);
+            var type = typeof(T);
 
-            var identityProp = GetIdentityProperty(resultType);
-            var id = Deserialize(identityProp.PropertyType, me["_id"]);
+            var constructor = type.GetConstructors().First();
 
-            SetBackingFieldValue(identityProp.Name, id, result, resultType);
+            var identityProp = GetIdentityProperty(type);
 
-            foreach (var prop in resultType.GetProperties())
-            {
-                if (prop.Name.Equals(identityProp.Name)) continue;
+            var args = constructor.GetParameters().Select(p => GetArgument(p, identityProp.Name, me)).ToArray();
 
-                if (me.Keys.Contains(prop.Name))
-                {
-                    object value = null;
-
-                    if (IsList(me, prop))
-                    {
-                        value = DeserializeList(prop.PropertyType, me[prop.Name].AsArray);
-                    }
-                    else if (IsDictionary(me, prop))
-                    {
-                        var keyType = prop.PropertyType.GetTypeInfo().GetGenericArguments()[0];
-                        var valueType = prop.PropertyType.GetTypeInfo().GetGenericArguments()[1];
-
-                        value = DeserializeDictionary(keyType, valueType, me[prop.Name].AsDocument);
-                    }
-                    else
-                    {
-                        value = Deserialize(prop.PropertyType, me[prop.Name]);
-                    }
-
-                    SetBackingFieldValue(prop.Name, value, result, resultType);
-                }
-            }
-
-            return result;
+            return (T)Activator.CreateInstance(type, args);
         }
 
         public static BsonDocument ToDocument<T>(this T me)
@@ -155,27 +126,41 @@ namespace Chef.Extensions.LiteDB
             return IdentityProps[type];
         }
 
-        private static void SetBackingFieldValue(string name, object value, object obj, Type declaringType)
+        private static object GetArgument(ParameterInfo param, string identityName, BsonDocument doc)
         {
-            var key = BackingField.GenerateKey(name, declaringType);
-
-            if (!BackingFields.ContainsKey(key))
+            if (identityName.Equals(param.Name, StringComparison.OrdinalIgnoreCase))
             {
-                lock (BackingFields)
+                return Deserialize(param.ParameterType, doc["_id"]);
+            }
+            else if (doc.Keys.Any(k => k.Equals(param.Name, StringComparison.OrdinalIgnoreCase), out var key))
+            {
+                var value = doc[key];
+
+                if (IsList(value, param))
                 {
-                    if (!BackingFields.ContainsKey(key))
-                    {
-                        BackingFields.Add(key, new BackingField(name, declaringType));
-                    }
+                    return DeserializeList(param.ParameterType, value.AsArray);
+                }
+                else if (IsDictionary(value, param))
+                {
+                    var keyType = param.ParameterType.GetTypeInfo().GetGenericArguments()[0];
+                    var valueType = param.ParameterType.GetTypeInfo().GetGenericArguments()[1];
+
+                    return DeserializeDictionary(keyType, valueType, value.AsDocument);
+                }
+                else
+                {
+                    return Deserialize(param.ParameterType, value);
                 }
             }
-
-            BackingFields[key].SetValue(obj, value);
+            else
+            {
+                return null;
+            }
         }
 
-        private static bool IsList(BsonDocument doc, PropertyInfo prop)
+        private static bool IsList(BsonValue value, ParameterInfo param)
         {
-            return doc[prop.Name].IsArray && !prop.PropertyType.IsArray;
+            return value.IsArray && !param.ParameterType.IsArray;
         }
 
         private static object DeserializeList(Type type, BsonArray value)
@@ -191,10 +176,10 @@ namespace Chef.Extensions.LiteDB
             return list;
         }
 
-        private static bool IsDictionary(BsonDocument me, PropertyInfo prop)
+        private static bool IsDictionary(BsonValue value, ParameterInfo param)
         {
-            return me[prop.Name].IsDocument && prop.PropertyType.IsGenericType
-                   && prop.PropertyType.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>);
+            return value.IsDocument && param.ParameterType.IsGenericType
+                   && param.ParameterType.GetGenericTypeDefinition() == typeof(IReadOnlyDictionary<,>);
         }
 
         private static object DeserializeDictionary(Type keyType, Type valueType, BsonDocument value)
