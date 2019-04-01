@@ -9,7 +9,7 @@ namespace Chef.Extensions.Dapper.Extensions
         {
             for (var i = 0; i < me.FieldCount; i++)
             {
-                if (me.GetName(i).Equals(name, StringComparison.InvariantCultureIgnoreCase)) return true;
+                if (me.GetName(i).Equals(name, StringComparison.OrdinalIgnoreCase)) return true;
             }
 
             return false;

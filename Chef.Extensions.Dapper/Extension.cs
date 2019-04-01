@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using Chef.Extensions.Dapper.Extensions;
 using Dapper;
