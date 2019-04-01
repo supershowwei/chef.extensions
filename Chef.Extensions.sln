@@ -59,6 +59,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Assembly", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Enum", "Chef.Extensions.Enum\Chef.Extensions.Enum.csproj", "{DDDB1BD5-86A8-4F43-B4E5-389FB011B011}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.LiteDB", "Chef.Extensions.LiteDB\Chef.Extensions.LiteDB.csproj", "{995BFB75-1731-4454-84C1-941889A0FA4B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.LiteDB.NET451", "Chef.Extensions.LiteDB.NET451\Chef.Extensions.LiteDB.NET451.csproj", "{535F0B93-C8B5-448D-9D66-C37B6DFA5182}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.LiteDB.NET461", "Chef.Extensions.LiteDB.NET461\Chef.Extensions.LiteDB.NET461.csproj", "{7821080B-A5F1-479B-A930-1F3FFDA5DBFD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -291,6 +297,30 @@ Global
 		{DDDB1BD5-86A8-4F43-B4E5-389FB011B011}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
 		{DDDB1BD5-86A8-4F43-B4E5-389FB011B011}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
 		{DDDB1BD5-86A8-4F43-B4E5-389FB011B011}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{995BFB75-1731-4454-84C1-941889A0FA4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{995BFB75-1731-4454-84C1-941889A0FA4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{995BFB75-1731-4454-84C1-941889A0FA4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{995BFB75-1731-4454-84C1-941889A0FA4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{995BFB75-1731-4454-84C1-941889A0FA4B}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{995BFB75-1731-4454-84C1-941889A0FA4B}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{995BFB75-1731-4454-84C1-941889A0FA4B}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{995BFB75-1731-4454-84C1-941889A0FA4B}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{535F0B93-C8B5-448D-9D66-C37B6DFA5182}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{535F0B93-C8B5-448D-9D66-C37B6DFA5182}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{535F0B93-C8B5-448D-9D66-C37B6DFA5182}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{535F0B93-C8B5-448D-9D66-C37B6DFA5182}.Release|Any CPU.Build.0 = Release|Any CPU
+		{535F0B93-C8B5-448D-9D66-C37B6DFA5182}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{535F0B93-C8B5-448D-9D66-C37B6DFA5182}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{535F0B93-C8B5-448D-9D66-C37B6DFA5182}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{535F0B93-C8B5-448D-9D66-C37B6DFA5182}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{7821080B-A5F1-479B-A930-1F3FFDA5DBFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7821080B-A5F1-479B-A930-1F3FFDA5DBFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7821080B-A5F1-479B-A930-1F3FFDA5DBFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7821080B-A5F1-479B-A930-1F3FFDA5DBFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7821080B-A5F1-479B-A930-1F3FFDA5DBFD}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{7821080B-A5F1-479B-A930-1F3FFDA5DBFD}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{7821080B-A5F1-479B-A930-1F3FFDA5DBFD}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{7821080B-A5F1-479B-A930-1F3FFDA5DBFD}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

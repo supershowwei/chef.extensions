@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B71FDDF8-2E42-4010-AD43-F48F0369FD10}</ProjectGuid>
+    <ProjectGuid>{7821080B-A5F1-479B-A930-1F3FFDA5DBFD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Chef.Extensions.Dapper</RootNamespace>
-    <AssemblyName>Chef.Extensions.Dapper</AssemblyName>
+    <RootNamespace>Chef.Extensions.LiteDB</RootNamespace>
+    <AssemblyName>Chef.Extensions.LiteDB</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Dapper, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapper.1.50.0\lib\net451\Dapper.dll</HintPath>
+    <Reference Include="LiteDB, Version=4.0.0.0, Culture=neutral, PublicKeyToken=4ee40123013c9f27, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiteDB.4.0.0\lib\net40\LiteDB.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -44,29 +44,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Chef.Extensions.Dapper\DefaultRowParserProvider.cs">
-      <Link>DefaultRowParserProvider.cs</Link>
+    <Compile Include="..\Chef.Extensions.LiteDB\BackingField.cs">
+      <Link>BackingField.cs</Link>
     </Compile>
-    <Compile Include="..\Chef.Extensions.Dapper\Extension.cs">
+    <Compile Include="..\Chef.Extensions.LiteDB\Extension.cs">
       <Link>Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Dapper\Extensions\ConstructorInfoExtension.cs">
-      <Link>Extensions\ConstructorInfoExtension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Dapper\Extensions\DictionaryExtension.cs">
-      <Link>Extensions\DictionaryExtension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Dapper\Extensions\IDataReaderExtension.cs">
-      <Link>Extensions\IDataReaderExtension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Dapper\Extensions\TypeExtension.cs">
-      <Link>Extensions\TypeExtension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Dapper\IRowParserProvider.cs">
-      <Link>IRowParserProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Dapper\TypeHandlers.cs">
-      <Link>TypeHandlers.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
