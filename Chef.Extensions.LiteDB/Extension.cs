@@ -12,9 +12,12 @@ namespace Chef.Extensions.LiteDB
     {
         private static readonly Type BsonIdAttr = typeof(BsonIdAttribute);
 
-        private static readonly MethodInfo Deserialize = typeof(BsonMapper)
-            .GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-            .Single(x => x.Name.Equals("Deserialize") && !x.IsGenericMethod);
+        private static readonly Func<Type, BsonValue, object> Deserialize =
+            (Func<Type, BsonValue, object>)Delegate.CreateDelegate(
+                typeof(Func<Type, BsonValue, object>),
+                BsonMapper.Global,
+                typeof(BsonMapper).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                    .Single(x => x.Name.Equals("Deserialize") && !x.IsGenericMethod));
 
         private static readonly Dictionary<Type, PropertyInfo> IdentityProps = new Dictionary<Type, PropertyInfo>();
 
@@ -28,7 +31,7 @@ namespace Chef.Extensions.LiteDB
             var resultType = typeof(T);
 
             var identityProp = GetIdentityProperty(resultType);
-            var id = Deserialize.Invoke(BsonMapper.Global, new object[] { identityProp.PropertyType, me["_id"] });
+            var id = Deserialize(identityProp.PropertyType, me["_id"]);
 
             SetBackingFieldValue(identityProp.Name, id, result, resultType);
 
@@ -38,7 +41,7 @@ namespace Chef.Extensions.LiteDB
 
                 if (me.Keys.Contains(prop.Name))
                 {
-                    object value;
+                    object value = null;
 
                     if (IsList(me, prop))
                     {
@@ -53,9 +56,7 @@ namespace Chef.Extensions.LiteDB
                     }
                     else
                     {
-                        value = Deserialize.Invoke(
-                            BsonMapper.Global,
-                            new object[] { prop.PropertyType, me[prop.Name] });
+                        value = Deserialize(prop.PropertyType, me[prop.Name]);
                     }
 
                     SetBackingFieldValue(prop.Name, value, result, resultType);
@@ -118,12 +119,12 @@ namespace Chef.Extensions.LiteDB
             return FindAsImmutability(me, Query.EQ("_id", id)).SingleOrDefault();
         }
 
-        public static T FindOne<T>(this LiteCollection<T> me, Query query)
+        public static T FindOneAsImmutability<T>(this LiteCollection<T> me, Query query)
         {
             return FindAsImmutability(me, query).FirstOrDefault();
         }
 
-        public static T FindOne<T>(this LiteCollection<T> me, Expression<Func<T, bool>> predicate)
+        public static T FindOneAsImmutability<T>(this LiteCollection<T> me, Expression<Func<T, bool>> predicate)
         {
             return FindAsImmutability(me, predicate).FirstOrDefault();
         }
@@ -184,7 +185,7 @@ namespace Chef.Extensions.LiteDB
 
             foreach (var item in value)
             {
-                list.Add(Deserialize.Invoke(BsonMapper.Global, new object[] { itemType, item }));
+                list.Add(Deserialize(itemType, item));
             }
 
             return list;
@@ -203,7 +204,7 @@ namespace Chef.Extensions.LiteDB
             foreach (var key in value.Keys)
             {
                 var k = keyType.GetTypeInfo().IsEnum ? Enum.Parse(keyType, key) : Convert.ChangeType(key, keyType);
-                var v = Deserialize.Invoke(BsonMapper.Global, new object[] { valueType, value[key] });
+                var v = Deserialize(valueType, value[key]);
 
                 dict.Add(k, v);
             }
