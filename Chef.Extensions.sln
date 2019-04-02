@@ -41,10 +41,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Agility.NET
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Agility.NET461", "Chef.Extensions.Agility.NET461\Chef.Extensions.Agility.NET461.csproj", "{3E1FF27F-6B35-45BE-8264-8218066094F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.ActionFilter.NET451", "Chef.Extensions.ActionFilter.NET451\Chef.Extensions.ActionFilter.NET451.csproj", "{5D5942FD-210E-4ADC-8314-9C7EC00F2C39}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.ActionFilter.NET461", "Chef.Extensions.ActionFilter.NET461\Chef.Extensions.ActionFilter.NET461.csproj", "{BE85B6F5-4068-41B8-A587-DD505F286D31}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Object", "Chef.Extensions.Object\Chef.Extensions.Object.csproj", "{35EAF676-CCA4-4D53-891A-5CF68AB85A82}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Assembly", "Chef.Extensions.Assembly\Chef.Extensions.Assembly.csproj", "{E0942488-66B7-4C0C-9318-2AD13252D66D}"
@@ -223,22 +219,6 @@ Global
 		{3E1FF27F-6B35-45BE-8264-8218066094F0}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
 		{3E1FF27F-6B35-45BE-8264-8218066094F0}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
 		{3E1FF27F-6B35-45BE-8264-8218066094F0}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
-		{5D5942FD-210E-4ADC-8314-9C7EC00F2C39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5D5942FD-210E-4ADC-8314-9C7EC00F2C39}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5D5942FD-210E-4ADC-8314-9C7EC00F2C39}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5D5942FD-210E-4ADC-8314-9C7EC00F2C39}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5D5942FD-210E-4ADC-8314-9C7EC00F2C39}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
-		{5D5942FD-210E-4ADC-8314-9C7EC00F2C39}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
-		{5D5942FD-210E-4ADC-8314-9C7EC00F2C39}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
-		{5D5942FD-210E-4ADC-8314-9C7EC00F2C39}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
-		{BE85B6F5-4068-41B8-A587-DD505F286D31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BE85B6F5-4068-41B8-A587-DD505F286D31}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BE85B6F5-4068-41B8-A587-DD505F286D31}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BE85B6F5-4068-41B8-A587-DD505F286D31}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BE85B6F5-4068-41B8-A587-DD505F286D31}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
-		{BE85B6F5-4068-41B8-A587-DD505F286D31}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
-		{BE85B6F5-4068-41B8-A587-DD505F286D31}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
-		{BE85B6F5-4068-41B8-A587-DD505F286D31}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
 		{35EAF676-CCA4-4D53-891A-5CF68AB85A82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{35EAF676-CCA4-4D53-891A-5CF68AB85A82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35EAF676-CCA4-4D53-891A-5CF68AB85A82}.Release|Any CPU.ActiveCfg = Release|Any CPU
