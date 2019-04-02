@@ -1,4 +1,6 @@
-﻿namespace Chef.Extensions.Controller
+﻿using Chef.Extensions.Mvc.Helpers;
+
+namespace Chef.Extensions.Mvc.Cachable
 {
     internal class CacheView
     {

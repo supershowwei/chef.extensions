@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace Chef.Extensions.Controller
+namespace Chef.Extensions.Mvc.Cachable
 {
     internal class CacheViewIdentity
     {

@@ -1,8 +1,9 @@
 ﻿using System.Net;
 using System.Web.Caching;
 using System.Web.Mvc;
+using Chef.Extensions.Mvc.Extensions;
 
-namespace Chef.Extensions.Controller
+namespace Chef.Extensions.Mvc.Cachable
 {
     public class CacheViewAttribute : ActionFilterAttribute
     {

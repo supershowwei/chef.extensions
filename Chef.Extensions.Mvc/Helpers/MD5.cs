@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace Chef.Extensions.Controller
+namespace Chef.Extensions.Mvc.Helpers
 {
     internal class MD5
     {

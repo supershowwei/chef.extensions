@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{581C46DC-F654-44A1-B487-B2081A13F835}</ProjectGuid>
+    <ProjectGuid>{891FCA2C-939C-4F6B-8C8B-FEB9FB1E1B38}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Chef.Extensions.Controller</RootNamespace>
-    <AssemblyName>Chef.Extensions.Controller</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <RootNamespace>Chef.Extensions.Mvc</RootNamespace>
+    <AssemblyName>Chef.Extensions.Mvc</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -66,14 +66,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionResultExtension.cs" />
-    <Compile Include="CacheView.cs" />
-    <Compile Include="CacheViewIdentity.cs" />
-    <Compile Include="CacheViewAttribute.cs" />
-    <Compile Include="Extension.cs" />
-    <Compile Include="JsonNetResult.cs" />
-    <Compile Include="MD5.cs" />
-    <Compile Include="ObjectLocker.cs" />
+    <Compile Include="..\Chef.Extensions.Mvc\Cachable\CacheView.cs">
+      <Link>Cachable\CacheView.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Mvc\Cachable\CacheViewAttribute.cs">
+      <Link>Cachable\CacheViewAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Mvc\Cachable\CacheViewIdentity.cs">
+      <Link>Cachable\CacheViewIdentity.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Mvc\Extension.cs">
+      <Link>Extension.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Mvc\Extensions\ActionResultExtension.cs">
+      <Link>Extensions\ActionResultExtension.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Mvc\Helpers\MD5.cs">
+      <Link>Helpers\MD5.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Mvc\Helpers\ObjectLocker.cs">
+      <Link>Helpers\ObjectLocker.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Mvc\JsonNetResult.cs">
+      <Link>JsonNetResult.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 
-namespace Chef.Extensions.Controller
+namespace Chef.Extensions.Mvc.Extensions
 {
     internal static class ActionResultExtension
     {

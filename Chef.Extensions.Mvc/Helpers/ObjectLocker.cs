@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-namespace Chef.Extensions.Controller
+namespace Chef.Extensions.Mvc.Helpers
 {
     internal class ObjectLocker
     {

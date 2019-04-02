@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -6,12 +7,15 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web.Caching;
 using System.Web.Mvc;
+using Chef.Extensions.Mvc.Cachable;
+using Chef.Extensions.Mvc.Extensions;
+using Chef.Extensions.Mvc.Helpers;
 
-namespace Chef.Extensions.Controller
+namespace Chef.Extensions.Mvc
 {
     public static class Extension
     {
-        public static void HeatViews(this System.Web.Mvc.Controller me)
+        public static void HeatViews(this Controller me)
         {
             var root = me.Server.MapPath("~/");
 
@@ -45,58 +49,58 @@ namespace Chef.Extensions.Controller
             }
         }
 
-        public static HttpStatusCodeResult HttpOK(this System.Web.Mvc.Controller me)
+        public static HttpStatusCodeResult HttpOK(this Controller me)
         {
             return HttpStatus(me, HttpStatusCode.OK);
         }
 
-        public static HttpStatusCodeResult HttpNotModified(this System.Web.Mvc.Controller me)
+        public static HttpStatusCodeResult HttpNotModified(this Controller me)
         {
             return HttpStatus(me, HttpStatusCode.NotModified);
         }
 
-        public static HttpStatusCodeResult HttpBadRequest(this System.Web.Mvc.Controller me)
+        public static HttpStatusCodeResult HttpBadRequest(this Controller me)
         {
             return HttpStatus(me, HttpStatusCode.BadRequest);
         }
 
-        public static HttpStatusCodeResult HttpUnauthorized(this System.Web.Mvc.Controller me)
+        public static HttpStatusCodeResult HttpUnauthorized(this Controller me)
         {
             return HttpStatus(me, HttpStatusCode.Unauthorized);
         }
 
-        public static HttpStatusCodeResult HttpForbidden(this System.Web.Mvc.Controller me)
+        public static HttpStatusCodeResult HttpForbidden(this Controller me)
         {
             return HttpStatus(me, HttpStatusCode.Forbidden);
         }
 
-        public static HttpStatusCodeResult HttpInternalServerError(this System.Web.Mvc.Controller me)
+        public static HttpStatusCodeResult HttpInternalServerError(this Controller me)
         {
             return HttpStatus(me, HttpStatusCode.InternalServerError);
         }
 
-        public static HttpStatusCodeResult HttpStatus(this System.Web.Mvc.Controller me, HttpStatusCode statusCode)
+        public static HttpStatusCodeResult HttpStatus(this Controller me, HttpStatusCode statusCode)
         {
             return new HttpStatusCodeResult(statusCode);
         }
 
-        public static HttpStatusCodeResult HttpStatus(this System.Web.Mvc.Controller me, int statusCode)
+        public static HttpStatusCodeResult HttpStatus(this Controller me, int statusCode)
         {
             return new HttpStatusCodeResult(statusCode);
         }
 
-        public static JsonNetResult Jsonet(this System.Web.Mvc.Controller me, object data)
+        public static JsonNetResult Jsonet(this Controller me, object data)
         {
             return Jsonet(me, data, null, null);
         }
 
-        public static JsonNetResult Jsonet(this System.Web.Mvc.Controller me, object data, string contentType)
+        public static JsonNetResult Jsonet(this Controller me, object data, string contentType)
         {
             return Jsonet(me, data, contentType, null);
         }
 
         public static JsonNetResult Jsonet(
-            this System.Web.Mvc.Controller me,
+            this Controller me,
             object data,
             string contentType,
             Encoding contentEncoding)
@@ -104,26 +108,22 @@ namespace Chef.Extensions.Controller
             return new JsonNetResult { Data = data, ContentType = contentType, ContentEncoding = contentEncoding };
         }
 
-        public static ActionResult CacheView(this System.Web.Mvc.Controller me, int duration = 900)
+        public static ActionResult CacheView(this Controller me, int duration = 900)
         {
             return CacheView(me, null, null, duration);
         }
 
-        public static ActionResult CacheView(this System.Web.Mvc.Controller me, string viewName, int duration = 900)
+        public static ActionResult CacheView(this Controller me, string viewName, int duration = 900)
         {
             return CacheView(me, viewName, null, duration);
         }
 
-        public static ActionResult CacheView(this System.Web.Mvc.Controller me, object model, int duration = 900)
+        public static ActionResult CacheView(this Controller me, object model, int duration = 900)
         {
             return CacheView(me, null, model, duration);
         }
 
-        public static ActionResult CacheView(
-            this System.Web.Mvc.Controller me,
-            string viewName,
-            object model,
-            int duration = 900)
+        public static ActionResult CacheView(this Controller me, string viewName, object model, int duration = 900)
         {
             if (model != null) me.ViewData.Model = model;
 
@@ -155,7 +155,29 @@ namespace Chef.Extensions.Controller
                 $"{cacheKey}-{cacheView.Checksum}");
         }
 
-        private static ViewEngineResult FindView(System.Web.Mvc.Controller controller, string viewName)
+        public static T GetParameter<T>(this ActionExecutingContext me, string name)
+        {
+            if (me.ActionParameters.ContainsKey(name)) return (T)me.ActionParameters[name];
+
+            if (me.RouteData.Values.ContainsKey(name))
+            {
+                var converter = TypeDescriptor.GetConverter(typeof(T));
+
+                return (T)converter.ConvertFrom(me.RouteData.Values[name]);
+            }
+
+            return default(T);
+        }
+
+        public static bool ContainsParameter(this ActionExecutingContext me, string name)
+        {
+            if (me.ActionParameters.ContainsKey(name)) return true;
+            if (me.RouteData.Values.ContainsKey(name)) return true;
+
+            return false;
+        }
+
+        private static ViewEngineResult FindView(Controller controller, string viewName)
         {
             viewName = string.IsNullOrEmpty(viewName)
                            ? controller.ControllerContext.RouteData.GetRequiredString("action")
@@ -180,7 +202,7 @@ namespace Chef.Extensions.Controller
         }
 
         private static CacheView RenderAndCacheForcibly(
-            System.Web.Mvc.Controller controller,
+            Controller controller,
             IView view,
             string cacheKey,
             int duration)
@@ -202,11 +224,7 @@ namespace Chef.Extensions.Controller
             return cacheView;
         }
 
-        private static CacheView RenderAndCache(
-            System.Web.Mvc.Controller controller,
-            IView view,
-            string cacheKey,
-            int duration)
+        private static CacheView RenderAndCache(Controller controller, IView view, string cacheKey, int duration)
         {
             CacheView cacheView;
 
@@ -231,7 +249,7 @@ namespace Chef.Extensions.Controller
             return cacheView;
         }
 
-        private static string Render(System.Web.Mvc.Controller controller, IView view)
+        private static string Render(Controller controller, IView view)
         {
             var writer = new StringWriter();
 

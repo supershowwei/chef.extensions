@@ -3,7 +3,7 @@ using System.Web.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Chef.Extensions.Controller
+namespace Chef.Extensions.Mvc
 {
     public class JsonNetResult : JsonResult
     {
