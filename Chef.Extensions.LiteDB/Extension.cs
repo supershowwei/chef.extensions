@@ -13,12 +13,7 @@ namespace Chef.Extensions.LiteDB
     {
         private static readonly Type BsonIdAttr = typeof(BsonIdAttribute);
 
-        private static readonly Func<Type, BsonValue, object> Deserialize =
-            (Func<Type, BsonValue, object>)Delegate.CreateDelegate(
-                typeof(Func<Type, BsonValue, object>),
-                BsonMapper.Global,
-                typeof(BsonMapper).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
-                    .Single(x => x.Name.Equals("Deserialize") && !x.IsGenericMethod));
+        private static readonly Func<Type, BsonValue, object> Deserialize = CreateDeserializationDelegate();
 
         private static readonly Dictionary<Type, PropertyInfo> IdentityProps = new Dictionary<Type, PropertyInfo>();
 
@@ -103,6 +98,29 @@ namespace Chef.Extensions.LiteDB
         public static IEnumerable<T> FindAll<T>(this LiteCollection<T> me)
         {
             return FindAsImmutability(me, Query.All());
+        }
+
+        private static Func<Type, BsonValue, object> CreateDeserializationDelegate()
+        {
+            var deserialize = typeof(BsonMapper).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Single(
+                    x =>
+                        {
+                            if (x.IsGenericMethod) return false;
+                            if (!x.Name.Equals("Deserialize")) return false;
+
+                            var parameters = x.GetParameters();
+
+                            if (parameters.Length != 2) return false;
+                            if (parameters[0].ParameterType != typeof(Type)) return false;
+                            if (parameters[1].ParameterType != typeof(BsonValue)) return false;
+
+                            return true;
+                        });
+
+            var delg = Delegate.CreateDelegate(typeof(Func<Type, BsonValue, object>), BsonMapper.Global, deserialize);
+
+            return (Func<Type, BsonValue, object>)delg;
         }
 
         private static PropertyInfo GetIdentityProperty(Type type)
