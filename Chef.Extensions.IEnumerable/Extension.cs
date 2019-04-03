@@ -26,19 +26,41 @@ namespace Chef.Extensions.IEnumerable
             return me != null && me.Any();
         }
 
-        public static bool Any<T>(this IEnumerable<T> me, Func<T, bool> predicate, out T result)
+        public static bool Any<T>(this IEnumerable<T> me, Func<T, bool> predicate, out T first)
         {
-            result = default(T);
-
             foreach (var element in me)
             {
                 if (predicate(element))
                 {
-                    result = element;
+                    first = element;
 
                     return true;
                 }
             }
+
+            first = default(T);
+
+            return false;
+        }
+
+        public static bool Any<T>(this IEnumerable<T> me, Func<T, bool> predicate, out int index, out T first)
+        {
+            var i = 0;
+            foreach (var element in me)
+            {
+                if (predicate(element))
+                {
+                    index = i;
+                    first = element;
+
+                    return true;
+                }
+
+                i++;
+            }
+
+            index = -1;
+            first = default(T);
 
             return false;
         }
@@ -100,6 +122,32 @@ namespace Chef.Extensions.IEnumerable
                 yield return queue.Dequeue();
             }
             while (queue.Count > 0);
+        }
+
+        public static IEnumerable<T> Merge<T>(
+            this IEnumerable<T> me,
+            IEnumerable<T> merged,
+            System.Func<T, T, bool> compare,
+            Action<T, T> merge)
+        {
+            var mergedList = new List<T>(merged);
+
+            foreach (var element in me)
+            {
+                if (mergedList.Any(x => compare(x, element), out var index, out var existed))
+                {
+                    merge(element, existed);
+
+                    mergedList.RemoveAt(index);
+                }
+
+                yield return element;
+            }
+
+            foreach (var left in mergedList)
+            {
+                yield return left;
+            }
         }
     }
 }
