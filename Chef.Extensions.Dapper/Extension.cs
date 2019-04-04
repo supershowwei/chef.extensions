@@ -162,7 +162,7 @@ namespace Chef.Extensions.Dapper
             }
         }
 
-        public static IEnumerable<T> ImmutableQuery<T>(this IDbConnection cnn, string sql, object param = null)
+        public static IEnumerable<T> QueryAsImmutability<T>(this IDbConnection cnn, string sql, object param = null)
         {
             using (var reader = cnn.ExecuteReader(sql, param))
             {
@@ -175,7 +175,7 @@ namespace Chef.Extensions.Dapper
             }
         }
 
-        public static T ImmutableQuerySingle<T>(this IDbConnection cnn, string sql, object param = null)
+        public static T QuerySingleAsImmutability<T>(this IDbConnection cnn, string sql, object param = null)
         {
             var result = default(T);
             var count = 0;
@@ -197,7 +197,7 @@ namespace Chef.Extensions.Dapper
             return result;
         }
 
-        public static T ImmutableQuerySingleOrDefault<T>(this IDbConnection cnn, string sql, object param = null)
+        public static T QuerySingleOrDefaultAsImmutability<T>(this IDbConnection cnn, string sql, object param = null)
         {
             var result = default(T);
 
@@ -217,7 +217,7 @@ namespace Chef.Extensions.Dapper
             return result;
         }
 
-        public static T ImmutableQueryFirst<T>(this IDbConnection cnn, string sql, object param = null)
+        public static T QueryFirstAsImmutability<T>(this IDbConnection cnn, string sql, object param = null)
         {
             using (var reader = cnn.ExecuteReader(sql, param))
             {
@@ -232,7 +232,7 @@ namespace Chef.Extensions.Dapper
             throw new InvalidOperationException("Sequence contains no elements.");
         }
 
-        public static T ImmutableQueryFirstOrDefault<T>(this IDbConnection cnn, string sql, object param = null)
+        public static T QueryFirstOrDefaultAsImmutability<T>(this IDbConnection cnn, string sql, object param = null)
         {
             var result = default(T);
 

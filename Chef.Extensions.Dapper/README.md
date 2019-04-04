@@ -193,12 +193,12 @@ Split hierarchical properties by underscore as `ShelfLife` in example. The execu
 
 Default is getting row parser by finding derived type with matching discriminator value precisely. We can implement *`IRowParserProvider`* and assign to `Chef.Extensions.Dapper.Extension.RowParserProvider` to change default row parser.
 
-## Immutable Query
+## Query as Immutability
 
 Dapper maps data to immutable class, and the constructor fitting parameters count and sequence must be matched. There are some immutable query extension methods that do not need fitting parameters count and sequence.
 
-    public static IEnumerable<T> ImmutableQuery<T>(this IDbConnection cnn, string sql, object param = null);
-    public static T ImmutableQueryFirst<T>(this IDbConnection cnn, string sql, object param = null);
-    public static T ImmutableQueryFirstOrDefault<T>(this IDbConnection cnn, string sql, object param = null);
-    public static T ImmutableQuerySingle<T>(this IDbConnection cnn, string sql, object param = null);
-    public static T ImmutableQuerySingleOrDefault<T>(this IDbConnection cnn, string sql, object param = null);
+    public static IEnumerable<T> QueryAsImmutability<T>(this IDbConnection cnn, string sql, object param = null);
+    public static T QueryFirstAsImmutability<T>(this IDbConnection cnn, string sql, object param = null);
+    public static T QueryFirstOrDefaultAsImmutability<T>(this IDbConnection cnn, string sql, object param = null);
+    public static T QuerySingleAsImmutability<T>(this IDbConnection cnn, string sql, object param = null);
+    public static T QuerySingleOrDefaultAsImmutability<T>(this IDbConnection cnn, string sql, object param = null);
