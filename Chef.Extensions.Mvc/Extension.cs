@@ -127,7 +127,7 @@ namespace Chef.Extensions.Mvc
         {
             if (model != null) me.ViewData.Model = model;
 
-            var viewEngineResult = FindView(me, viewName);
+            var viewEngineResult = FindView(me, viewName, null);
 
             var cacheKey = MD5.Hash(((RazorView)viewEngineResult.View).ViewPath);
             CacheView cacheView;
@@ -177,13 +177,72 @@ namespace Chef.Extensions.Mvc
             return false;
         }
 
-        private static ViewEngineResult FindView(Controller controller, string viewName)
+        public static string RenderView(this Controller me)
+        {
+            return RenderView(me, null, null, null);
+        }
+
+        public static string RenderView(this Controller me, object model)
+        {
+            return RenderView(me, null, null, model);
+        }
+
+        public static string RenderView(this Controller me, string viewName)
+        {
+            return RenderView(me, viewName, null, null);
+        }
+
+        public static string RenderView(this Controller me, string viewName, object model)
+        {
+            return RenderView(me, viewName, null, model);
+        }
+
+        public static string RenderView(this Controller me, string viewName, string masterName)
+        {
+            return RenderView(me, viewName, masterName, null);
+        }
+
+        public static string RenderView(this Controller me, string viewName, string masterName, object model)
+        {
+            if (model != null) me.ViewData.Model = model;
+
+            var viewEngineResult = FindView(me, viewName, masterName);
+
+            return Render(me, viewEngineResult.View);
+        }
+
+        public static ActionResult JavaScriptView(this Controller me)
+        {
+            return JavaScriptView(me, null, null);
+        }
+
+        public static ActionResult JavaScriptView(this Controller me, string viewName)
+        {
+            return JavaScriptView(me, viewName, null);
+        }
+
+        public static ActionResult JavaScriptView(this Controller me, object model)
+        {
+            return JavaScriptView(me, null, model);
+        }
+
+        public static ActionResult JavaScriptView(this Controller me, string viewName, object model)
+        {
+            return new ContentResult
+                   {
+                       Content = RenderView(me, viewName, model), ContentType = "application/javascript"
+                   };
+        }
+
+        private static ViewEngineResult FindView(Controller controller, string viewName, string masterName)
         {
             viewName = string.IsNullOrEmpty(viewName)
                            ? controller.ControllerContext.RouteData.GetRequiredString("action")
                            : viewName;
 
-            return controller.ViewEngineCollection.FindView(controller.ControllerContext, viewName, string.Empty);
+            masterName = string.IsNullOrEmpty(masterName) ? string.Empty : masterName;
+
+            return controller.ViewEngineCollection.FindView(controller.ControllerContext, viewName, masterName);
         }
 
         private static bool MustRefresh(string cacheControl, out int prolonged)
