@@ -149,5 +149,19 @@ namespace Chef.Extensions.IEnumerable
                 yield return left;
             }
         }
+
+        public static int FindIndex<T>(this IEnumerable<T> me, Func<T, bool> predicate)
+        {
+            var index = 0;
+
+            foreach (var item in me)
+            {
+                if (predicate(item)) return index;
+
+                index++;
+            }
+
+            return -1;
+        }
     }
 }

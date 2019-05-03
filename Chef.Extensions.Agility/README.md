@@ -597,6 +597,18 @@ Example:
     
     // result is [{"Name": "abc", "Age": 1}, {"Name": "def", "Age": 2}, {"Name": "ghi", "Age": 3}]
 
+### FindIndex&lt;T&gt;(Func&lt;T, bool&gt; predicate)
+
+Find index by predicate.
+
+Example:
+
+    IEnumerable<int> enumerable = new[] { 11, 22, 33, 44, 55 };
+
+    var result = enumerable.FindIndex(x => x.Equals(55));
+
+    // result is 4.
+
 ## Chef.Extensions.Object
 
 ### IsNotNull()
