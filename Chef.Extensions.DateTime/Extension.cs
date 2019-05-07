@@ -4,6 +4,8 @@ namespace Chef.Extensions.DateTime
 {
     public static class Extension
     {
+        private static readonly System.DateTime InitialTime = new System.DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         public static System.DateTime SetYear(this System.DateTime me, int year)
         {
             return new System.DateTime(year, me.Month, me.Day, me.Hour, me.Minute, me.Second, me.Millisecond);
@@ -116,6 +118,11 @@ namespace Chef.Extensions.DateTime
         public static int DiffSeconds(this System.DateTime me, System.DateTime value)
         {
             return Math.Abs(Convert.ToInt32(Math.Floor(me.Subtract(value).TotalSeconds)));
+        }
+
+        public static long ToJavaScriptTime(this System.DateTime me)
+        {
+            return Convert.ToInt64(me.ToUniversalTime().Subtract(InitialTime).TotalMilliseconds);
         }
     }
 }

@@ -62,6 +62,9 @@
     <Compile Include="..\Chef.Extensions.IEnumerable\Extension.cs">
       <Link>IEnumerable\Extension.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.Long\Extension.cs">
+      <Link>Long\Extension.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.Object\Extension.cs">
       <Link>Object\Extension.cs</Link>
     </Compile>

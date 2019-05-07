@@ -260,6 +260,18 @@ Example:
     
     // result is 34087729.
 
+### ToJavaScriptTime()
+
+Convert to milliseconds of JavaScript time.
+
+Example:
+
+    var time = new DateTime(2019, 5, 7, 10, 23, 55);
+    
+    var jsTime = time.ToJavaScriptTime();
+    
+    // jsTime is 1557224635000.
+
 ## Chef.Extensions.Dictionary
 
 ### AddRange&lt;TKey, TValue&gt;(this Dictionary&lt;TKey, TValue&gt; me, IDictionary&lt;TKey, TValue&gt; collection)
@@ -608,6 +620,20 @@ Example:
     var result = enumerable.FindIndex(x => x.Equals(55));
 
     // result is 4.
+
+## Chef.Extensions.Long
+
+### ToDateTime()
+
+Parse JavaScript time to DateTime.
+
+Example:
+
+    var milliseconds = 1557224635000;
+    
+    var time = milliseconds.ToDateTime();
+    
+    // time is 2019/05/07 10:23:55
 
 ## Chef.Extensions.Object
 
