@@ -144,12 +144,12 @@ namespace Chef.Extensions.String
             return System.DateTime.ParseExact(me, format, CultureInfo.InvariantCulture);
         }
 
-        public static int ToInt(this string me)
+        public static int ToInt32(this string me)
         {
             return int.Parse(me);
         }
 
-        public static long ToLong(this string me)
+        public static long ToInt64(this string me)
         {
             return long.Parse(me);
         }
