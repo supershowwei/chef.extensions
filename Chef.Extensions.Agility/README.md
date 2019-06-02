@@ -383,27 +383,27 @@ Example:
     
     // num1 = 1.4, num2 = 1.5, num3 = 1.6
 
-### ToInt()
+### ToInt32()
 
 Convert a double to int.
 
 Example:
 
-    var num1 = 1.4.ToInt();
-    var num2 = 1.5.ToInt();
-    var num3 = 1.6.ToInt();
+    var num1 = 1.4.ToInt32();
+    var num2 = 1.5.ToInt32();
+    var num3 = 1.6.ToInt32();
     
     // num1 = 1, num2 = 2, num3 = 2
 
-### ToLong()
+### ToInt64()
 
 Convert a double to long.
 
 Example:
 
-    var num1 = 1.4.ToLong();
-    var num2 = 1.5.ToLong();
-    var num3 = 1.6.ToLong();
+    var num1 = 1.4.ToInt64();
+    var num2 = 1.5.ToInt64();
+    var num3 = 1.6.ToInt64();
     
     // num1 = 1, num2 = 2, num3 = 2
 
@@ -899,23 +899,23 @@ Example:
     
     // result is 2018-01-12 12:34:56
 
-### ToInt()
+### ToInt32()
 
 Parse string to int.
 
 Example:
 
-    var result = "123".ToInt();
+    var result = "123".ToInt32();
     
     // result is 123.
 
-### ToLong()
+### ToInt64()
 
 Parse string to long.
 
 Example:
 
-    var result = "123456".ToLong();
+    var result = "123456".ToInt64();
     
     // result is 123456.
 
