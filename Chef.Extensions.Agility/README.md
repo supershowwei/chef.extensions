@@ -313,6 +313,18 @@ Example:
     
     // dict is {"1":1,"2":2,"3":3,"4":4}.
 
+### GetOrAdd&lt;TKey, TValue&gt;(this Dictionary&lt;TKey, TValue&gt; me, TKey key, Func&lt;TValue&gt; factory)
+
+Get value by key, but create object if not exists.
+
+Example:
+
+    var dict = new Dictionary<string, int>();
+    
+    var value = dict.GetOrAdd("1", () => 1);
+    
+    // value is 1.
+
 ## Chef.Extensions.Double
 
 ### Round(MidpointRounding mode = MidpointRounding.AwayFromZero)

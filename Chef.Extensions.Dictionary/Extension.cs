@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Chef.Extensions.Dictionary
 {
@@ -26,6 +27,13 @@ namespace Chef.Extensions.Dictionary
             {
                 me.Add(pair.Key, pair.Value);
             }
+        }
+
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key, Func<TValue> factory)
+        {
+            if (!me.ContainsKey(key)) me.Add(key, factory());
+
+            return me[key];
         }
     }
 }
