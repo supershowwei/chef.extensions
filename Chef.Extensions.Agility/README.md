@@ -2,6 +2,32 @@
 
 A collection of useful extension methods without reference other packages.
 
+## Chef.Extensions.Byte
+
+### GetRange(int startIndex, int length)
+
+Copy range of byte arrary.
+
+Example:
+
+    var data = new byte[] { 0x01, 0x02, 0x03 0x04, 0x05 };
+    
+    var bytes = data.GetRange(1, 2);
+    
+    // bytes is [0x02, 0x03].
+
+### GetRange(long startIndex, long length)
+
+Copy range of byte arrary.
+
+Example:
+
+    var data = new byte[] { 0x01, 0x02, 0x03 0x04, 0x05 };
+    
+    var bytes = data.GetRange(2, 2);
+    
+    // bytes is [0x03, 0x04].
+
 ## Chef.Extensions.Assembly
 
 ### GetCurrentDirectory()
@@ -274,7 +300,7 @@ Example:
 
 ## Chef.Extensions.Dictionary
 
-### AddRange&lt;TKey, TValue&gt;(this Dictionary&lt;TKey, TValue&gt; me, IDictionary&lt;TKey, TValue&gt; collection)
+### AddRange&lt;TKey, TValue&gt;(IDictionary&lt;TKey, TValue&gt; collection)
 
 Add `IDictionary<TKey, TValue>` collection to Dictionary&lt;TKey, TValue&gt;.
 
@@ -287,7 +313,7 @@ Example:
     
     // dict is {"1":1,"2":2,"3":3,"4":4}.
 
-### AddRange&lt;TKey, TValue&gt;(this Dictionary&lt;TKey, TValue&gt; me, ICollection&lt;KeyValuePair&lt;TKey, TValue&gt;&gt; collection)
+### AddRange&lt;TKey, TValue&gt;(ICollection&lt;KeyValuePair&lt;TKey, TValue&gt;&gt; collection)
 
 Add `ICollection<KeyValuePair<TKey, TValue>>` collection to Dictionary&lt;TKey, TValue&gt;.
 
@@ -300,7 +326,7 @@ Example:
     
     // dict is {"1":1,"2":2,"3":3,"4":4}.
 
-### AddRange&lt;TKey, TValue&gt;(this Dictionary&lt;TKey, TValue&gt; me, IEnumerable&lt;KeyValuePair&lt;TKey, TValue&gt;&gt; collection)
+### AddRange&lt;TKey, TValue&gt;(IEnumerable&lt;KeyValuePair&lt;TKey, TValue&gt;&gt; collection)
 
 Add `IEnumerable<KeyValuePair<TKey, TValue>>` collection to Dictionary&lt;TKey, TValue&gt;.
 
@@ -313,7 +339,7 @@ Example:
     
     // dict is {"1":1,"2":2,"3":3,"4":4}.
 
-### GetOrAdd&lt;TKey, TValue&gt;(this Dictionary&lt;TKey, TValue&gt; me, TKey key, Func&lt;TValue&gt; factory)
+### GetOrAdd&lt;TKey, TValue&gt;(TKey key, Func&lt;TValue&gt; factory)
 
 Get value by key, but create object if not exists.
 
@@ -854,7 +880,7 @@ Example:
     
     // result is true.
 
-### Match(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
+### Match(string pattern, RegexOptions options = RegexOptions.IgnoreCase)
 
 Return regular expression matched result. Default is case insensitive.
 
@@ -862,7 +888,7 @@ Example:
 
     var match = "qwerTYUiop".Match("tyu");
 
-### Matches(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
+### Matches(string pattern, RegexOptions options = RegexOptions.IgnoreCase)
 
 Return regular expression matched results. Default is case insensitive.
 
