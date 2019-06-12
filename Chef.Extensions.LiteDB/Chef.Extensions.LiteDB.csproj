@@ -47,7 +47,9 @@
   <ItemGroup>
     <Compile Include="BackingField.cs" />
     <Compile Include="Extension.cs" />
+    <Compile Include="Extensions\DictionaryExtension.cs" />
     <Compile Include="Extensions\IEnumerableExtension.cs" />
+    <Compile Include="Extensions\TypeExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

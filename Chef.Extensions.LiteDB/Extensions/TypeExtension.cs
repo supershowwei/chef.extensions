@@ -1,28 +1,14 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 
-namespace Chef.Extensions.Type
+namespace Chef.Extensions.LiteDB.Extensions
 {
-    public delegate object ObjectActivator(params object[] args);
+    internal delegate object ObjectActivator(params object[] args);
 
-    public static class Extension
+    internal static class TypeExtension
     {
-        public static bool IsUserDefined(this System.Type me)
-        {
-            return !me.IsValueType && !me.IsPrimitive && (me.Namespace == null || !me.Namespace.StartsWith("System"));
-        }
-
-        public static string[] GetPropertyNames(this System.Type me)
-        {
-            return me.GetProperties().Select(x => x.Name).ToArray();
-        }
-
-        public static string[] GetPropertyNames(this System.Type me, string prefix)
-        {
-            return me.GetProperties().Select(x => string.Concat(prefix, x.Name)).ToArray();
-        }
-
-        public static ObjectActivator GetActivator(this System.Type me)
+        public static ObjectActivator GetActivator(this Type me)
         {
             var ctor = me.GetConstructors().First();
             var parameterInfos = ctor.GetParameters();

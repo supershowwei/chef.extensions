@@ -15,7 +15,11 @@ namespace Chef.Extensions.LiteDB
 
         private static readonly Func<Type, BsonValue, object> Deserialize = CreateDeserializationDelegate();
 
+        private static readonly Dictionary<Type, ParameterInfo[]> ConstructorParameters = new Dictionary<Type, ParameterInfo[]>();
+
         private static readonly Dictionary<Type, PropertyInfo> IdentityProps = new Dictionary<Type, PropertyInfo>();
+
+        private static readonly Dictionary<Type, ObjectActivator> ObjectActivators = new Dictionary<Type, ObjectActivator>();
 
         public static T ToImmutability<T>(this BsonDocument me)
         {
@@ -23,13 +27,13 @@ namespace Chef.Extensions.LiteDB
 
             var type = typeof(T);
 
-            var constructor = type.GetConstructors().First();
+            var constructorParams = ConstructorParameters.SafeGetOrAdd(type, () => type.GetConstructors().First().GetParameters());
 
-            var identityProp = GetIdentityProperty(type);
+            var identityProp = IdentityProps.SafeGetOrAdd(type, () => GetIdentityProperty(type));
 
-            var args = constructor.GetParameters().Select(p => GetArgument(p, identityProp.Name, me)).ToArray();
+            var args = constructorParams.Select(p => GetArgument(p, identityProp.Name, me)).ToArray();
 
-            return (T)Activator.CreateInstance(type, args);
+            return (T)ObjectActivators.SafeGetOrAdd(type, () => type.GetActivator())(args);
         }
 
         public static BsonDocument ToDocument<T>(this T me)
@@ -125,23 +129,11 @@ namespace Chef.Extensions.LiteDB
 
         private static PropertyInfo GetIdentityProperty(Type type)
         {
-            if (!IdentityProps.ContainsKey(type))
-            {
-                lock (IdentityProps)
-                {
-                    if (!IdentityProps.ContainsKey(type))
-                    {
-                        var prop = type.GetProperties()
-                            .SingleOrDefault(p => p.CustomAttributes.Any(a => a.AttributeType == BsonIdAttr));
+            var prop = type.GetProperties().SingleOrDefault(p => p.CustomAttributes.Any(a => a.AttributeType == BsonIdAttr));
 
-                        if (prop == null) prop = type.GetProperty("Id");
+            if (prop == null) prop = type.GetProperty("Id");
 
-                        IdentityProps.Add(type, prop);
-                    }
-                }
-            }
-
-            return IdentityProps[type];
+            return prop;
         }
 
         private static object GetArgument(ParameterInfo param, string identityName, BsonDocument doc)
