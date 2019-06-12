@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // 組件的一般資訊是由下列的屬性集控制。
 // 變更這些屬性的值即可修改組件的相關
 // 資訊。
-[assembly: AssemblyTitle("Chef.Extensionos.Byte")]
+[assembly: AssemblyTitle("Chef.Extensions.Byte")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Chef.Extensionos.Byte")]
+[assembly: AssemblyProduct("Chef.Extensions.Byte")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 下列 GUID 為專案公開 (Expose) 至 COM 時所要使用的 typelib ID
-[assembly: Guid("cbed8015-393d-4cd8-9817-60d123d649e3")]
+[assembly: Guid("d36422b7-4a61-403f-9285-c740a0cd0acd")]
 
 // 組件的版本資訊由下列四個值所組成: 
 //

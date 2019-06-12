@@ -61,7 +61,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Mvc.NET461"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Long", "Chef.Extensions.Long\Chef.Extensions.Long.csproj", "{DE77D6CC-670E-4356-9FE4-DC5496AE1209}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensionos.Byte", "Chef.Extensionos.Byte\Chef.Extensionos.Byte.csproj", "{CBED8015-393D-4CD8-9817-60D123D649E3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Byte", "Chef.Extensions.Byte\Chef.Extensions.Byte.csproj", "{D36422B7-4A61-403F-9285-C740A0CD0ACD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -303,14 +303,14 @@ Global
 		{DE77D6CC-670E-4356-9FE4-DC5496AE1209}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
 		{DE77D6CC-670E-4356-9FE4-DC5496AE1209}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
 		{DE77D6CC-670E-4356-9FE4-DC5496AE1209}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
-		{CBED8015-393D-4CD8-9817-60D123D649E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CBED8015-393D-4CD8-9817-60D123D649E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CBED8015-393D-4CD8-9817-60D123D649E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CBED8015-393D-4CD8-9817-60D123D649E3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CBED8015-393D-4CD8-9817-60D123D649E3}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
-		{CBED8015-393D-4CD8-9817-60D123D649E3}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
-		{CBED8015-393D-4CD8-9817-60D123D649E3}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
-		{CBED8015-393D-4CD8-9817-60D123D649E3}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{D36422B7-4A61-403F-9285-C740A0CD0ACD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D36422B7-4A61-403F-9285-C740A0CD0ACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D36422B7-4A61-403F-9285-C740A0CD0ACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D36422B7-4A61-403F-9285-C740A0CD0ACD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D36422B7-4A61-403F-9285-C740A0CD0ACD}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{D36422B7-4A61-403F-9285-C740A0CD0ACD}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{D36422B7-4A61-403F-9285-C740A0CD0ACD}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{D36422B7-4A61-403F-9285-C740A0CD0ACD}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -41,14 +41,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Chef.Extensionos.Byte\Extension.cs">
-      <Link>Byte\Extension.cs</Link>
-    </Compile>
     <Compile Include="..\Chef.Extensions.Assembly\Extension.cs">
       <Link>Assembly\Extension.cs</Link>
     </Compile>
     <Compile Include="..\Chef.Extensions.Boolean\Extension.cs">
       <Link>Boolean\Extension.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Byte\Extension.cs">
+      <Link>Byte\Extension.cs</Link>
     </Compile>
     <Compile Include="..\Chef.Extensions.DateTime\Extension.cs">
       <Link>DateTime\Extension.cs</Link>

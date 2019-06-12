@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Chef.Extensionos.Byte
+namespace Chef.Extensions.Byte
 {
     public static class Extension
     {
