@@ -66,6 +66,36 @@ namespace Chef.Extensions.DateTime
             return new System.DateTime(me.Year, me.Month, me.Day, me.Hour, me.Minute, me.Second, 0);
         }
 
+        public static System.DateTime SetStopYear(this System.DateTime me, int year)
+        {
+            return new System.DateTime(year, 1, 1, 0, 0, 0, 0);
+        }
+
+        public static System.DateTime SetStopMonth(this System.DateTime me, int month)
+        {
+            return new System.DateTime(me.Year, month, 1, 0, 0, 0, 0);
+        }
+
+        public static System.DateTime SetStopDay(this System.DateTime me, int day)
+        {
+            return new System.DateTime(me.Year, me.Month, day, 0, 0, 0, 0);
+        }
+
+        public static System.DateTime SetStopHour(this System.DateTime me, int hour)
+        {
+            return new System.DateTime(me.Year, me.Month, me.Day, hour, 0, 0, 0);
+        }
+
+        public static System.DateTime SetStopMinute(this System.DateTime me, int minute)
+        {
+            return new System.DateTime(me.Year, me.Month, me.Day, me.Hour, minute, 0, 0);
+        }
+
+        public static System.DateTime SetStopSecond(this System.DateTime me, int second)
+        {
+            return new System.DateTime(me.Year, me.Month, me.Day, me.Hour, me.Minute, second, 0);
+        }
+
         public static System.DateTime SpecifyDate(this System.DateTime me, int year, int month, int day)
         {
             return new System.DateTime(year, month, day, me.Hour, me.Minute, me.Second, me.Millisecond);

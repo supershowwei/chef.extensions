@@ -2,32 +2,6 @@
 
 A collection of useful extension methods without reference other packages.
 
-## Chef.Extensions.Byte
-
-### GetRange(int startIndex, int length)
-
-Copy range of byte arrary.
-
-Example:
-
-    var data = new byte[] { 0x01, 0x02, 0x03 0x04, 0x05 };
-    
-    var bytes = data.GetRange(1, 2);
-    
-    // bytes is [0x02, 0x03].
-
-### GetRange(long startIndex, long length)
-
-Copy range of byte arrary.
-
-Example:
-
-    var data = new byte[] { 0x01, 0x02, 0x03 0x04, 0x05 };
-    
-    var bytes = data.GetRange(2, 2);
-    
-    // bytes is [0x03, 0x04].
-
 ## Chef.Extensions.Assembly
 
 ### GetCurrentDirectory()
@@ -63,6 +37,32 @@ Example:
     var result = (price > 0).IIF(() => "red", () => "green");
     
     // result is "green".
+
+## Chef.Extensions.Byte
+
+### GetRange(int startIndex, int length)
+
+Copy range of byte arrary.
+
+Example:
+
+    var data = new byte[] { 0x01, 0x02, 0x03 0x04, 0x05 };
+    
+    var bytes = data.GetRange(1, 2);
+    
+    // bytes is [0x02, 0x03].
+
+### GetRange(long startIndex, long length)
+
+Copy range of byte arrary.
+
+Example:
+
+    var data = new byte[] { 0x01, 0x02, 0x03 0x04, 0x05 };
+    
+    var bytes = data.GetRange(2, 2);
+    
+    // bytes is [0x03, 0x04].
 
 ## Chef.Extensions.DateTime
 
@@ -185,6 +185,66 @@ Example:
     var datetime = new DateTime(2018, 12, 21, 12, 31, 44, 789).StopSecond();
     
     // datetime is 2018/12/21 12:31:44.000
+
+### SetStopYear(int year)
+
+Change `Year` of DateTime, keep `Year` value and set others as initail value.
+
+Example:
+
+    var result = new DateTime(2018, 1, 12, 12, 34, 56).SetStopYear(2017);
+    
+    // result is 2017/1/1 00:00:00
+
+### SetStopMonth(int month)
+
+Change `Month` of DateTime, keep `Year`, `Month` value and set others as initail value.
+
+Example:
+
+    var result = new DateTime(2018, 1, 12, 12, 34, 56).SetStopMonth(2);
+    
+    // result is 2018/2/1 00:00:00
+
+### SetStopDay(int day)
+
+Change `Day` of DateTime, keep `Year`, `Month`, `Day` value and set others as initail value. It equals `DateTime.Date`.
+
+Example:
+
+    var result = new DateTime(2018, 1, 12, 12, 34, 56).SetStopDay(13);
+    
+    // result is 2018/1/13 00:00:00
+
+### SetStopHour(int hour)
+
+Change `Hour` of DateTime, keep `Year`, `Month`, `Day`, `Hour` value and set others as initail value.
+
+Example:
+
+    var result = new DateTime(2018, 1, 12, 12, 34, 56).SetStopHour(14);
+    
+    // result is 2018/1/12 14:00:00
+
+### SetStopMinute(int minute)
+
+Change `Minute` of DateTime, keep `Year`, `Month`, `Day`, `Hour` and `Minute` value and set others as initail value.
+
+Example:
+
+    var result = new DateTime(2018, 1, 12, 12, 34, 56).SetStopMinute(45);
+    
+    // result is 2018/1/12 12:45:00
+
+### SetStopSecond(int second)
+
+Change `Second` of DateTime, keep `Year`, `Month`, `Day`, `Hour`, `Minute`, `Second` value and set others as initail value.
+
+Example:
+
+    var result = new DateTime(2018, 1, 12, 12, 34, 56).SetStopSecond(23);
+    
+    // result is 2018/1/12 12:34:23.000
 
 ### SpecifyDate(int year, int month, int day)
 
@@ -348,6 +408,18 @@ Example:
     var dict = new Dictionary<string, int>();
     
     var value = dict.GetOrAdd("1", () => 1);
+    
+    // value is 1.
+
+### SafeGetOrAdd&lt;TKey, TValue&gt;(TKey key, Func&lt;TValue&gt; factory)
+
+Get value by key, but create object if not exists. [Thread-Safe]
+
+Example:
+
+    var dict = new Dictionary<string, int>();
+    
+    var value = dict.SafeGetOrAdd("1", () => 1);
     
     // value is 1.
 
@@ -1006,3 +1078,15 @@ Example:
     var result = new { Name = "1", Age = 2 }.GetType().GetPropertyNames("kkk.");
     
     // result is ["kkk.Name","kkk.Age"]
+
+### GetActivator()
+
+Return activator of type.
+
+Example:
+
+    var activator = typeof(List<int>).GetActivator();
+    
+    var list = (List<int>)activator();
+    
+    // list is a new instance of List<int>. 

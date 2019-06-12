@@ -21,6 +21,16 @@ namespace Chef.Extensions.LiteDB
 
         private static readonly Dictionary<Type, ObjectActivator> ObjectActivators = new Dictionary<Type, ObjectActivator>();
 
+        private static readonly Dictionary<Type, FieldInfo> EngineFields = new Dictionary<Type, FieldInfo>();
+
+        private static readonly Dictionary<Type, FieldInfo> IncludingFields = new Dictionary<Type, FieldInfo>();
+
+        private static readonly Dictionary<Type, FieldInfo> VisitorFields = new Dictionary<Type, FieldInfo>();
+
+        private static readonly Dictionary<Type, MethodInfo> VisitMethods = new Dictionary<Type, MethodInfo>();
+
+        private static readonly Dictionary<Type, Type[]> KeyValueTypes = new Dictionary<Type, Type[]>();
+
         public static T ToImmutability<T>(this BsonDocument me)
         {
             if (me == null) return default(T);
@@ -49,12 +59,16 @@ namespace Chef.Extensions.LiteDB
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
 
-            var engine = (LazyLoad<LiteEngine>)me.GetType()
-                .GetField("_engine", BindingFlags.Instance | BindingFlags.NonPublic)
+            var type = typeof(T);
+
+            var engine = (LazyLoad<LiteEngine>)EngineFields.SafeGetOrAdd(
+                    type,
+                    () => me.GetType().GetField("_engine", BindingFlags.Instance | BindingFlags.NonPublic))
                 .GetValue(me);
 
-            var includes = (List<string>)me.GetType()
-                .GetField("_includes", BindingFlags.Instance | BindingFlags.NonPublic)
+            var includes = (List<string>)IncludingFields.SafeGetOrAdd(
+                    type,
+                    () => me.GetType().GetField("_includes", BindingFlags.Instance | BindingFlags.NonPublic))
                 .GetValue(me);
 
             var docs = engine.Value.Find(me.Name, query, includes.ToArray(), skip, limit);
@@ -73,11 +87,14 @@ namespace Chef.Extensions.LiteDB
         {
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
 
-            var visitor = me.GetType()
-                .GetField("_visitor", BindingFlags.Instance | BindingFlags.NonPublic)
+            var type = typeof(T);
+
+            var visitor = VisitorFields.SafeGetOrAdd(
+                    type,
+                    () => me.GetType().GetField("_visitor", BindingFlags.Instance | BindingFlags.NonPublic))
                 .GetValue(me);
 
-            var visit = visitor.GetType().GetMethod("Visit");
+            var visit = VisitMethods.SafeGetOrAdd(type, () => visitor.GetType().GetMethod("Visit"));
 
             return FindAsImmutability(me, (Query)visit.Invoke(visitor, new object[] { predicate }), skip, limit);
         }
@@ -152,10 +169,15 @@ namespace Chef.Extensions.LiteDB
                 }
                 else if (IsDictionary(value, param))
                 {
-                    var keyType = param.ParameterType.GetTypeInfo().GetGenericArguments()[0];
-                    var valueType = param.ParameterType.GetTypeInfo().GetGenericArguments()[1];
+                    var keyValueType = KeyValueTypes.SafeGetOrAdd(
+                        param.ParameterType,
+                        () => new[]
+                              {
+                                  param.ParameterType.GetTypeInfo().GetGenericArguments()[0],
+                                  param.ParameterType.GetTypeInfo().GetGenericArguments()[1]
+                              });
 
-                    return DeserializeDictionary(keyType, valueType, value.AsDocument);
+                    return DeserializeDictionary(keyValueType[0], keyValueType[1], value.AsDocument);
                 }
                 else
                 {
@@ -176,7 +198,9 @@ namespace Chef.Extensions.LiteDB
         private static object DeserializeList(Type type, BsonArray value)
         {
             var itemType = type.GetTypeInfo().GenericTypeArguments[0];
-            var list = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(itemType));
+
+            var listType = typeof(List<>).MakeGenericType(itemType);
+            var list = (IList)ObjectActivators.SafeGetOrAdd(listType, () => listType.GetActivator())();
 
             foreach (var item in value)
             {
@@ -194,7 +218,8 @@ namespace Chef.Extensions.LiteDB
 
         private static object DeserializeDictionary(Type keyType, Type valueType, BsonDocument value)
         {
-            var dict = (IDictionary)Activator.CreateInstance(typeof(Dictionary<,>).MakeGenericType(keyType, valueType));
+            var dictType = typeof(Dictionary<,>).MakeGenericType(keyType, valueType);
+            var dict = (IDictionary)ObjectActivators.SafeGetOrAdd(dictType, () => dictType.GetActivator())();
 
             foreach (var key in value.Keys)
             {
