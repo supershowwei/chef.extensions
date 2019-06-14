@@ -35,15 +35,7 @@ namespace Chef.Extensions.LiteDB
         {
             if (me == null) return default(T);
 
-            var type = typeof(T);
-
-            var constructorParams = ConstructorParameters.SafeGetOrAdd(type, () => type.GetConstructors().First().GetParameters());
-
-            var identityProp = IdentityProps.SafeGetOrAdd(type, () => GetIdentityProperty(type));
-
-            var args = constructorParams.Select(p => GetArgument(p, identityProp.Name, me)).ToArray();
-
-            return (T)ObjectActivators.SafeGetOrAdd(type, () => type.GetActivator())(args);
+            return (T)ToImmutability(me, typeof(T));
         }
 
         public static BsonDocument ToDocument<T>(this T me)
@@ -121,6 +113,19 @@ namespace Chef.Extensions.LiteDB
             return FindAsImmutability(me, predicate).FirstOrDefault();
         }
 
+        private static object ToImmutability(BsonDocument me, Type type)
+        {
+            if (me == null) return null;
+
+            var constructorParams = ConstructorParameters.SafeGetOrAdd(type, () => type.GetConstructors().First().GetParameters());
+
+            var identityProp = IdentityProps.SafeGetOrAdd(type, () => GetIdentityProperty(type));
+
+            var args = constructorParams.Select(p => GetArgument(p, identityProp?.Name, me)).ToArray();
+
+            return ObjectActivators.SafeGetOrAdd(type, () => type.GetActivator())(args);
+        }
+
         private static Func<Type, BsonValue, object> CreateDeserializationDelegate()
         {
             var deserialize = typeof(BsonMapper).GetMethods(BindingFlags.NonPublic | BindingFlags.Instance)
@@ -148,14 +153,12 @@ namespace Chef.Extensions.LiteDB
         {
             var prop = type.GetProperties().SingleOrDefault(p => p.CustomAttributes.Any(a => a.AttributeType == BsonIdAttr));
 
-            if (prop == null) prop = type.GetProperty("Id");
-
-            return prop;
+            return prop == null ? type.GetProperty("Id") : prop;
         }
 
         private static object GetArgument(ParameterInfo param, string identityName, BsonDocument doc)
         {
-            if (identityName.Equals(param.Name, StringComparison.OrdinalIgnoreCase))
+            if (identityName != null && identityName.Equals(param.Name, StringComparison.OrdinalIgnoreCase))
             {
                 return Deserialize(param.ParameterType, doc["_id"]);
             }
@@ -178,6 +181,10 @@ namespace Chef.Extensions.LiteDB
                               });
 
                     return DeserializeDictionary(keyValueType[0], keyValueType[1], value.AsDocument);
+                }
+                else if (value.IsDocument)
+                {
+                    return ToImmutability(value.AsDocument, param.ParameterType);
                 }
                 else
                 {
