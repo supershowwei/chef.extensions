@@ -51,6 +51,11 @@ namespace Chef.Extensions.LiteDB
             return BsonMapper.Global.ToDocument(me);
         }
 
+        public static IEnumerable<T> FindAllAsImmutability<T>(this LiteCollection<T> me)
+        {
+            return FindAsImmutability(me, Query.All());
+        }
+
         public static IEnumerable<T> FindAsImmutability<T>(
             this LiteCollection<T> me,
             Query query,
@@ -114,11 +119,6 @@ namespace Chef.Extensions.LiteDB
         public static T FindOneAsImmutability<T>(this LiteCollection<T> me, Expression<Func<T, bool>> predicate)
         {
             return FindAsImmutability(me, predicate).FirstOrDefault();
-        }
-
-        public static IEnumerable<T> FindAll<T>(this LiteCollection<T> me)
-        {
-            return FindAsImmutability(me, Query.All());
         }
 
         private static Func<Type, BsonValue, object> CreateDeserializationDelegate()
