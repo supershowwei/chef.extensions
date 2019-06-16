@@ -64,6 +64,42 @@ Example:
     
     // bytes is [0x03, 0x04].
 
+### Set(int index, byte value)
+
+Set value by index.
+
+Example:
+
+    var data = new byte[] { 0x01, 0x02, 0x03 0x04, 0x05 };
+    
+    data.Set(1, 0x06);
+    
+    // bytes is [0x01, 0x06, 0x03 0x04, 0x05].
+
+### Set(long index, byte value)
+
+Set value by index.
+
+Example:
+
+    var data = new byte[] { 0x01, 0x02, 0x03 0x04, 0x05 };
+    
+    data.Set(1, 0x06);
+    
+    // bytes is [0x01, 0x06, 0x03 0x04, 0x05].
+
+### SetLast(byte value)
+
+Set last value.
+
+Example:
+
+    var data = new byte[] { 0x01, 0x02, 0x03 0x04, 0x05 };
+    
+    data.SetLast(0x06);
+    
+    // bytes is [0x01, 0x02, 0x03 0x04, 0x06].
+
 ## Chef.Extensions.DateTime
 
 ### SetYear(int year)
