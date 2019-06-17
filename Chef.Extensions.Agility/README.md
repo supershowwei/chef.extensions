@@ -459,6 +459,34 @@ Example:
     
     // value is 1.
 
+### GetValueOrDefault&lt;TKey, TValue&gt;(TKey key)
+
+Return default value if get value failed.
+
+Example:
+
+    var dict = new Dictionary<int, string>();
+    
+    dict.Add(1, "a");
+    
+    var value = dict.GetValueOrDefault(2);
+    
+    // value is null.
+
+### GetValueOrDefault&lt;TKey, TValue&gt;(TKey key, TValue defaultValue)
+
+Return custom default value if get value failed.
+
+Example:
+
+    var dict = new Dictionary<int, string>();
+    
+    dict.Add(1, "a");
+    
+    var value = dict.GetValueOrDefault(2, string.Empty);
+    
+    // value is "".
+
 ## Chef.Extensions.Double
 
 ### Round(MidpointRounding mode = MidpointRounding.AwayFromZero)

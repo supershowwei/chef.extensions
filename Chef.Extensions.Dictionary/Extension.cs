@@ -51,5 +51,18 @@ namespace Chef.Extensions.Dictionary
 
             return me[key];
         }
+
+        public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key)
+        {
+            return GetValueOrDefault(me, key, default(TValue));
+        }
+
+        public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key, TValue defaultValue)
+        {
+            if (me == null) throw new ArgumentNullException(nameof(me));
+            if (key == null) throw new ArgumentNullException(nameof(key));
+
+            return me.TryGetValue(key, out var value) ? value : defaultValue;
+        }
     }
 }
