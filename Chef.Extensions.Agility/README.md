@@ -459,7 +459,7 @@ Example:
     
     // value is 1.
 
-### GetValueOrDefault&lt;TKey, TValue&gt;(TKey key)
+### GetValueOrDefault&lt;TKey, TValue&gt;(TKey key, TValue defaultValue = default(TValue))
 
 Return default value if get value failed.
 
@@ -469,23 +469,11 @@ Example:
     
     dict.Add(1, "a");
     
-    var value = dict.GetValueOrDefault(2);
-    
-    // value is null.
+    var value1 = dict.GetValueOrDefault(2, string.Empty);
+    var value2 = dict.GetValueOrDefault(2);
 
-### GetValueOrDefault&lt;TKey, TValue&gt;(TKey key, TValue defaultValue)
-
-Return custom default value if get value failed.
-
-Example:
-
-    var dict = new Dictionary<int, string>();
-    
-    dict.Add(1, "a");
-    
-    var value = dict.GetValueOrDefault(2, string.Empty);
-    
-    // value is "".
+    // value1 is "".
+    // value2 is null.
 
 ## Chef.Extensions.Double
 
