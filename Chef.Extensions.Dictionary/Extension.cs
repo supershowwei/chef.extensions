@@ -59,13 +59,5 @@ namespace Chef.Extensions.Dictionary
 
             return me.TryGetValue(key, out var value) ? value : defaultValue;
         }
-
-        public static TValue GetValueOrDefault<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> me, TKey key, TValue defaultValue = default(TValue))
-        {
-            if (me == null) throw new ArgumentNullException(nameof(me));
-            if (key == null) throw new ArgumentNullException(nameof(key));
-
-            return me.TryGetValue(key, out var value) ? value : defaultValue;
-        }
     }
 }
