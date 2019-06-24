@@ -1141,4 +1141,16 @@ Example:
     
     var list = (List<int>)activator();
     
-    // list is a new instance of List<int>. 
+    // list is a new instance of List<int>.
+
+## Chef.Extensions.XElement
+
+### TryGetAttribute(XName name, out XAttribute attribute)
+
+Try get attribute on XElement.
+
+Example:
+
+    var result = element.TryGetAttribute("Id", out var attr);
+    
+    // result is true if element has "Id" attribute.

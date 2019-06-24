@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B7A6BE55-51CF-45EA-91A5-8CBA12972646}</ProjectGuid>
+    <ProjectGuid>{0CD2565A-E75B-47A6-81D4-7F4CA297A023}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Chef.Extensions.Agility</RootNamespace>
-    <AssemblyName>Chef.Extensions.Agility</AssemblyName>
+    <RootNamespace>Chef.Extensions.XElement</RootNamespace>
+    <AssemblyName>Chef.Extensions.XElement</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -41,45 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Chef.Extensions.Assembly\Extension.cs">
-      <Link>Assembly\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Boolean\Extension.cs">
-      <Link>Boolean\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Byte\Extension.cs">
-      <Link>Byte\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.DateTime\Extension.cs">
-      <Link>DateTime\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Dictionary\Extension.cs">
-      <Link>Dictionary\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Double\Extension.cs">
-      <Link>Double\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Enum\Extension.cs">
-      <Link>Enum\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.IEnumerable\Extension.cs">
-      <Link>IEnumerable\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Long\Extension.cs">
-      <Link>Long\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Object\Extension.cs">
-      <Link>Object\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.String\Extension.cs">
-      <Link>String\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Type\Extension.cs">
-      <Link>Type\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.XElement\Extension.cs">
-      <Link>XElement\Extension.cs</Link>
-    </Compile>
+    <Compile Include="Extension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

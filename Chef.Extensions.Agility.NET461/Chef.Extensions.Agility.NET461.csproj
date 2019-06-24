@@ -77,6 +77,9 @@
     <Compile Include="..\Chef.Extensions.Type\Extension.cs">
       <Link>Type\Extension.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.XElement\Extension.cs">
+      <Link>XElement\Extension.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
