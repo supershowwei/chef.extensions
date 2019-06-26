@@ -102,6 +102,28 @@ Example:
 
 ## Chef.Extensions.DateTime
 
+### Between(DateTime begin, DateTime end, bool exclusiveEnd = true)
+
+Check if datetime is between begin and end.
+
+Example:
+
+    var result1 = new DateTime(2018, 6, 1).Between(new DateTime(2018, 1, 1), new DateTime(2018, 6, 1));
+    var result2 = new DateTime(2018, 6, 1).Between(new DateTime(2018, 1, 1), new DateTime(2018, 6, 1), false);
+    
+    // result1 is false.
+    // result2 is true.
+
+### ExclusiveBetween(DateTime begin, DateTime end)
+
+Check if datetime is between begin and end exclusively.
+
+Example:
+
+    var result = new DateTime(2018, 6, 1).ExclusiveBetween(new DateTime(2018, 6, 1), new DateTime(2018, 6, 1));
+
+    // result is false.
+
 ### SetYear(int year)
 
 Change `Year` of DateTime.
