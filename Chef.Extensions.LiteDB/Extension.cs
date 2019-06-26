@@ -211,7 +211,7 @@ namespace Chef.Extensions.LiteDB
 
             foreach (var item in value)
             {
-                list.Add(Deserialize(itemType, item));
+                list.Add(item.IsDocument ? ToImmutability(item.AsDocument, itemType) : Deserialize(itemType, item));
             }
 
             return list;
@@ -231,7 +231,9 @@ namespace Chef.Extensions.LiteDB
             foreach (var key in value.Keys)
             {
                 var k = keyType.GetTypeInfo().IsEnum ? Enum.Parse(keyType, key) : Convert.ChangeType(key, keyType);
-                var v = Deserialize(valueType, value[key]);
+
+                var item = value[key];
+                var v = item.IsDocument ? ToImmutability(item.AsDocument, valueType) : Deserialize(valueType, value[key]);
 
                 dict.Add(k, v);
             }

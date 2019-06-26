@@ -44,9 +44,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Chef.Extensions.LiteDB\BackingField.cs">
-      <Link>BackingField.cs</Link>
-    </Compile>
     <Compile Include="..\Chef.Extensions.LiteDB\Extension.cs">
       <Link>Extension.cs</Link>
     </Compile>
