@@ -1,0 +1,51 @@
+## Chef.Extensions.Type
+
+### IsUserDefined()
+
+Check if Type is user defined.
+
+Example:
+
+    public class Person
+    {
+        public string Name { get; set; }
+    
+        public int Age { get; set; }
+    }
+
+    var result1 = typeof(Person).IsUserDefined();
+    var result2 = typeof(string).IsUserDefined();
+    
+    // result1 is true, result2 is false.
+
+### GetPropertyNames()
+
+Return property names.
+
+Example:
+
+    var result = new { Name = "1", Age = 2 }.GetType().GetPropertyNames();
+    
+    // result is ["Name","Age"]
+
+### GetPropertyNames(string prefix)
+
+Return property names concatenated prefix.
+
+Example:
+
+    var result = new { Name = "1", Age = 2 }.GetType().GetPropertyNames("kkk.");
+    
+    // result is ["kkk.Name","kkk.Age"]
+
+### GetActivator()
+
+Return activator of type.
+
+Example:
+
+    var activator = typeof(List<int>).GetActivator();
+    
+    var list = (List<int>)activator();
+    
+    // list is a new instance of List<int>.
