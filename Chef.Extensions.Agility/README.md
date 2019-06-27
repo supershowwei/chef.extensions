@@ -2,7 +2,7 @@
 
 A collection of useful extension methods without reference other packages.
 
-## Chef.Extensions.Assembly
+- [Chef.Extensions.Assembly](Assembly)
 
 ### GetCurrentDirectory()
 
