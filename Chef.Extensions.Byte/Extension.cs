@@ -6,7 +6,7 @@ namespace Chef.Extensions.Byte
     {
         public static byte[] GetRange(this byte[] me, int startIndex, int length)
         {
-            if (me.Length < (startIndex + length)) return new byte[] { };
+            if (me.Length < (startIndex + length)) return null;
 
             var bytes = new byte[length];
 
@@ -17,7 +17,7 @@ namespace Chef.Extensions.Byte
 
         public static byte[] GetRange(this byte[] me, long startIndex, long length)
         {
-            if (me.Length < (startIndex + length)) return new byte[] { };
+            if (me.Length < (startIndex + length)) return null;
 
             var bytes = new byte[length];
 
