@@ -54,14 +54,7 @@ namespace Chef.Extensions.Dictionary
 
         public static TValue AddOrSet<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key, TValue value)
         {
-            if (!me.ContainsKey(key))
-            {
-                me.Add(key, value);
-            }
-            else
-            {
-                me[key] = value;
-            }
+            me[key] = value;
 
             return value;
         }
@@ -70,14 +63,7 @@ namespace Chef.Extensions.Dictionary
         {
             lock (me)
             {
-                if (!me.ContainsKey(key))
-                {
-                    me.Add(key, value);
-                }
-                else
-                {
-                    me[key] = value;
-                }
+                me[key] = value;
             }
 
             return value;
