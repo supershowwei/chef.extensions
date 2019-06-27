@@ -481,6 +481,34 @@ Example:
     
     // value is 1.
 
+### AddOrSet&lt;TKey, TValue&gt;(TKey key, TValue value)
+
+Set value by key and return value.
+
+Example:
+
+    var dict = new Dictionary<string, int>();
+    
+    dict.Add("1", 1);
+    
+    var value = dict.AddOrSet("1", 2);
+    
+    // value is 2.
+
+### SafeAddOrSet&lt;TKey, TValue&gt;(TKey key, TValue value)
+
+Set value by key and return value. [Thread-Safe]
+
+Example:
+
+    var dict = new Dictionary<string, int>();
+    
+    dict.Add("1", 1);
+    
+    var value = dict.AddOrSet("1", 2);
+    
+    // value is 2.
+
 ### GetValueOrDefault&lt;TKey, TValue&gt;(TKey key, TValue defaultValue = default(TValue))
 
 Return default value if get value failed.

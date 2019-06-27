@@ -52,6 +52,37 @@ namespace Chef.Extensions.Dictionary
             return me[key];
         }
 
+        public static TValue AddOrSet<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key, TValue value)
+        {
+            if (!me.ContainsKey(key))
+            {
+                me.Add(key, value);
+            }
+            else
+            {
+                me[key] = value;
+            }
+
+            return value;
+        }
+
+        public static TValue SafeAddOrSet<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key, TValue value)
+        {
+            lock (me)
+            {
+                if (!me.ContainsKey(key))
+                {
+                    me.Add(key, value);
+                }
+                else
+                {
+                    me[key] = value;
+                }
+            }
+
+            return value;
+        }
+
         public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key, TValue defaultValue = default(TValue))
         {
             if (me == null) throw new ArgumentNullException(nameof(me));
