@@ -87,6 +87,26 @@ namespace Chef.Extensions.String
             return sb.ToString();
         }
 
+        public static string ToBase32(this string me)
+        {
+            return Base32.Encode(me, Encoding.UTF8);
+        }
+
+        public static string ToBase32(this string me, Encoding encoding)
+        {
+            return Base32.Encode(me, encoding);
+        }
+
+        public static string Base32Decode(this string me)
+        {
+            return Base32.Decode(me, Encoding.UTF8);
+        }
+
+        public static string Base32Decode(this string me, Encoding encoding)
+        {
+            return Base32.Decode(me, encoding);
+        }
+
         public static string ToBase64(this string me)
         {
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(me));
@@ -95,6 +115,16 @@ namespace Chef.Extensions.String
         public static string ToBase64(this string me, Encoding encoding)
         {
             return Convert.ToBase64String(encoding.GetBytes(me));
+        }
+
+        public static string Base64Decode(this string me)
+        {
+            return Encoding.UTF8.GetString(Convert.FromBase64String(me));
+        }
+
+        public static string Base64Decode(this string me, Encoding encoding)
+        {
+            return encoding.GetString(Convert.FromBase64String(me));
         }
 
         public static string[] Split(this string me, params string[] separator)

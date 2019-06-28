@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Dynamic;
 
 namespace Chef.Extensions.Object
@@ -8,6 +9,20 @@ namespace Chef.Extensions.Object
         public static bool IsNotNull(this object me)
         {
             return me != null;
+        }
+
+        public static T To<T>(this object me)
+        {
+            if (me == null) return default(T);
+
+            return (T)Convert.ChangeType(me, typeof(T));
+        }
+
+        public static T? ToNullable<T>(this object me) where T : struct
+        {
+            if (me == null) return default(T?);
+
+            return (T?)Convert.ChangeType(me, typeof(T));
         }
 
         public static ExpandoObject ToExpando(this object me)

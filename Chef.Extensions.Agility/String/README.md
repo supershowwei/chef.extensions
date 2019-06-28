@@ -123,6 +123,46 @@ Example:
     
     // result is "123456789abc".
 
+### ToBase32()
+
+Encode a string to Base32.（Encoding is UTF8）
+
+Example:
+
+    var result = "許功蓋".ToBase32();
+    
+    // result is "5CULDZMKT7UJHCY"
+
+### ToBase32(Encoding encoding)
+
+Encode a string to Base32.
+
+Example:
+
+    var result = "許功蓋".ToBase32(Encoding.GetEncoding("Big5"));
+    
+    // result is "WNOKKXF3LQ"
+
+### Base32Decode()
+
+Decode a string of Base32 to string.（Encoding is UTF8）
+
+Example:
+
+    var result = "MFRGG".Base32Decode();
+    
+    // result is "abc".
+
+### Base32Decode(Encoding encoding)
+
+Decode a string of Base32 to string.
+
+Example:
+
+    var result = "MFRGG".Base32Decode(Encoding.GetEncoding("Big5"));
+    
+    // result is "abc".
+
 ### ToBase64()
 
 Encode a string to Base64.（Encoding is UTF8）
@@ -142,6 +182,26 @@ Example:
     var result = "許功蓋".ToBase64(Encoding.GetEncoding("Big5"));
     
     // result is "s1ylXLtc"
+
+### Base64Decode()
+
+Decode a string of Base64 to string.（Encoding is UTF8）
+
+Example:
+
+    var result = "YWJj".Base64Decode();
+    
+    // result is "abc".
+
+### Base64Decode(Encoding encoding)
+
+Decode a string of Base64 to string.
+
+Example:
+
+    var result = "MFRGG".Base64Decode(Encoding.GetEncoding("Big5"));
+    
+    // result is "abc".
 
 ### Split(params string[] separator)
 
