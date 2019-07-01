@@ -11,7 +11,7 @@ Example:
     
     dict.AddRange(anothers);
     
-    // dict is {"1":1,"2":2,"3":3,"4":4}.
+    // dict is { "1": 1, "2": 2, "3": 3, "4": 4 }.
 
 ### AddRange&lt;TKey, TValue&gt;(ICollection&lt;KeyValuePair&lt;TKey, TValue&gt;&gt; collection)
 
@@ -24,7 +24,7 @@ Example:
     
     dict.AddRange(anothers);
     
-    // dict is {"1":1,"2":2,"3":3,"4":4}.
+    // dict is { "1": 1, "2": 2, "3": 3, "4": 4 }.
 
 ### AddRange&lt;TKey, TValue&gt;(IEnumerable&lt;KeyValuePair&lt;TKey, TValue&gt;&gt; collection)
 
@@ -37,7 +37,7 @@ Example:
     
     dict.AddRange(anothers);
     
-    // dict is {"1":1,"2":2,"3":3,"4":4}.
+    // dict is { "1": 1, "2": 2, "3": 3, "4": 4 }.
 
 ### GetOrAdd&lt;TKey, TValue&gt;(TKey key, Func&lt;TValue&gt; factory)
 
@@ -106,3 +106,19 @@ Example:
 
     // value1 is "".
     // value2 is null.
+
+### RollingRemove&lt;TKey, TValue&gt;(int maxCount)
+
+Rolling remove last item.
+
+Example:
+
+    var dict = new Dictionary<int, string>();
+    
+    dict.Add(1, "1");
+    dict.Add(2, "2");
+    dict.Add(3, "3");
+    
+    dict.RollingRemove(1);
+    
+    // dict is { 1: "1" }.

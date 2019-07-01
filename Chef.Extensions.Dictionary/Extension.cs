@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Chef.Extensions.Dictionary
 {
@@ -75,6 +76,14 @@ namespace Chef.Extensions.Dictionary
             if (key == null) throw new ArgumentNullException(nameof(key));
 
             return me.TryGetValue(key, out var value) ? value : defaultValue;
+        }
+
+        public static void RollingRemove<TKey, TValue>(this IDictionary<TKey, TValue> me, int maxCount)
+        {
+            while (me.Count > maxCount)
+            {
+                me.Remove(me.Keys.Last());
+            }
         }
     }
 }
