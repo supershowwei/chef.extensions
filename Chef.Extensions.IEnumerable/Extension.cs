@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Chef.Extensions.IEnumerable
 {
-    public delegate TReturn Func<in T, TResult, out TReturn>(T arg, out TResult result);
+    public delegate bool OutPredicate<in T, TOutResult>(T arg, out TOutResult result);
 
     public static class Extension
     {
@@ -65,6 +65,32 @@ namespace Chef.Extensions.IEnumerable
             return false;
         }
 
+        public static bool Any<T>(this IEnumerable<T> me, Func<T, int, bool> predicate)
+        {
+            var index = -1;
+            foreach (var element in me)
+            {
+                index++;
+
+                if (predicate(element, index)) return true;
+            }
+
+            return false;
+        }
+
+        public static bool All<T>(this IEnumerable<T> me, Func<T, int, bool> predicate)
+        {
+            var index = -1;
+            foreach (var element in me)
+            {
+                index++;
+
+                if (!predicate(element, index)) return false;
+            }
+
+            return true;
+        }
+
         public static IEnumerable<TResult> SelectWhere<T, TResult>(
             this IEnumerable<T> me,
             Func<T, bool> predicate,
@@ -78,7 +104,7 @@ namespace Chef.Extensions.IEnumerable
 
         public static IEnumerable<TResult> SelectWhere<T, TResult>(
             this IEnumerable<T> me,
-            Func<T, TResult, bool> predicate)
+            OutPredicate<T, TResult> predicate)
         {
             foreach (var item in me)
             {

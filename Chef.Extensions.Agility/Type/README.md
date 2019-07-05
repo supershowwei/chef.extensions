@@ -49,3 +49,41 @@ Example:
     var list = (List<int>)activator();
     
     // list is a new instance of List<int>.
+
+### GetActivator(int index)
+
+Return activator of type by constructor's index.
+
+Example:
+
+    var activator = typeof(List<int>).GetActivator(0);
+    
+    var list = (List<int>)activator();
+    
+    // list is a new instance of List<int>.
+
+### GetActivator(Type attributeType)
+
+Return activator of type by constructor's custom attribute.
+
+Example:
+
+    var activator = typeof(MyType).GetActivator(typeof(MyDefaultCtorAttribute));
+    
+    var obj = (MyType)activator();
+    
+    // obj is a new instance of MyType.
+
+### GetActivator(Type[] parameterTypes)
+
+Return activator of type by constructor's parameter types.
+
+Example:
+
+    var activator = typeof(MyType).GetActivator(new[] { typeof(int) });
+    
+    var args = new object[] { 1 };
+    var obj = (MyType)activator(args);
+    
+    // obj is a new instance of MyType.
+

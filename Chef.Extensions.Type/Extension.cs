@@ -1,5 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Chef.Extensions.Type
 {
@@ -24,7 +27,45 @@ namespace Chef.Extensions.Type
 
         public static ObjectActivator GetActivator(this System.Type me)
         {
-            var ctor = me.GetConstructors().First();
+            var ctor = me.GetConstructors()[0];
+
+            return GenerateObjectActivator(ctor);
+        }
+
+        public static ObjectActivator GetActivator(this System.Type me, int index)
+        {
+            var ctor = me.GetConstructors()[index];
+            
+            return GenerateObjectActivator(ctor);
+        }
+
+        public static ObjectActivator GetActivator(this System.Type me, System.Type attributeType)
+        {
+            var ctor = me.GetConstructors().First(c => c.CustomAttributes.Any(a => a.AttributeType == attributeType));
+
+            return GenerateObjectActivator(ctor);
+        }
+
+        public static ObjectActivator GetActivator(this System.Type me, System.Type[] parameterTypes)
+        {
+            var ctor = me.GetConstructors().First(
+                c =>
+                    {
+                        if (parameterTypes.Length == 0) return false;
+
+                        var parameterInfos = c.GetParameters();
+
+                        if (parameterInfos.Length == 0) return false;
+                        if (parameterInfos.Length != parameterTypes.Length) return false;
+
+                        return parameterInfos.All((p, i) => p.ParameterType == parameterTypes[i]);
+                   });
+
+            return GenerateObjectActivator(ctor);
+        }
+
+        private static ObjectActivator GenerateObjectActivator(ConstructorInfo ctor)
+        {
             var parameterInfos = ctor.GetParameters();
 
             var param = Expression.Parameter(typeof(object[]), "args");
@@ -48,6 +89,22 @@ namespace Chef.Extensions.Type
             var lambda = Expression.Lambda(typeof(ObjectActivator), newExp, param);
 
             return (ObjectActivator)lambda.Compile();
+        }
+    }
+
+    internal static class IEnumerableExtension
+    {
+        public static bool All<T>(this IEnumerable<T> me, Func<T, int, bool> predicate)
+        {
+            var index = -1;
+            foreach (var element in me)
+            {
+                index++;
+
+                if (!predicate(element, index)) return false;
+            }
+
+            return true;
         }
     }
 }

@@ -88,6 +88,58 @@ Example:
     // index is 1.
     // first is {"Name":"def","Age":2}.
 
+### Any&lt;T&gt;(Func&lt;T, int, bool&gt; predicate)
+
+Check if any item predicated.
+
+Example:
+
+    public class Person
+    {
+        public string Name { get; set; }
+    
+        public int Age { get; set; }
+    }
+
+    var persons = new[]
+                  {
+                      new Person { Name = "abc", Age = 1 },
+                      new Person { Name = "def", Age = 2 },
+                      new Person { Name = "ghi", Age = 2 }
+                  };
+
+    var personAges = new[] { 10, 20, 20 };
+    
+    var result = persons.Any((x, i) => x.Age == personAges[i]);
+    
+    // result is false;
+
+### All&lt;T&gt;(Func&lt;T, int, bool&gt; predicate)
+
+Check if all item predicated.
+
+Example:
+
+    public class Person
+    {
+        public string Name { get; set; }
+    
+        public int Age { get; set; }
+    }
+
+    var persons = new[]
+                  {
+                      new Person { Name = "abc", Age = 1 },
+                      new Person { Name = "def", Age = 2 },
+                      new Person { Name = "ghi", Age = 2 }
+                  };
+
+    var personAges = new[] { 1, 2, 2 };
+    
+    var result = persons.All((x, i) => x.Age == personAges[i]);
+    
+    // result is true;
+
 ### SelectWhere&lt;T, TResult&gt;(Func&lt;T, bool&gt; predicate, Func&lt;T, TResult&gt; selector)
 
 Select when predicated in one loop.
@@ -112,7 +164,7 @@ Example:
     
     // result is [{"Name":"def","Age":2},{"Name":"ghi","Age":2}]
 
-### SelectWhere&lt;T, TResult&gt;(Func&lt;T, TResult, bool&gt; predicate)
+### SelectWhere&lt;T, TResult&gt;(OutPredicate&lt;T, TResult&gt; predicate)
 
 Select out result when predicated in one loop.
 
