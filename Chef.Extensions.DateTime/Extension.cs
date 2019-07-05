@@ -164,5 +164,23 @@ namespace Chef.Extensions.DateTime
         {
             return Convert.ToInt64(me.ToUniversalTime().Subtract(InitialTime).TotalMilliseconds);
         }
+
+        public static System.DateTime DateOfThisWeek(this System.DateTime me, DayOfWeek dayOfWeek)
+        {
+            return me.AddDays(dayOfWeek - me.DayOfWeek).Date;
+        }
+
+        public static System.DateTime DateOfThisWeek(this System.DateTime me, DayOfWeek dayOfWeek, DayOfWeek startOfWeek)
+        {
+            if (startOfWeek == DayOfWeek.Sunday) return DateOfThisWeek(me, dayOfWeek);
+
+            var newMeDayOfWeek = me.DayOfWeek - startOfWeek;
+            if (newMeDayOfWeek < 0) newMeDayOfWeek += 7;
+
+            var newDayOfWeek = dayOfWeek - startOfWeek;
+            if (newDayOfWeek < 0) newDayOfWeek += 7;
+
+            return me.AddDays(newDayOfWeek - newMeDayOfWeek).Date;
+        }
     }
 }

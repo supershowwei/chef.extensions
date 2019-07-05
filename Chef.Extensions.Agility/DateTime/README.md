@@ -313,3 +313,27 @@ Example:
     var jsTime = time.ToJavaScriptTime();
     
     // jsTime is 1557224635000.
+
+### DateOfThisWeek(DayOfWeek dayOfWeek)
+
+Get date of DayOfWeek in this week. (Start of week is Sunday)
+
+Example:
+
+    var date = new DateTime(2019, 7, 5);
+    
+    var dateOfWeek = date.DateOfThisWeek(DayOfWeek.Thursday);
+    
+    // dateOfWeek is "2019-07-04".
+
+### DateOfThisWeek(DayOfWeek dayOfWeek, DayOfWeek startOfWeek)
+
+Get date of DayOfWeek in this week. (Start of week is startOfWeek)
+
+Example:
+
+    var date = new DateTime(2019, 7, 5);
+    
+    var dateOfWeek = date.DateOfThisWeek(DayOfWeek.Thursday, DayOfWeek.Friday);
+    
+    // dateOfWeek is "2019-07-11".
