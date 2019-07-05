@@ -74,13 +74,13 @@ Example:
     
     // obj is a new instance of MyType.
 
-### GetActivator(Type[] parameterTypes)
+### GetActivator(params Type[] parameterTypes)
 
 Return activator of type by constructor's parameter types.
 
 Example:
 
-    var activator = typeof(MyType).GetActivator(new[] { typeof(int) });
+    var activator = typeof(MyType).GetActivator(typeof(int));
     
     var args = new object[] { 1 };
     var obj = (MyType)activator(args);

@@ -80,6 +80,9 @@
     <Compile Include="..\Chef.Extensions.Type\Extension.cs">
       <Link>Type\Extension.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.Type\ObjectActivatorBuilder.cs">
+      <Link>Type\ObjectActivatorBuilder.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.XElement\Extension.cs">
       <Link>XElement\Extension.cs</Link>
     </Compile>

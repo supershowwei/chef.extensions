@@ -41,12 +41,14 @@ namespace Chef.Extensions.Type
 
         public static ObjectActivator GetActivator(this System.Type me, System.Type attributeType)
         {
+            if (!attributeType.IsSubclassOf(typeof(Attribute))) return GetActivator(me, new[] { attributeType });
+
             var ctor = me.GetConstructors().First(c => c.CustomAttributes.Any(a => a.AttributeType == attributeType));
 
             return GenerateObjectActivator(ctor);
         }
 
-        public static ObjectActivator GetActivator(this System.Type me, System.Type[] parameterTypes)
+        public static ObjectActivator GetActivator(this System.Type me, params System.Type[] parameterTypes)
         {
             var ctor = me.GetConstructors().First(
                 c =>
