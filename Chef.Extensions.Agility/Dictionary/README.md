@@ -51,6 +51,18 @@ Example:
     
     // value is 1.
 
+### GetOrAdd&lt;TKey, TValue&gt;(TKey key, Func&lt;TKey, TValue&gt; factory)
+
+Get value by key, but create object by key if not exists.
+
+Example:
+
+    var dict = new Dictionary<string, int>();
+    
+    var value = dict.GetOrAdd("1", key => int.Parse(key));
+    
+    // value is 1.
+
 ### SafeGetOrAdd&lt;TKey, TValue&gt;(TKey key, Func&lt;TValue&gt; factory)
 
 Get value by key, but create object if not exists. [Thread-Safe]
@@ -60,6 +72,18 @@ Example:
     var dict = new Dictionary<string, int>();
     
     var value = dict.SafeGetOrAdd("1", () => 1);
+    
+    // value is 1.
+
+### SafeGetOrAdd&lt;TKey, TValue&gt;(TKey key, Func&lt;TKey, TValue&gt; factory)
+
+Get value by key, but create object by key if not exists. [Thread-Safe]
+
+Example:
+
+    var dict = new Dictionary<string, int>();
+    
+    var value = dict.SafeGetOrAdd("1", key => int.Parse(key));
     
     // value is 1.
 
