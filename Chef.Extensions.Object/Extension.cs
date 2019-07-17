@@ -11,14 +11,15 @@ namespace Chef.Extensions.Object
             return me != null;
         }
 
-        public static T To<T>(this object me)
+        public static T To<T>(this object me) where T : IConvertible
         {
             if (me == null) return default(T);
 
             return (T)Convert.ChangeType(me, typeof(T));
         }
 
-        public static T? ToNullable<T>(this object me) where T : struct
+        public static T? ToNullable<T>(this object me)
+            where T : struct, IConvertible
         {
             if (me == null) return default(T?);
 

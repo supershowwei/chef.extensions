@@ -65,6 +65,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Byte", "Che
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.XElement", "Chef.Extensions.XElement\Chef.Extensions.XElement.csproj", "{0CD2565A-E75B-47A6-81D4-7F4CA297A023}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Tests", "Chef.Extensions.Tests\Chef.Extensions.Tests.csproj", "{5522BE2E-F7D9-490A-A70A-42C6F73343F9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -321,6 +323,14 @@ Global
 		{0CD2565A-E75B-47A6-81D4-7F4CA297A023}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
 		{0CD2565A-E75B-47A6-81D4-7F4CA297A023}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
 		{0CD2565A-E75B-47A6-81D4-7F4CA297A023}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{5522BE2E-F7D9-490A-A70A-42C6F73343F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5522BE2E-F7D9-490A-A70A-42C6F73343F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5522BE2E-F7D9-490A-A70A-42C6F73343F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5522BE2E-F7D9-490A-A70A-42C6F73343F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5522BE2E-F7D9-490A-A70A-42C6F73343F9}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{5522BE2E-F7D9-490A-A70A-42C6F73343F9}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{5522BE2E-F7D9-490A-A70A-42C6F73343F9}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{5522BE2E-F7D9-490A-A70A-42C6F73343F9}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
