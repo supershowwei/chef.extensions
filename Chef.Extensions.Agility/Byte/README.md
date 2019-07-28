@@ -12,6 +12,19 @@ Example:
     
     // bytes is [0x02, 0x03].
 
+### TryGetRange(int startIndex, int length, out byte[] bytes)
+
+Try copy range of byte arrary.
+
+Example:
+
+    var data = new byte[] { 0x01, 0x02, 0x03 0x04, 0x05 };
+    
+    var result = data.TryGetRange(1, 2, out var bytes);
+    
+    // result is true.
+    // bytes is [0x02, 0x03].
+
 ### GetRange(long startIndex, long length)
 
 Copy range of byte arrary.
@@ -22,6 +35,19 @@ Example:
     
     var bytes = data.GetRange(2, 2);
     
+    // bytes is [0x03, 0x04].
+
+### TryGetRange(long startIndex, long length, out byte[] bytes)
+
+Try copy range of byte arrary.
+
+Example:
+
+    var data = new byte[] { 0x01, 0x02, 0x03 0x04, 0x05 };
+    
+    var result = data.GetRange(2, 2, out var bytes);
+    
+    // result is true.
     // bytes is [0x03, 0x04].
 
 ### Set(int index, byte value)
