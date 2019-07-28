@@ -55,23 +55,10 @@ namespace Chef.Extensions.Type
 
         private static ObjectActivator GenerateObjectActivator(ConstructorInfo ctor)
         {
-            var parameterInfos = ctor.GetParameters();
-
             var param = Expression.Parameter(typeof(object[]), "args");
 
-            var argsExp = new Expression[parameterInfos.Length];
-
-            for (var i = 0; i < parameterInfos.Length; i++)
-            {
-                Expression index = Expression.Constant(i);
-                var paramType = parameterInfos[i].ParameterType;
-
-                Expression paramAccessorExp = Expression.ArrayIndex(param, index);
-
-                Expression paramCastExp = Expression.Convert(paramAccessorExp, paramType);
-
-                argsExp[i] = paramCastExp;
-            }
+            var argsExp = ctor.GetParameters()
+                .Select((p, i) => (Expression)Expression.Convert(Expression.ArrayIndex(param, Expression.Constant(i)), p.ParameterType));
 
             var newExp = Expression.New(ctor, argsExp);
 
