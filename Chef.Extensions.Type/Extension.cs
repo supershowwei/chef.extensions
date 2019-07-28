@@ -50,20 +50,7 @@ namespace Chef.Extensions.Type
 
         public static ObjectActivator GetActivator(this System.Type me, params System.Type[] parameterTypes)
         {
-            var ctor = me.GetConstructors().First(
-                c =>
-                    {
-                        if (parameterTypes.Length == 0) return false;
-
-                        var parameterInfos = c.GetParameters();
-
-                        if (parameterInfos.Length == 0) return false;
-                        if (parameterInfos.Length != parameterTypes.Length) return false;
-
-                        return parameterInfos.All((p, i) => p.ParameterType == parameterTypes[i]);
-                   });
-
-            return GenerateObjectActivator(ctor);
+            return GenerateObjectActivator(me.GetConstructor(parameterTypes));
         }
 
         private static ObjectActivator GenerateObjectActivator(ConstructorInfo ctor)
@@ -91,22 +78,6 @@ namespace Chef.Extensions.Type
             var lambda = Expression.Lambda(typeof(ObjectActivator), newExp, param);
 
             return (ObjectActivator)lambda.Compile();
-        }
-    }
-
-    internal static class IEnumerableExtension
-    {
-        public static bool All<T>(this IEnumerable<T> me, Func<T, int, bool> predicate)
-        {
-            var index = -1;
-            foreach (var element in me)
-            {
-                index++;
-
-                if (!predicate(element, index)) return false;
-            }
-
-            return true;
         }
     }
 }

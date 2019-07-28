@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ObjectTest.cs" />
+    <Compile Include="TypeTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -65,6 +66,10 @@
     <ProjectReference Include="..\Chef.Extensions.Object\Chef.Extensions.Object.csproj">
       <Project>{35eaf676-cca4-4d53-891a-5cf68ab85a82}</Project>
       <Name>Chef.Extensions.Object</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chef.Extensions.Type\Chef.Extensions.Type.csproj">
+      <Project>{7d6d41ab-df92-4eac-9a37-6d62abf351db}</Project>
+      <Name>Chef.Extensions.Type</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

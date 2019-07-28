@@ -34,20 +34,7 @@ namespace Chef.Extensions.Type
 
         public static ObjectActivator<T> Build<T>(params System.Type[] parameterTypes)
         {
-            var ctor = typeof(T).GetConstructors().First(
-                c =>
-                    {
-                        if (parameterTypes.Length == 0) return false;
-
-                        var parameterInfos = c.GetParameters();
-
-                        if (parameterInfos.Length == 0) return false;
-                        if (parameterInfos.Length != parameterTypes.Length) return false;
-
-                        return parameterInfos.All((p, i) => p.ParameterType == parameterTypes[i]);
-                    });
-
-            return GenerateObjectActivator<T>(ctor);
+            return GenerateObjectActivator<T>(typeof(T).GetConstructor(parameterTypes));
         }
 
         private static ObjectActivator<T> GenerateObjectActivator<T>(ConstructorInfo ctor)
