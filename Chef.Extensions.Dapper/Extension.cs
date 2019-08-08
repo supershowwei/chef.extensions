@@ -251,6 +251,70 @@ namespace Chef.Extensions.Dapper
             return result;
         }
 
+        /// <summary>
+        ///     Length of the string is default 4000
+        /// </summary>
+        public static DbString ToVarchar(this string me)
+        {
+            return new DbString { Value = me, IsAnsi = true };
+        }
+
+        /// <summary>
+        ///     Length of the string -1 for max
+        /// </summary>
+        public static DbString ToVarchar(this string me, int length)
+        {
+            return new DbString { Value = me, Length = length, IsAnsi = true };
+        }
+
+        /// <summary>
+        ///     Length of the string is default 4000
+        /// </summary>
+        public static DbString ToChar(this string me)
+        {
+            return new DbString { Value = me, IsAnsi = true, IsFixedLength = true };
+        }
+
+        /// <summary>
+        ///     Length of the string -1 for max
+        /// </summary>
+        public static DbString ToChar(this string me, int length)
+        {
+            return new DbString { Value = me, Length = length, IsAnsi = true, IsFixedLength = true };
+        }
+
+        /// <summary>
+        ///     Length of the string is default 4000
+        /// </summary>
+        public static DbString ToNVarchar(this string me)
+        {
+            return new DbString { Value = me };
+        }
+
+        /// <summary>
+        ///     Length of the string -1 for max
+        /// </summary>
+        public static DbString ToNVarchar(this string me, int length)
+        {
+            return new DbString { Value = me, Length = length };
+        }
+
+        /// <summary>
+        ///     Length of the string is default 4000
+        /// </summary>
+        public static DbString ToNChar(this string me)
+        {
+            return new DbString { Value = me, IsFixedLength = true };
+        }
+
+        /// <summary>
+        ///     Length of the string -1 for max
+        /// </summary>
+        public static DbString ToNChar(this string me, int length)
+        {
+            return new DbString { Value = me, Length = length, IsFixedLength = true };
+        }
+
         private static ExpandoObject GetParameter(List<string> props, object obj)
         {
             var expando = (IDictionary<string, object>)new ExpandoObject();
