@@ -1,4 +1,4 @@
-## Chef.Extensions.Double
+## Chef.Extensions.Decimal
 
 ### Round(MidpointRounding mode = MidpointRounding.AwayFromZero)
 
@@ -6,9 +6,9 @@ Round a int away from zero.
 
 Example:
 
-    var num1 = 1.4d.Round();
-    var num2 = 1.5d.Round();
-    var num3 = 1.6d.Round();
+    var num1 = 1.4m.Round();
+    var num2 = 1.5m.Round();
+    var num3 = 1.6m.Round();
     
     // num1 = 1, num2 = 2, num3 = 2
 
@@ -18,9 +18,9 @@ Round a double to `digits` places away from zero.
 
 Example:
 
-    var num1 = 1.44d.Round(1);
-    var num2 = 1.55d.Round(1);
-    var num3 = 1.66d.Round(1);
+    var num1 = 1.44m.Round(1);
+    var num2 = 1.55m.Round(1);
+    var num3 = 1.66m.Round(1);
     
     // num1 = 1.4, num2 = 1.6, num3 = 1.7
 
@@ -30,7 +30,7 @@ Round up a double to int.
 
 Example:
 
-    var result = 1.44d.RoundUp();
+    var result = 1.44m.RoundUp();
 
     // result is 2.
 
@@ -40,9 +40,9 @@ Round up a double to `digits` places.
 
 Example:
 
-    var num1 = 1.44d.RoundUp(1);
-    var num2 = 1.55d.RoundUp(1);
-    var num3 = 1.66d.RoundUp(1);
+    var num1 = 1.44m.RoundUp(1);
+    var num2 = 1.55m.RoundUp(1);
+    var num3 = 1.66m.RoundUp(1);
     
     // num1 = 1.5, num2 = 1.6, num3 = 1.7
 
@@ -52,7 +52,7 @@ Round down a double to int.
 
 Example:
 
-    var result = 1.44d.RoundDown();
+    var result = 1.44m.RoundDown();
 
     // result is 1.
 
@@ -62,9 +62,9 @@ Round down a double to `digits` places.
 
 Example:
 
-    var num1 = 1.44d.RoundDown(1);
-    var num2 = 1.55d.RoundDown(1);
-    var num3 = 1.66d.RoundDown(1);
+    var num1 = 1.44m.RoundDown(1);
+    var num2 = 1.55m.RoundDown(1);
+    var num3 = 1.66m.RoundDown(1);
     
     // num1 = 1.4, num2 = 1.5, num3 = 1.6
 
@@ -74,9 +74,9 @@ Convert a double to int.
 
 Example:
 
-    var num1 = 1.4d.ToInt32();
-    var num2 = 1.5d.ToInt32();
-    var num3 = 1.6d.ToInt32();
+    var num1 = 1.4m.ToInt32();
+    var num2 = 1.5m.ToInt32();
+    var num3 = 1.6m.ToInt32();
     
     // num1 = 1, num2 = 2, num3 = 2
 
@@ -86,20 +86,20 @@ Convert a double to long.
 
 Example:
 
-    var num1 = 1.4d.ToInt64();
-    var num2 = 1.5d.ToInt64();
-    var num3 = 1.6d.ToInt64();
+    var num1 = 1.4m.ToInt64();
+    var num2 = 1.5m.ToInt64();
+    var num3 = 1.6m.ToInt64();
     
     // num1 = 1, num2 = 2, num3 = 2
 
-### Gradient(double baseValue)
+### Gradient(decimal baseValue)
 
 Calculate change rate with baseValue.
 
 Example:
 
-    var num = 11d;
-    var baseValue = 10d;
+    var num = 11m;
+    var baseValue = 10m;
     var result = num.Gradient(baseValue);
     
     // result is 0.1

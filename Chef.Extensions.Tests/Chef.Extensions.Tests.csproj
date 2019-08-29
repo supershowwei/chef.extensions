@@ -58,11 +58,21 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ObjectTest.cs" />
     <Compile Include="TypeTest.cs" />
+    <Compile Include="DoubleTest.cs" />
+    <Compile Include="DecimalTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Chef.Extensions.Decimal\Chef.Extensions.Decimal.csproj">
+      <Project>{a5f8c98a-e56a-4f0c-9deb-9c5f56155907}</Project>
+      <Name>Chef.Extensions.Decimal</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chef.Extensions.Double\Chef.Extensions.Double.csproj">
+      <Project>{a208ff29-2baa-4be4-8bd4-ca8facfc353c}</Project>
+      <Name>Chef.Extensions.Double</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Chef.Extensions.Object\Chef.Extensions.Object.csproj">
       <Project>{35eaf676-cca4-4d53-891a-5cf68ab85a82}</Project>
       <Name>Chef.Extensions.Object</Name>

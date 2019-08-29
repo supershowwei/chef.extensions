@@ -53,6 +53,9 @@
     <Compile Include="..\Chef.Extensions.DateTime\Extension.cs">
       <Link>DateTime\Extension.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.Decimal\Extension.cs">
+      <Link>Decimal\Extension.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.Dictionary\Extension.cs">
       <Link>Dictionary\Extension.cs</Link>
     </Compile>
@@ -88,5 +91,6 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

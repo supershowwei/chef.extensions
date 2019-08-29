@@ -47,5 +47,10 @@ namespace Chef.Extensions.Double
         {
             return Convert.ToInt64(me);
         }
+
+        public static double Gradient(this double me, double baseValue)
+        {
+            return (me - baseValue) / baseValue;
+        }
     }
 }
