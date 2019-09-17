@@ -1,6 +1,6 @@
 ## Chef.Extensions.DateTime
 
-### Between(DateTime begin, DateTime end, bool inclusiveEnd = true)
+### Between(DateTime begin, DateTime end, bool exclusiveEnd = false)
 
 Check if datetime is between begin and end.
 
@@ -9,8 +9,8 @@ Example:
     var result1 = new DateTime(2018, 6, 1).Between(new DateTime(2018, 1, 1), new DateTime(2018, 6, 1));
     var result2 = new DateTime(2018, 6, 1).Between(new DateTime(2018, 1, 1), new DateTime(2018, 6, 1), true);
     
-    // result1 is false.
-    // result2 is true.
+    // result1 is true.
+    // result2 is false.
 
 ### ExclusiveBetween(DateTime begin, DateTime end)
 

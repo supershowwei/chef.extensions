@@ -7,9 +7,9 @@ namespace Chef.Extensions.DateTime
     {
         private static readonly System.DateTime InitialTime = new System.DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        public static bool Between(this System.DateTime me, System.DateTime begin, System.DateTime end, bool inclusiveEnd = false)
+        public static bool Between(this System.DateTime me, System.DateTime begin, System.DateTime end, bool exclusiveEnd = false)
         {
-            return inclusiveEnd ? me >= begin && me <= end : me >= begin && me < end;
+            return exclusiveEnd ? me >= begin && me < end : me >= begin && me <= end;
         }
 
         public static bool ExclusiveBetween(this System.DateTime me, System.DateTime begin, System.DateTime end)
