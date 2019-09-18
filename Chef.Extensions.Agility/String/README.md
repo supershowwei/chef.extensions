@@ -329,3 +329,13 @@ Example:
     var result = "123.456".ToDouble();
     
     // result is 123.456.
+
+### IsNumeric()
+
+Check if string is number.
+
+Example:
+
+    var result = "123.456".IsNumeric();
+    
+    // result is true.

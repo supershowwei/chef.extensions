@@ -188,5 +188,12 @@ namespace Chef.Extensions.String
         {
             return double.Parse(me);
         }
+
+        public static bool IsNumeric(this string me)
+        {
+            if (string.IsNullOrWhiteSpace(me)) return false;
+
+            return decimal.TryParse(me, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out var result);
+        }
     }
 }

@@ -60,6 +60,7 @@
     <Compile Include="TypeTest.cs" />
     <Compile Include="DoubleTest.cs" />
     <Compile Include="DecimalTest.cs" />
+    <Compile Include="StringTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -76,6 +77,10 @@
     <ProjectReference Include="..\Chef.Extensions.Object\Chef.Extensions.Object.csproj">
       <Project>{35eaf676-cca4-4d53-891a-5cf68ab85a82}</Project>
       <Name>Chef.Extensions.Object</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chef.Extensions.String\Chef.Extensions.String.csproj">
+      <Project>{4a817e5a-0dce-466a-9252-c5fb69ebf9c0}</Project>
+      <Name>Chef.Extensions.String</Name>
     </ProjectReference>
     <ProjectReference Include="..\Chef.Extensions.Type\Chef.Extensions.Type.csproj">
       <Project>{7d6d41ab-df92-4eac-9a37-6d62abf351db}</Project>
