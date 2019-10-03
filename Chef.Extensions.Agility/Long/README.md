@@ -2,7 +2,7 @@
 
 ### ToDateTime()
 
-Parse JavaScript time to DateTime.
+Parse Unix time milliseconds to DateTime.
 
 Example:
 

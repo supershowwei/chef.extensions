@@ -7,9 +7,9 @@ namespace Chef.Extensions.Long
         private static readonly System.DateTime InitialTime = new System.DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
-        ///     Parse JavaScript time to DateTime.
+        ///     Parse Unix time milliseconds to DateTime.
         /// </summary>
-        /// <param name="me">Milliseconds of JavaScript date.</param>
+        /// <param name="me">Milliseconds of Unix time.</param>
         /// <returns>Returns DateTime.</returns>
         public static System.DateTime ToDateTime(this long me)
         {

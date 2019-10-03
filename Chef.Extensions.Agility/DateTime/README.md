@@ -302,17 +302,17 @@ Example:
     
     // result is 34087729.
 
-### ToJavaScriptTime()
+### ToUnixTimeMilliseconds()
 
-Convert to milliseconds of JavaScript time.
+Convert to milliseconds of Unix time.
 
 Example:
 
     var time = new DateTime(2019, 5, 7, 10, 23, 55);
     
-    var jsTime = time.ToJavaScriptTime();
+    var unixTimeMs = time.ToUnixTimeMilliseconds();
     
-    // jsTime is 1557224635000.
+    // unixTimeMs is 1557224635000.
 
 ### DateOfThisWeek(DayOfWeek dayOfWeek)
 
