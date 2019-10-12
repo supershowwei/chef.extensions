@@ -1,4 +1,4 @@
-## Chef.Extensions.Object
+﻿## Chef.Extensions.Object
 
 ### IsNotNull()
 
@@ -41,3 +41,13 @@ Example:
     var result = new { Name = "abc", Age = 2 }.ToExpando();
     
     // result is {"Name":"abc","Age":2}
+
+### IsNumeric()
+
+Check if object is numeric.
+
+Exmaple:
+
+    var result = 1.IsNumeric();
+    
+    // result = is true.

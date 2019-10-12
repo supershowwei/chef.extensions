@@ -35,6 +35,7 @@
       <HintPath>..\packages\Dapper.1.50.0\lib\net451\Dapper.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />

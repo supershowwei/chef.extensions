@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using Chef.Extensions.Dapper.Extensions;
 using Dapper;
@@ -12,6 +17,21 @@ namespace Chef.Extensions.Dapper
 {
     public static class Extension
     {
+        private static readonly HashSet<Type> NumericTypes = new HashSet<Type>
+                                                             {
+                                                                 typeof(byte),
+                                                                 typeof(sbyte),
+                                                                 typeof(short),
+                                                                 typeof(ushort),
+                                                                 typeof(int),
+                                                                 typeof(uint),
+                                                                 typeof(long),
+                                                                 typeof(ulong),
+                                                                 typeof(float),
+                                                                 typeof(double),
+                                                                 typeof(decimal),
+                                                             };
+
         private static readonly IRowParserProvider DefaultRowParserProvider = new DefaultRowParserProvider();
         private static IRowParserProvider userDefinedRowParserProvider;
 
@@ -315,6 +335,32 @@ namespace Chef.Extensions.Dapper
             return new DbString { Value = me, Length = length, IsFixedLength = true };
         }
 
+        public static string ToSearchCondition<T>(this Expression<Func<T, bool>> me, out IDictionary<string, object> parameters)
+        {
+            return ToSearchCondition(me, string.Empty, out parameters);
+        }
+
+        public static string ToSearchCondition<T>(this Expression<Func<T, bool>> me, string alias, out IDictionary<string, object> parameters)
+        {
+            parameters = new Dictionary<string, object>();
+
+            return ToSearchCondition(me, alias, parameters);
+        }
+
+        public static string ToSearchCondition<T>(this Expression<Func<T, bool>> me, IDictionary<string, object> parameters)
+        {
+            return ToSearchCondition(me, string.Empty, parameters);
+        }
+
+        public static string ToSearchCondition<T>(this Expression<Func<T, bool>> me, string alias, IDictionary<string, object> parameters)
+        {
+            var sb = new StringBuilder();
+
+            ParseCondition(me.Body, alias, sb, parameters);
+
+            return sb.ToString();
+        }
+
         private static ExpandoObject GetParameter(List<string> props, object obj)
         {
             var expando = (IDictionary<string, object>)new ExpandoObject();
@@ -347,5 +393,184 @@ namespace Chef.Extensions.Dapper
                            : GetObjValue(propName.Substring(underscoreIndex + 1), objProp.GetValue(obj));
             }
         }
+
+        private static void ParseCondition(Expression expr, string alias, StringBuilder sb, IDictionary<string, object> parameters)
+        {
+            if (expr is BinaryExpression binaryExpr)
+            {
+                if (binaryExpr.NodeType == ExpressionType.AndAlso || binaryExpr.NodeType == ExpressionType.OrElse)
+                {
+                    sb.Append("(");
+
+                    ParseCondition(binaryExpr.Left, alias, sb, parameters);
+
+                    switch (binaryExpr.NodeType)
+                    {
+                        case ExpressionType.AndAlso:
+                            sb.Append(") AND (");
+                            break;
+
+                        case ExpressionType.OrElse:
+                            sb.Append(") OR (");
+                            break;
+                    }
+
+                    ParseCondition(binaryExpr.Right, alias, sb, parameters);
+
+                    sb.Append(")");
+                }
+                else
+                {
+                    if (!(binaryExpr.Left is MemberExpression left))
+                    {
+                        throw new ArgumentException("Left expression must be MemberExpression.");
+                    }
+
+                    if (left.Expression.NodeType != ExpressionType.Parameter)
+                    {
+                        throw new ArgumentException("Parameter expression must be placed left.");
+                    }
+
+                    var columnAttribute = left.Member.GetCustomAttribute<ColumnAttribute>();
+                    var columnName = columnAttribute?.Name ?? left.Member.Name;
+                    var parameterName = CreateUniqueParameterName(left.Member.Name, parameters);
+
+                    if (!string.IsNullOrEmpty(columnAttribute?.TypeName))
+                    {
+                        parameters[parameterName] = CreateDbString(
+                            (string)ExtractConstant(binaryExpr.Right),
+                            columnAttribute.TypeName,
+                            left.Member.GetCustomAttribute<StringLengthAttribute>()?.MaximumLength ?? -1);
+                    }
+                    else
+                    {
+                        parameters[parameterName] = ExtractConstant(binaryExpr.Right);
+                    }
+
+                    sb.Append(string.IsNullOrEmpty(alias) ? string.Empty : $"[{alias}].");
+                    sb.Append($"[{columnName}]");
+                    sb.Append(MapOperator(binaryExpr.NodeType));
+                    sb.Append(GenerateParameterStatement(parameterName, parameters));
+                }
+            }
+            else if (expr is MethodCallExpression methodCallExpr && methodCallExpr.Method.Name.Equals("Contains"))
+            {
+                var parameterExpr = (MemberExpression)methodCallExpr.Arguments[1];
+
+                var columnAttribute = parameterExpr.Member.GetCustomAttribute<ColumnAttribute>();
+                var columnName = columnAttribute?.Name ?? parameterExpr.Member.Name;
+
+                var array = ExtractArray(methodCallExpr);
+
+                foreach (var item in array)
+                {
+                    var parameterName = CreateUniqueParameterName(parameterExpr.Member.Name, parameters);
+
+                    if (!string.IsNullOrEmpty(columnAttribute?.TypeName))
+                    {
+                        parameters[parameterName] = CreateDbString(
+                            (string)item,
+                            columnAttribute.TypeName,
+                            parameterExpr.Member.GetCustomAttribute<StringLengthAttribute>()?.MaximumLength ?? -1);
+                    }
+                    else
+                    {
+                        parameters[parameterName] = item;
+                    }
+
+                    sb.Append(string.IsNullOrEmpty(alias) ? string.Empty : $"[{alias}].");
+                    sb.Append($"[{columnName}]");
+                    sb.Append(" = ");
+                    sb.Append(GenerateParameterStatement(parameterName, parameters));
+                    sb.Append(" OR ");
+                }
+
+                sb.Remove(sb.Length - 4, 4);
+            }
+        }
+
+        private static string CreateUniqueParameterName(string memberName, IDictionary<string, object> parameters)
+        {
+            var index = 0;
+
+            string parameterName;
+            while (parameters.ContainsKey(parameterName = $"{memberName}_{index++}"))
+            {
+            }
+
+            return parameterName;
+        }
+
+        private static object ExtractConstant(Expression expr)
+        {
+            if (expr is MemberExpression memberExpr)
+            {
+                if (memberExpr.Member.MemberType == MemberTypes.Field)
+                {
+                    return ((FieldInfo)memberExpr.Member).GetValue((memberExpr.Expression as ConstantExpression)?.Value);
+                }
+
+                if (memberExpr.Member.MemberType == MemberTypes.Property)
+                {
+                    return ((PropertyInfo)memberExpr.Member).GetValue(ExtractConstant((MemberExpression)memberExpr.Expression));
+                }
+            }
+
+            if (expr is ConstantExpression constantExpr)
+            {
+                return constantExpr.Value;
+            }
+
+            throw new ArgumentException("Right expression's node type must be Field or Property'");
+        }
+
+        private static DbString CreateDbString(string value, string typeName, int length)
+        {
+            switch (typeName.ToUpperInvariant())
+            {
+                case "VARCHAR": return new DbString { Value = value, IsAnsi = true, Length = length };
+                case "CHAR": return new DbString { Value = value, IsFixedLength = true, IsAnsi = true, Length = length };
+                case "NCHAR": return new DbString { Value = value, IsFixedLength = true, Length = length };
+                case "NVARCHAR":
+                default: return new DbString { Value = value, Length = length };
+            }
+        }
+
+        private static IEnumerable ExtractArray(MethodCallExpression methodCallExpr)
+        {
+            switch (methodCallExpr.Arguments[0])
+            {
+                case NewArrayExpression newArrayExpr: return newArrayExpr.Expressions.Select(e => ExtractConstant(e)).ToArray();
+                case MemberExpression arrayExpr: return (IEnumerable)ExtractConstant(arrayExpr);
+                default: throw new ArgumentException("Must be a array variable or array initializer.");
+            }
+        }
+
+        private static string MapOperator(ExpressionType exprType)
+        {
+            switch (exprType)
+            {
+                case ExpressionType.Equal: return " = ";
+                case ExpressionType.NotEqual: return " <> ";
+                case ExpressionType.GreaterThan: return " > ";
+                case ExpressionType.GreaterThanOrEqual: return " >= ";
+                case ExpressionType.LessThan: return " < ";
+                case ExpressionType.LessThanOrEqual: return " <= ";
+                default: throw new ArgumentException("Invalid NodeType.");
+            }
+        }
+
+        private static string GenerateParameterStatement(string parameterName, IDictionary<string, object> parameters)
+        {
+            var parameter = parameters[parameterName];
+
+            if (parameter is bool || NumericTypes.Contains(parameter.GetType())) return $"{{={parameterName}}}";
+
+            return $"@{parameterName}";
+        }
+
+        // select_list
+
+        // set_statements
     }
 }

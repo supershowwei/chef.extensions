@@ -6,6 +6,21 @@ namespace Chef.Extensions.Object
 {
     public static class Extension
     {
+        private static readonly HashSet<System.Type> NumericTypes = new HashSet<System.Type>
+                                                                    {
+                                                                        typeof(byte),
+                                                                        typeof(sbyte),
+                                                                        typeof(short),
+                                                                        typeof(ushort),
+                                                                        typeof(int),
+                                                                        typeof(uint),
+                                                                        typeof(long),
+                                                                        typeof(ulong),
+                                                                        typeof(float),
+                                                                        typeof(double),
+                                                                        typeof(decimal),
+                                                                    };
+
         public static bool IsNotNull(this object me)
         {
             return me != null;
@@ -36,6 +51,13 @@ namespace Chef.Extensions.Object
             }
 
             return (ExpandoObject)expando;
+        }
+
+        public static bool IsNumeric(this object me)
+        {
+            if (me == null) return false;
+
+            return NumericTypes.Contains(me.GetType());
         }
     }
 }
