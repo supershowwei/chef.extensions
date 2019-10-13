@@ -246,6 +246,30 @@ namespace Chef.Extensions.Tests
 
             selectList.Should().Be("att.[Id], att.[first_name] AS [FirstName], att.[last_name] AS [LastName]");
         }
+
+        [TestMethod]
+        public void Test_ToSetStatements_Simple()
+        {
+            Expression<Func<Member>> setters = () => new Member { FirstName = "abab", LastName = "baba" };
+
+            var setStatements = setters.ToSetStatements(out var parameters);
+
+            setStatements.Should().Be("[first_name] = @FirstName_0, [last_name] = @LastName_0");
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("abab");
+            parameters["LastName_0"].Should().Be("baba");
+        }
+
+        [TestMethod]
+        public void Test_ToSetStatements_with_Alias()
+        {
+            Expression<Func<Member>> setters = () => new Member { FirstName = "abab", LastName = "baba" };
+
+            var setStatements = setters.ToSetStatements("kkk", out var parameters);
+
+            setStatements.Should().Be("kkk.[first_name] = @FirstName_0, kkk.[last_name] = @LastName_0");
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("abab");
+            parameters["LastName_0"].Should().Be("baba");
+        }
     }
 
     internal class Member

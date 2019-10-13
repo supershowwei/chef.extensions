@@ -254,7 +254,7 @@ Example:
 
         var selectList = select.ToSelectList();
 
-        // result is "[Id], [first_name] AS [FirstName], [last_name] AS [LastName]".
+        // selectList is "[Id], [first_name] AS [FirstName], [last_name] AS [LastName]".
     }
     
     internal class Member
@@ -269,7 +269,29 @@ Example:
         public string LastName { get; set; }
     }
 
+### ToSetStatements&lt;T&gt;([alias], out IDictionary<string, object> parameters)
 
+Generate set statements. That must be object initializer as example. Assigned value must be variable or constant.
 
+Example:
 
+    public void Test_ToSetStatements()
+    {
+        Expression<Func<Member>> setters = () => new Member { FirstName = "abab", LastName = "baba" };
 
+        var setStatements = setters.ToSetStatements(out var parameters);
+
+        // setStatements is "[first_name] = @FirstName_0, [last_name] = @LastName_0".
+    }
+    
+    internal class Member
+    {
+        public int Id { get; set; }
+
+        [Column("first_name", TypeName = "varchar")]
+        [StringLength(20)]
+        public string FirstName { get; set; }
+
+        [Column("last_name")]
+        public string LastName { get; set; }
+    }

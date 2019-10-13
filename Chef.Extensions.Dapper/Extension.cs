@@ -17,6 +17,8 @@ namespace Chef.Extensions.Dapper
 {
     public static class Extension
     {
+        private static readonly IRowParserProvider DefaultRowParserProvider = new DefaultRowParserProvider();
+
         private static readonly HashSet<Type> NumericTypes = new HashSet<Type>
                                                              {
                                                                  typeof(byte),
@@ -32,7 +34,8 @@ namespace Chef.Extensions.Dapper
                                                                  typeof(decimal),
                                                              };
 
-        private static readonly IRowParserProvider DefaultRowParserProvider = new DefaultRowParserProvider();
+        private static readonly Dictionary<Type, PropertyInfo[]> PropertyCollection = new Dictionary<Type, PropertyInfo[]>();
+
         private static IRowParserProvider userDefinedRowParserProvider;
 
         public static IRowParserProvider RowParserProvider
@@ -371,7 +374,7 @@ namespace Chef.Extensions.Dapper
             var sb = new StringBuilder();
             var targetType = typeof(T);
 
-            foreach (var returnProp in me.Body.Type.GetProperties())
+            foreach (var returnProp in me.Body.Type.GetCacheProperties())
             {
                 var property = targetType.GetProperty(returnProp.Name);
                 var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
@@ -379,6 +382,61 @@ namespace Chef.Extensions.Dapper
 
                 if (!string.IsNullOrEmpty(alias)) sb.Append($"{alias}.");
                 sb.Append(string.IsNullOrEmpty(columnName) ? $"[{property.Name}]" : $"[{columnName}] AS [{property.Name}]");
+                sb.Append(", ");
+            }
+
+            sb.Remove(sb.Length - 2, 2);
+
+            return sb.ToString();
+        }
+
+        public static string ToSetStatements<T>(this Expression<Func<T>> me, out IDictionary<string, object> parameters)
+        {
+            parameters = new Dictionary<string, object>();
+
+            return ToSetStatements(me, string.Empty, parameters);
+        }
+
+        public static string ToSetStatements<T>(this Expression<Func<T>> me, string alias, out IDictionary<string, object> parameters)
+        {
+            parameters = new Dictionary<string, object>();
+
+            return ToSetStatements(me, alias, parameters);
+        }
+
+        public static string ToSetStatements<T>(this Expression<Func<T>> me, IDictionary<string, object> parameters)
+        {
+            return ToSetStatements(me, string.Empty, parameters);
+        }
+
+        public static string ToSetStatements<T>(this Expression<Func<T>> me, string alias, IDictionary<string, object> parameters)
+        {
+            if (!(me.Body is MemberInitExpression memberInitExpr)) throw new ArgumentException("Must be member initializer.");
+
+            var sb = new StringBuilder();
+
+            foreach (var binding in memberInitExpr.Bindings)
+            {
+                if (!(binding is MemberAssignment memberAssignment)) throw new ArgumentException("Must be member assignment.");
+
+                var columnAttribute = memberAssignment.Member.GetCustomAttribute<ColumnAttribute>();
+                var columnName = columnAttribute?.Name ?? memberAssignment.Member.Name;
+                var parameterName = CreateUniqueParameterName(memberAssignment.Member.Name, parameters);
+
+                if (!string.IsNullOrEmpty(columnAttribute?.TypeName))
+                {
+                    parameters[parameterName] = CreateDbString(
+                        (string)ExtractConstant(memberAssignment.Expression),
+                        columnAttribute.TypeName,
+                        memberAssignment.Member.GetCustomAttribute<StringLengthAttribute>()?.MaximumLength ?? -1);
+                }
+                else
+                {
+                    parameters[parameterName] = ExtractConstant(memberAssignment.Expression);
+                }
+
+                if (!string.IsNullOrEmpty(alias)) sb.Append($"{alias}.");
+                sb.Append($"[{columnName}] = {GenerateParameterStatement(parameterName, parameters)}");
                 sb.Append(", ");
             }
 
@@ -595,6 +653,20 @@ namespace Chef.Extensions.Dapper
             return $"@{parameterName}";
         }
 
-        // set_statements
+        private static PropertyInfo[] GetCacheProperties(this Type me)
+        {
+            if (!PropertyCollection.ContainsKey(me))
+            {
+                lock (PropertyCollection)
+                {
+                    if (!PropertyCollection.ContainsKey(me))
+                    {
+                        PropertyCollection[me] = me.GetProperties();
+                    }
+                }
+            }
+
+            return PropertyCollection[me];
+        }
     }
 }
