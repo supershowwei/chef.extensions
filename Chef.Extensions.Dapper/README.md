@@ -323,3 +323,24 @@ Example:
         [Column("last_name")]
         public string LastName { get; set; }
     }
+
+## CRUD Template
+
+    public interface IDataAccess<T>
+    {
+        void Insert(T value);
+
+        void Insert(Expression<Func<T>> setters);
+
+        List<T> Query(Expression<Func<T, bool>> predicate);
+
+        List<T> Query(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> partition);
+
+        T Extract(Expression<Func<T, bool>> predicate);
+
+        T Extract(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> partition);
+
+        void Update(Expression<Func<T>> setters, Expression<Func<Mutable, bool>> predicate);
+
+        void Delete(Expression<Func<Mutable, bool>> predicate);
+    }
