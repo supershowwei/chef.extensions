@@ -270,8 +270,22 @@ namespace Chef.Extensions.Tests
             ((DbString)parameters["FirstName_0"]).Value.Should().Be("abab");
             parameters["LastName_0"].Should().Be("baba");
         }
+
+        [TestMethod]
+        public void Test_ToInsertionStatement_Simple()
+        {
+            Expression<Func<Member>> setters = () => new Member { Id = 123, FirstName = "abab", LastName = "baba" };
+
+            var insertionStatement = setters.ToInsertionStatement(out var parameters);
+
+            insertionStatement.Should().Be("INSERT INTO [user]([Id], [first_name], [last_name]) VALUES ({=Id_0}, @FirstName_0, @LastName_0)");
+            parameters["Id_0"].Should().Be(123);
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("abab");
+            parameters["LastName_0"].Should().Be("baba");
+        }
     }
 
+    [Table("user")]
     internal class Member
     {
         public int Id { get; set; }

@@ -381,8 +381,8 @@ namespace Chef.Extensions.Dapper
                 var columnName = columnAttribute?.Name;
 
                 if (!string.IsNullOrEmpty(alias)) sb.Append($"{alias}.");
-                sb.Append(string.IsNullOrEmpty(columnName) ? $"[{property.Name}]" : $"[{columnName}] AS [{property.Name}]");
-                sb.Append(", ");
+
+                sb.Append(string.IsNullOrEmpty(columnName) ? $"[{property.Name}], " : $"[{columnName}] AS [{property.Name}], ");
             }
 
             sb.Remove(sb.Length - 2, 2);
@@ -436,13 +436,59 @@ namespace Chef.Extensions.Dapper
                 }
 
                 if (!string.IsNullOrEmpty(alias)) sb.Append($"{alias}.");
-                sb.Append($"[{columnName}] = {GenerateParameterStatement(parameterName, parameters)}");
-                sb.Append(", ");
+
+                sb.Append($"[{columnName}] = {GenerateParameterStatement(parameterName, parameters)}, ");
             }
 
             sb.Remove(sb.Length - 2, 2);
 
             return sb.ToString();
+        }
+
+        public static string ToInsertionStatement<T>(this Expression<Func<T>> me, out IDictionary<string, object> parameters)
+        {
+            if (!(me.Body is MemberInitExpression memberInitExpr)) throw new ArgumentException("Must be member initializer.");
+
+            parameters = new Dictionary<string, object>();
+
+            var tableType = typeof(T);
+            var tableAttribute = tableType.GetCustomAttribute<TableAttribute>();
+            var tableName = tableAttribute?.Name ?? tableType.Name;
+
+            var columnListBuilder = new StringBuilder($"INSERT INTO [{tableName}](");
+            var valuesBuilder = new StringBuilder(" VALUES (");
+
+            foreach (var binding in memberInitExpr.Bindings)
+            {
+                if (!(binding is MemberAssignment memberAssignment)) throw new ArgumentException("Must be member assignment.");
+
+                var columnAttribute = memberAssignment.Member.GetCustomAttribute<ColumnAttribute>();
+                var columnName = columnAttribute?.Name ?? memberAssignment.Member.Name;
+                var parameterName = CreateUniqueParameterName(memberAssignment.Member.Name, parameters);
+
+                if (!string.IsNullOrEmpty(columnAttribute?.TypeName))
+                {
+                    parameters[parameterName] = CreateDbString(
+                        (string)ExtractConstant(memberAssignment.Expression),
+                        columnAttribute.TypeName,
+                        memberAssignment.Member.GetCustomAttribute<StringLengthAttribute>()?.MaximumLength ?? -1);
+                }
+                else
+                {
+                    parameters[parameterName] = ExtractConstant(memberAssignment.Expression);
+                }
+
+                columnListBuilder.Append($"[{columnName}], ");
+                valuesBuilder.Append($"{GenerateParameterStatement(parameterName, parameters)}, ");
+            }
+
+            columnListBuilder.Remove(columnListBuilder.Length - 2, 2);
+            valuesBuilder.Remove(valuesBuilder.Length - 2, 2);
+
+            columnListBuilder.Append(")");
+            valuesBuilder.Append(")");
+
+            return string.Concat(columnListBuilder.ToString(), valuesBuilder.ToString());
         }
 
         private static ExpandoObject GetParameter(List<string> props, object obj)
@@ -532,9 +578,8 @@ namespace Chef.Extensions.Dapper
                     }
 
                     if (!string.IsNullOrEmpty(alias)) sb.Append($"{alias}.");
-                    sb.Append($"[{columnName}]");
-                    sb.Append(MapOperator(binaryExpr.NodeType));
-                    sb.Append(GenerateParameterStatement(parameterName, parameters));
+
+                    sb.Append($"[{columnName}] {MapOperator(binaryExpr.NodeType)} {GenerateParameterStatement(parameterName, parameters)}");
                 }
             }
             else if (expr is MethodCallExpression methodCallExpr && methodCallExpr.Method.Name.Equals("Contains"))
@@ -563,10 +608,8 @@ namespace Chef.Extensions.Dapper
                     }
 
                     if (!string.IsNullOrEmpty(alias)) sb.Append($"{alias}.");
-                    sb.Append($"[{columnName}]");
-                    sb.Append(" = ");
-                    sb.Append(GenerateParameterStatement(parameterName, parameters));
-                    sb.Append(" OR ");
+
+                    sb.Append($"[{columnName}] = {GenerateParameterStatement(parameterName, parameters)} OR ");
                 }
 
                 sb.Remove(sb.Length - 4, 4);
@@ -634,12 +677,12 @@ namespace Chef.Extensions.Dapper
         {
             switch (exprType)
             {
-                case ExpressionType.Equal: return " = ";
-                case ExpressionType.NotEqual: return " <> ";
-                case ExpressionType.GreaterThan: return " > ";
-                case ExpressionType.GreaterThanOrEqual: return " >= ";
-                case ExpressionType.LessThan: return " < ";
-                case ExpressionType.LessThanOrEqual: return " <= ";
+                case ExpressionType.Equal: return "=";
+                case ExpressionType.NotEqual: return "<>";
+                case ExpressionType.GreaterThan: return ">";
+                case ExpressionType.GreaterThanOrEqual: return ">=";
+                case ExpressionType.LessThan: return "<";
+                case ExpressionType.LessThanOrEqual: return "<=";
                 default: throw new ArgumentException("Invalid NodeType.");
             }
         }

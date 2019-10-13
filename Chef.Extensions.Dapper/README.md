@@ -295,3 +295,31 @@ Example:
         [Column("last_name")]
         public string LastName { get; set; }
     }
+
+### ToInsertionStatement&lt;T&gt;(out IDictionary<string, object> parameters)
+
+Generate insertion statement. That must be object initializer as example. Assigned value must be variable or constant.
+
+Example:
+
+    public void Test_ToInsertionStatement()
+    {
+        Expression<Func<Member>> setters = () => new Member { Id = 123, FirstName = "abab", LastName = "baba" };
+
+        var insertionStatement = setters.ToInsertionStatement(out var parameters);
+        
+        // insertionStatement is "INSERT INTO [user]([Id], [first_name], [last_name]) VALUES ({=Id_0}, @FirstName_0, @LastName_0)".
+    }
+    
+    [Table("user")]
+    internal class Member
+    {
+        public int Id { get; set; }
+
+        [Column("first_name", TypeName = "varchar")]
+        [StringLength(20)]
+        public string FirstName { get; set; }
+
+        [Column("last_name")]
+        public string LastName { get; set; }
+    }
