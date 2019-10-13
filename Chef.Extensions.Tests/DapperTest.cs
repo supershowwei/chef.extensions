@@ -135,7 +135,7 @@ namespace Chef.Extensions.Tests
 
             var searchCondition = predicate.ToSearchCondition("abc", out var parameters);
 
-            searchCondition.Should().Be("([abc].[last_name] = @LastName_0) OR (([abc].[Id] > {=Id_0}) AND ([abc].[first_name] = @FirstName_0))");
+            searchCondition.Should().Be("(abc.[last_name] = @LastName_0) OR ((abc.[Id] > {=Id_0}) AND (abc.[first_name] = @FirstName_0))");
             parameters["Id_0"].Should().Be(1);
             ((DbString)parameters["FirstName_0"]).Value.Should().Be("GoodJob");
             parameters["LastName_0"].Should().Be("JobGood");
@@ -226,6 +226,26 @@ namespace Chef.Extensions.Tests
             parameters["Id_0"].Should().Be(1);
             parameters["Id_1"].Should().Be(2);
             parameters["Id_2"].Should().Be(3);
+        }
+
+        [TestMethod]
+        public void Test_ToSelectList_Simple()
+        {
+            Expression<Func<Member, object>> select = x => new { x.Id, x.FirstName, x.LastName };
+
+            var selectList = select.ToSelectList();
+
+            selectList.Should().Be("[Id], [first_name] AS [FirstName], [last_name] AS [LastName]");
+        }
+
+        [TestMethod]
+        public void Test_ToSelectList_with_Alias()
+        {
+            Expression<Func<Member, object>> select = x => new { x.Id, x.FirstName, x.LastName };
+
+            var selectList = select.ToSelectList("att");
+
+            selectList.Should().Be("att.[Id], att.[first_name] AS [FirstName], att.[last_name] AS [LastName]");
         }
     }
 

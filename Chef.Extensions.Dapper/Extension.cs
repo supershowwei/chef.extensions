@@ -361,6 +361,32 @@ namespace Chef.Extensions.Dapper
             return sb.ToString();
         }
 
+        public static string ToSelectList<T>(this Expression<Func<T, object>> me)
+        {
+            return ToSelectList(me, string.Empty);
+        }
+
+        public static string ToSelectList<T>(this Expression<Func<T, object>> me, string alias)
+        {
+            var sb = new StringBuilder();
+            var targetType = typeof(T);
+
+            foreach (var returnProp in me.Body.Type.GetProperties())
+            {
+                var property = targetType.GetProperty(returnProp.Name);
+                var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
+                var columnName = columnAttribute?.Name;
+
+                if (!string.IsNullOrEmpty(alias)) sb.Append($"{alias}.");
+                sb.Append(string.IsNullOrEmpty(columnName) ? $"[{property.Name}]" : $"[{columnName}] AS [{property.Name}]");
+                sb.Append(", ");
+            }
+
+            sb.Remove(sb.Length - 2, 2);
+
+            return sb.ToString();
+        }
+
         private static ExpandoObject GetParameter(List<string> props, object obj)
         {
             var expando = (IDictionary<string, object>)new ExpandoObject();
@@ -447,7 +473,7 @@ namespace Chef.Extensions.Dapper
                         parameters[parameterName] = ExtractConstant(binaryExpr.Right);
                     }
 
-                    sb.Append(string.IsNullOrEmpty(alias) ? string.Empty : $"[{alias}].");
+                    if (!string.IsNullOrEmpty(alias)) sb.Append($"{alias}.");
                     sb.Append($"[{columnName}]");
                     sb.Append(MapOperator(binaryExpr.NodeType));
                     sb.Append(GenerateParameterStatement(parameterName, parameters));
@@ -478,7 +504,7 @@ namespace Chef.Extensions.Dapper
                         parameters[parameterName] = item;
                     }
 
-                    sb.Append(string.IsNullOrEmpty(alias) ? string.Empty : $"[{alias}].");
+                    if (!string.IsNullOrEmpty(alias)) sb.Append($"{alias}.");
                     sb.Append($"[{columnName}]");
                     sb.Append(" = ");
                     sb.Append(GenerateParameterStatement(parameterName, parameters));
@@ -568,8 +594,6 @@ namespace Chef.Extensions.Dapper
 
             return $"@{parameterName}";
         }
-
-        // select_list
 
         // set_statements
     }
