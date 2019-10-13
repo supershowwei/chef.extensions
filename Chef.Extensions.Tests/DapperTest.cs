@@ -98,7 +98,6 @@ namespace Chef.Extensions.Tests
             ((DbString)parameters["FirstName_0"]).Value.Should().Be("444");
         }
 
-
         [TestMethod]
         public void Test_ToSearchCondition_use_Complex_Object_Property()
         {

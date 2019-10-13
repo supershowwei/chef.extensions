@@ -202,3 +202,74 @@ Dapper maps data to immutable class, and the constructor fitting parameters coun
     public static T QueryFirstOrDefaultAsImmutability<T>(this IDbConnection cnn, string sql, object param = null);
     public static T QuerySingleAsImmutability<T>(this IDbConnection cnn, string sql, object param = null);
     public static T QuerySingleOrDefaultAsImmutability<T>(this IDbConnection cnn, string sql, object param = null);
+
+## Generate universal SQL statements
+
+### ToSearchCondition&lt;T&gt;([alias], out IDictionary<string, object> parameters)
+
+Generate search condition. Parameter must be placed left of operator as example. Support `Arrary.Contains()` method by array variable or array initializer. And we can use `Column` and `StringLength` annotations to tag column name, char type and char length.
+
+> **alias**: string (Default is null)
+
+Example:
+
+    public void Test_ToSearchCondition()
+    {
+        var arr = new[] { "1", "2" };
+        
+        Expression<Func<Member, bool>> predicate = x => x.Id < 1 && arr.Contains(x.FirstName);
+
+        var searchCondition = predicate.ToSearchCondition(out var parameters);
+        
+        // searchCondition is "([Id] < {=Id_0}) AND ([first_name] = @FirstName_0 OR [first_name] = @FirstName_1)".
+    }
+    
+    internal class Member
+    {
+        public int Id { get; set; }
+
+        [Column("first_name", TypeName = "varchar")]
+        [StringLength(20)]
+        public string FirstName { get; set; }
+
+        [Column("last_name")]
+        public string LastName { get; set; }
+    }
+
+### ToSearchCondition&lt;T&gt;([alias], IDictionary<string, object> parameters)
+
+Difference ToSearchCondition&lt;T&gt;([alias], out IDictionary<string, object> parameters) method is that will add parameters in `parameters` for avoiding generate same parameter name.
+
+### ToSelectList&lt;T&gt;([alias])
+
+Generate select list.
+
+> **alias**: string (Default is null)
+
+Example:
+
+    public void Test_ToSelectList()
+    {
+        Expression<Func<Member, object>> select = x => new { x.Id, x.FirstName, x.LastName };
+
+        var selectList = select.ToSelectList();
+
+        // result is "[Id], [first_name] AS [FirstName], [last_name] AS [LastName]".
+    }
+    
+    internal class Member
+    {
+        public int Id { get; set; }
+
+        [Column("first_name", TypeName = "varchar")]
+        [StringLength(20)]
+        public string FirstName { get; set; }
+
+        [Column("last_name")]
+        public string LastName { get; set; }
+    }
+
+
+
+
+
