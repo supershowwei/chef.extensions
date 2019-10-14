@@ -546,6 +546,18 @@ namespace Chef.Extensions.Dapper
             return sb.ToString();
         }
 
+        public static string ToUpdateStatement<T>(
+            this Expression<Func<T>> me,
+            Expression<Func<T, bool>> predicate,
+            out IDictionary<string, object> parameters)
+        {
+            var tableType = typeof(T);
+            var tableAttribute = tableType.GetCustomAttribute<TableAttribute>();
+            var tableName = $"[{tableAttribute?.Name ?? tableType.Name}]";
+
+            return $"UPDATE {tableName} SET {ToSetStatements(me, out parameters)} WHERE {ToSearchCondition(predicate, parameters)}";
+        }
+
         private static ExpandoObject GetParameter(List<string> props, object obj)
         {
             var expando = (IDictionary<string, object>)new ExpandoObject();

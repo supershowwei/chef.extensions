@@ -332,6 +332,21 @@ namespace Chef.Extensions.Tests
             parameters["Id_0"].Should().Be(1);
             ((DbString)parameters["FirstName_0"]).Value.Should().Be("123");
         }
+
+        [TestMethod]
+        public void Test_ToUpdateStatement_Simple()
+        {
+            Expression<Func<Member>> setters = () => new Member { FirstName = "111", LastName = "222" };
+            Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
+
+            var updateStatment = setters.ToUpdateStatement(predicate, out var parameters);
+
+            updateStatment.Should().Be("UPDATE [user] SET [first_name] = @FirstName_0, [last_name] = @LastName_0 WHERE ([Id] < {=Id_0}) AND ([first_name] = @FirstName_1)");
+            parameters["Id_0"].Should().Be(1);
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("111");
+            ((DbString)parameters["FirstName_1"]).Value.Should().Be("123");
+            parameters["LastName_0"].Should().Be("222");
+        }
     }
 
     [Table("user")]

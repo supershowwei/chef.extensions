@@ -341,7 +341,7 @@ Generate selection statment. Look example.
 
 Example:
 
-    public void Test_ToSelectionStatement_with_SelectList_and_Alias()
+    public void Test_ToSelectionStatement()
     {
         Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
         Expression<Func<Member, object>> selectList = x => new { x.Id, x.FirstName, x.LastName };
@@ -365,6 +365,37 @@ Example:
         public string LastName { get; set; }
     }
 
+### ToUpdateStatement&lt;T&gt;(predicate, out IDictionary<string, object> parameters)
+
+> **predicate**: Expression<Func<T, bool>><br />
+> **out parameters**: IDictionary<string, object>, parameters of statement.
+
+Generate update statement. Look example.
+
+Example:
+
+    public void Test_ToUpdateStatement()
+    {
+        Expression<Func<Member>> setters = () => new Member { FirstName = "111", LastName = "222" };
+        Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
+
+        var updateStatment = setters.ToUpdateStatement(predicate, out var parameters);
+
+        // updateStatement is "UPDATE [user] SET [first_name] = @FirstName_0, [last_name] = @LastName_0 WHERE ([Id] < {=Id_0}) AND ([first_name] = @FirstName_1)"
+    }
+    
+    [Table("user")]
+    internal class Member
+    {
+        public int Id { get; set; }
+
+        [Column("first_name", TypeName = "varchar")]
+        [StringLength(20)]
+        public string FirstName { get; set; }
+
+        [Column("last_name")]
+        public string LastName { get; set; }
+    }
 
 ## CRUD Template
 
