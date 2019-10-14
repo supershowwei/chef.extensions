@@ -300,21 +300,23 @@ Example:
         public string LastName { get; set; }
     }
 
-### ToInsertionStatement&lt;T&gt;(out IDictionary<string, object> parameters)
+### ToColumnList&lt;T&gt;(out string valueList, out IDictionary<string, object> parameters)
 
-Generate insertion statement. That must be object initializer as example. Assigned value must be variable or constant.
+Generate column list and value list for insertioin. That must be object initializer as example. Assigned value must be variable or constant.
 
+> **out valueList**: string.<br />
 > **out parameters**: IDictionary<string, object>, parameters of statement.
 
 Example:
 
-    public void Test_ToInsertionStatement()
+    public void Test_ToColumnList()
     {
         Expression<Func<Member>> setters = () => new Member { Id = 123, FirstName = "abab", LastName = "baba" };
 
-        var insertionStatement = setters.ToInsertionStatement(out var parameters);
-        
-        // insertionStatement is "INSERT INTO [user]([Id], [first_name], [last_name]) VALUES ({=Id_0}, @FirstName_0, @LastName_0)".
+        var columnList = setters.ToColumnList(out var valueList, out var parameters);
+
+        // columnList is "[Id], [first_name], [last_name]".
+        // valueList is "{=Id_0}, @FirstName_0, @LastName_0".
     }
     
     [Table("user")]
@@ -330,118 +332,3 @@ Example:
         public string LastName { get; set; }
     }
 
-### ToInsertionStatement&lt;T&gt;([selectList] [, alias] [, hint], out IDictionary<string, object> parameters)
-
-Generate selection statment. Look example.
-
-> **selectList**: Expression<Func<T, object>> (Default is null)<br />
-> **alias**: string (Default is null)<br />
-> **hint**: string (Default is "WITH (NOLOCK)")<br />
-> **out parameters**: IDictionary<string, object>, parameters of statement.
-
-Example:
-
-    public void Test_ToSelectionStatement()
-    {
-        Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
-        Expression<Func<Member, object>> selectList = x => new { x.Id, x.FirstName, x.LastName };
-        
-        // If selectList is null, it will select all columns.
-        var selectionStatment = predicate.ToSelectionStatement(selectList, "ooo", out var parameters);
-
-        // selectionStatement is "SELECT ooo.[Id], ooo.[first_name] AS [FirstName], ooo.[last_name] AS [LastName] FROM [user] ooo WITH (NOLOCK) WHERE (ooo.[Id] < {=Id_0}) AND (ooo.[first_name] = @FirstName_0)".
-    }
-    
-    [Table("user")]
-    internal class Member
-    {
-        public int Id { get; set; }
-
-        [Column("first_name", TypeName = "varchar")]
-        [StringLength(20)]
-        public string FirstName { get; set; }
-
-        [Column("last_name")]
-        public string LastName { get; set; }
-    }
-
-### ToUpdateStatement&lt;T&gt;(predicate, out IDictionary<string, object> parameters)
-
-> **predicate**: Expression<Func<T, bool>><br />
-> **out parameters**: IDictionary<string, object>, parameters of statement.
-
-Generate update statement. Look example.
-
-Example:
-
-    public void Test_ToUpdateStatement()
-    {
-        Expression<Func<Member>> setters = () => new Member { FirstName = "111", LastName = "222" };
-        Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
-
-        var updateStatment = setters.ToUpdateStatement(predicate, out var parameters);
-
-        // updateStatement is "UPDATE [user] SET [first_name] = @FirstName_0, [last_name] = @LastName_0 WHERE ([Id] < {=Id_0}) AND ([first_name] = @FirstName_1)".
-    }
-    
-    [Table("user")]
-    internal class Member
-    {
-        public int Id { get; set; }
-
-        [Column("first_name", TypeName = "varchar")]
-        [StringLength(20)]
-        public string FirstName { get; set; }
-
-        [Column("last_name")]
-        public string LastName { get; set; }
-    }
-
-### ToDeletionStatement&lt;T&gt;(out IDictionary<string, object> parameters)
-
-Generate deletion statement. Look example.
-
-Example:
-
-    public void Test_ToDelettionStatement()
-    {
-        Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
-
-        var deletionStatement = predicate.ToDeletionStatement(out var parameters);
-
-        // deletionStatement is "DELETE FROM [user] WHERE ([Id] < {=Id_0}) AND ([first_name] = @FirstName_0)".
-    }
-    
-    [Table("user")]
-    internal class Member
-    {
-        public int Id { get; set; }
-
-        [Column("first_name", TypeName = "varchar")]
-        [StringLength(20)]
-        public string FirstName { get; set; }
-
-        [Column("last_name")]
-        public string LastName { get; set; }
-    }
-
-## CRUD Template
-
-    public interface IDataAccess<T>
-    {
-        void Insert(T value);
-
-        void Insert(Expression<Func<T>> setters);
-
-        List<T> Query(Expression<Func<T, bool>> predicate);
-
-        List<T> Query(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> partition);
-
-        T QueryOne(Expression<Func<T, bool>> predicate);
-
-        T QueryOne(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> partition);
-
-        void Update(Expression<Func<T>> setters, Expression<Func<Mutable, bool>> predicate);
-
-        void Delete(Expression<Func<Mutable, bool>> predicate);
-    }

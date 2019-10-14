@@ -445,18 +445,14 @@ namespace Chef.Extensions.Dapper
             return sb.ToString();
         }
 
-        public static string ToInsertionStatement<T>(this Expression<Func<T>> me, out IDictionary<string, object> parameters)
+        public static string ToColumnList<T>(this Expression<Func<T>> me, out string valueList, out IDictionary<string, object> parameters)
         {
             if (!(me.Body is MemberInitExpression memberInitExpr)) throw new ArgumentException("Must be member initializer.");
 
             parameters = new Dictionary<string, object>();
 
-            var tableType = typeof(T);
-            var tableAttribute = tableType.GetCustomAttribute<TableAttribute>();
-            var tableName = tableAttribute?.Name ?? tableType.Name;
-
-            var columnListBuilder = new StringBuilder($"INSERT INTO [{tableName}](");
-            var valuesBuilder = new StringBuilder(" VALUES (");
+            var columnListBuilder = new StringBuilder();
+            var valueListBuilder = new StringBuilder();
 
             foreach (var binding in memberInitExpr.Bindings)
             {
@@ -479,92 +475,15 @@ namespace Chef.Extensions.Dapper
                 }
 
                 columnListBuilder.Append($"[{columnName}], ");
-                valuesBuilder.Append($"{GenerateParameterStatement(parameterName, parameters)}, ");
+                valueListBuilder.Append($"{GenerateParameterStatement(parameterName, parameters)}, ");
             }
 
             columnListBuilder.Remove(columnListBuilder.Length - 2, 2);
-            valuesBuilder.Remove(valuesBuilder.Length - 2, 2);
+            valueListBuilder.Remove(valueListBuilder.Length - 2, 2);
 
-            columnListBuilder.Append(")");
-            valuesBuilder.Append(")");
+            valueList = valueListBuilder.ToString();
 
-            return string.Concat(columnListBuilder.ToString(), valuesBuilder.ToString());
-        }
-
-        public static string ToSelectionStatement<T>(this Expression<Func<T, bool>> me, out IDictionary<string, object> parameters)
-        {
-            return ToSelectionStatement(me, null, string.Empty, "WITH (NOLOCK)", out parameters);
-        }
-
-        public static string ToSelectionStatement<T>(
-            this Expression<Func<T, bool>> me,
-            Expression<Func<T, object>> selectList,
-            out IDictionary<string, object> parameters)
-        {
-            return ToSelectionStatement(me, selectList, string.Empty, "WITH (NOLOCK)", out parameters);
-        }
-
-        public static string ToSelectionStatement<T>(
-            this Expression<Func<T, bool>> me,
-            Expression<Func<T, object>> selectList,
-            string alias,
-            out IDictionary<string, object> parameters)
-        {
-            return ToSelectionStatement(me, selectList, alias, "WITH (NOLOCK)", out parameters);
-        }
-
-        public static string ToSelectionStatement<T>(
-            this Expression<Func<T, bool>> me,
-            Expression<Func<T, object>> selectList,
-            string alias,
-            string hint,
-            out IDictionary<string, object> parameters)
-        {
-            var tableType = typeof(T);
-            var tableAttribute = tableType.GetCustomAttribute<TableAttribute>();
-            var tableName = $"[{tableAttribute?.Name ?? tableType.Name}]";
-
-            var sb = new StringBuilder();
-
-            sb.Append("SELECT ");
-
-            if (selectList != null)
-            {
-                sb.Append(ToSelectList(selectList, string.IsNullOrEmpty(alias) ? tableName : alias));
-            }
-            else
-            {
-                sb.Append(string.IsNullOrEmpty(alias) ? tableName : alias);
-                sb.Append(".*");
-            }
-
-            sb.Append($" FROM {tableName}");
-            sb.Append(string.IsNullOrEmpty(alias) ? string.Empty : $" {alias}");
-            sb.Append(string.IsNullOrEmpty(hint) ? string.Empty : $" {hint}");
-            sb.Append($" WHERE {ToSearchCondition(me, string.IsNullOrEmpty(alias) ? tableName : alias, out parameters)}");
-
-            return sb.ToString();
-        }
-
-        public static string ToUpdateStatement<T>(
-            this Expression<Func<T>> me,
-            Expression<Func<T, bool>> predicate,
-            out IDictionary<string, object> parameters)
-        {
-            var tableType = typeof(T);
-            var tableAttribute = tableType.GetCustomAttribute<TableAttribute>();
-            var tableName = tableAttribute?.Name ?? tableType.Name;
-
-            return $"UPDATE [{tableName}] SET {ToSetStatements(me, out parameters)} WHERE {ToSearchCondition(predicate, parameters)}";
-        }
-
-        public static string ToDeletionStatement<T>(this Expression<Func<T, bool>> me, out IDictionary<string, object> parameters)
-        {
-            var tableType = typeof(T);
-            var tableAttribute = tableType.GetCustomAttribute<TableAttribute>();
-            var tableName = tableAttribute?.Name ?? tableType.Name;
-
-            return $"DELETE FROM [{tableName}] WHERE {ToSearchCondition(me, out parameters)}";
+            return columnListBuilder.ToString();
         }
 
         private static ExpandoObject GetParameter(List<string> props, object obj)

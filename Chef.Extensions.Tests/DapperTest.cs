@@ -272,92 +272,17 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
-        public void Test_ToInsertionStatement_Simple()
+        public void Test_ToColumnList_Simple()
         {
             Expression<Func<Member>> setters = () => new Member { Id = 123, FirstName = "abab", LastName = "baba" };
 
-            var insertionStatement = setters.ToInsertionStatement(out var parameters);
+            var columnList = setters.ToColumnList(out var valueList, out var parameters);
 
-            insertionStatement.Should().Be("INSERT INTO [user]([Id], [first_name], [last_name]) VALUES ({=Id_0}, @FirstName_0, @LastName_0)");
+            columnList.Should().Be("[Id], [first_name], [last_name]");
+            valueList.Should().Be("{=Id_0}, @FirstName_0, @LastName_0");
             parameters["Id_0"].Should().Be(123);
             ((DbString)parameters["FirstName_0"]).Value.Should().Be("abab");
             parameters["LastName_0"].Should().Be("baba");
-        }
-
-        [TestMethod]
-        public void Test_ToSelectionStatement_Simple()
-        {
-            Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
-
-            var selectionStatment = predicate.ToSelectionStatement(out var parameters);
-
-            selectionStatment.Should().Be("SELECT [user].* FROM [user] WITH (NOLOCK) WHERE ([user].[Id] < {=Id_0}) AND ([user].[first_name] = @FirstName_0)");
-            parameters["Id_0"].Should().Be(1);
-            ((DbString)parameters["FirstName_0"]).Value.Should().Be("123");
-        }
-
-        [TestMethod]
-        public void Test_ToSelectionStatement_with_Alias()
-        {
-            Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
-
-            var selectionStatment = predicate.ToSelectionStatement(null, "jjj", out var parameters);
-
-            selectionStatment.Should().Be("SELECT jjj.* FROM [user] jjj WITH (NOLOCK) WHERE (jjj.[Id] < {=Id_0}) AND (jjj.[first_name] = @FirstName_0)");
-            parameters["Id_0"].Should().Be(1);
-            ((DbString)parameters["FirstName_0"]).Value.Should().Be("123");
-        }
-
-        [TestMethod]
-        public void Test_ToSelectionStatement_with_Alias_and_Hint()
-        {
-            Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
-
-            var selectionStatment = predicate.ToSelectionStatement(null, "ppp", string.Empty, out var parameters);
-
-            selectionStatment.Should().Be("SELECT ppp.* FROM [user] ppp WHERE (ppp.[Id] < {=Id_0}) AND (ppp.[first_name] = @FirstName_0)");
-            parameters["Id_0"].Should().Be(1);
-            ((DbString)parameters["FirstName_0"]).Value.Should().Be("123");
-        }
-
-        [TestMethod]
-        public void Test_ToSelectionStatement_with_SelectList_and_Alias()
-        {
-            Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
-            Expression<Func<Member, object>> selectList = x => new { x.Id, x.FirstName, x.LastName };
-
-            var selectionStatment = predicate.ToSelectionStatement(selectList, "ooo", out var parameters);
-
-            selectionStatment.Should().Be("SELECT ooo.[Id], ooo.[first_name] AS [FirstName], ooo.[last_name] AS [LastName] FROM [user] ooo WITH (NOLOCK) WHERE (ooo.[Id] < {=Id_0}) AND (ooo.[first_name] = @FirstName_0)");
-            parameters["Id_0"].Should().Be(1);
-            ((DbString)parameters["FirstName_0"]).Value.Should().Be("123");
-        }
-
-        [TestMethod]
-        public void Test_ToUpdateStatement_Simple()
-        {
-            Expression<Func<Member>> setters = () => new Member { FirstName = "111", LastName = "222" };
-            Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
-
-            var updateStatment = setters.ToUpdateStatement(predicate, out var parameters);
-
-            updateStatment.Should().Be("UPDATE [user] SET [first_name] = @FirstName_0, [last_name] = @LastName_0 WHERE ([Id] < {=Id_0}) AND ([first_name] = @FirstName_1)");
-            parameters["Id_0"].Should().Be(1);
-            ((DbString)parameters["FirstName_0"]).Value.Should().Be("111");
-            ((DbString)parameters["FirstName_1"]).Value.Should().Be("123");
-            parameters["LastName_0"].Should().Be("222");
-        }
-
-        [TestMethod]
-        public void Test_ToDelettionStatement_Simple()
-        {
-            Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
-
-            var deletionStatement = predicate.ToDeletionStatement(out var parameters);
-
-            deletionStatement.Should().Be("DELETE FROM [user] WHERE ([Id] < {=Id_0}) AND ([first_name] = @FirstName_0)");
-            parameters["Id_0"].Should().Be(1);
-            ((DbString)parameters["FirstName_0"]).Value.Should().Be("123");
         }
     }
 
