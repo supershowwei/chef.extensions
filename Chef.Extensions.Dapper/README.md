@@ -209,7 +209,8 @@ Dapper maps data to immutable class, and the constructor fitting parameters coun
 
 Generate search condition. Parameter must be placed left of operator as example. Support `Arrary.Contains()` method by array variable or array initializer. And we can use `Column` and `StringLength` annotations to tag column name, char type and char length.
 
-> **alias**: string (Default is null)
+> **alias**: string (Default is null)<br />
+> **out parameters**: IDictionary<string, object>, parameters of statement.
 
 Example:
 
@@ -273,6 +274,9 @@ Example:
 
 Generate set statements. That must be object initializer as example. Assigned value must be variable or constant.
 
+> **alias**: string (Default is null)<br />
+> **out parameters**: IDictionary<string, object>, parameters of statement.
+
 Example:
 
     public void Test_ToSetStatements()
@@ -300,6 +304,8 @@ Example:
 
 Generate insertion statement. That must be object initializer as example. Assigned value must be variable or constant.
 
+> **out parameters**: IDictionary<string, object>, parameters of statement.
+
 Example:
 
     public void Test_ToInsertionStatement()
@@ -323,6 +329,42 @@ Example:
         [Column("last_name")]
         public string LastName { get; set; }
     }
+
+### ToInsertionStatement&lt;T&gt;([selectList] [, alias] [, hint], out IDictionary<string, object> parameters)
+
+Generate selection statment. Look example.
+
+> **selectList**: Expression<Func<T, object>> (Default is null)<br />
+> **alias**: string (Default is null)<br />
+> **hint**: string (Default is "WITH (NOLOCK)")<br />
+> **out parameters**: IDictionary<string, object>, parameters of statement.
+
+Example:
+
+    public void Test_ToSelectionStatement_with_SelectList_and_Alias()
+    {
+        Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
+        Expression<Func<Member, object>> selectList = x => new { x.Id, x.FirstName, x.LastName };
+        
+        // If selectList is null, it will select all columns.
+        var selectionStatment = predicate.ToSelectionStatement(selectList, "ooo", out var parameters);
+
+        // selectionStatement is "SELECT ooo.[Id], ooo.[first_name] AS [FirstName], ooo.[last_name] AS [LastName] FROM [user] ooo WITH (NOLOCK) WHERE (ooo.[Id] < {=Id_0}) AND (ooo.[first_name] = @FirstName_0)".
+    }
+    
+    [Table("user")]
+    internal class Member
+    {
+        public int Id { get; set; }
+
+        [Column("first_name", TypeName = "varchar")]
+        [StringLength(20)]
+        public string FirstName { get; set; }
+
+        [Column("last_name")]
+        public string LastName { get; set; }
+    }
+
 
 ## CRUD Template
 

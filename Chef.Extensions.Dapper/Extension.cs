@@ -491,6 +491,61 @@ namespace Chef.Extensions.Dapper
             return string.Concat(columnListBuilder.ToString(), valuesBuilder.ToString());
         }
 
+        public static string ToSelectionStatement<T>(this Expression<Func<T, bool>> me, out IDictionary<string, object> parameters)
+        {
+            return ToSelectionStatement(me, null, string.Empty, "WITH (NOLOCK)", out parameters);
+        }
+
+        public static string ToSelectionStatement<T>(
+            this Expression<Func<T, bool>> me,
+            Expression<Func<T, object>> selectList,
+            out IDictionary<string, object> parameters)
+        {
+            return ToSelectionStatement(me, selectList, string.Empty, "WITH (NOLOCK)", out parameters);
+        }
+
+        public static string ToSelectionStatement<T>(
+            this Expression<Func<T, bool>> me,
+            Expression<Func<T, object>> selectList,
+            string alias,
+            out IDictionary<string, object> parameters)
+        {
+            return ToSelectionStatement(me, selectList, alias, "WITH (NOLOCK)", out parameters);
+        }
+
+        public static string ToSelectionStatement<T>(
+            this Expression<Func<T, bool>> me,
+            Expression<Func<T, object>> selectList,
+            string alias,
+            string hint,
+            out IDictionary<string, object> parameters)
+        {
+            var tableType = typeof(T);
+            var tableAttribute = tableType.GetCustomAttribute<TableAttribute>();
+            var tableName = $"[{tableAttribute?.Name ?? tableType.Name}]";
+
+            var sb = new StringBuilder();
+
+            sb.Append("SELECT ");
+
+            if (selectList != null)
+            {
+                sb.Append(ToSelectList(selectList, string.IsNullOrEmpty(alias) ? tableName : alias));
+            }
+            else
+            {
+                sb.Append(string.IsNullOrEmpty(alias) ? tableName : alias);
+                sb.Append(".*");
+            }
+
+            sb.Append($" FROM {tableName}");
+            sb.Append(string.IsNullOrEmpty(alias) ? string.Empty : $" {alias}");
+            sb.Append(string.IsNullOrEmpty(hint) ? string.Empty : $" {hint}");
+            sb.Append($" WHERE {ToSearchCondition(me, string.IsNullOrEmpty(alias) ? tableName : alias, out parameters)}");
+
+            return sb.ToString();
+        }
+
         private static ExpandoObject GetParameter(List<string> props, object obj)
         {
             var expando = (IDictionary<string, object>)new ExpandoObject();

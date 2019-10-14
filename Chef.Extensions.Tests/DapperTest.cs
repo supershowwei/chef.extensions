@@ -283,6 +283,55 @@ namespace Chef.Extensions.Tests
             ((DbString)parameters["FirstName_0"]).Value.Should().Be("abab");
             parameters["LastName_0"].Should().Be("baba");
         }
+
+        [TestMethod]
+        public void Test_ToSelectionStatement_Simple()
+        {
+            Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
+
+            var selectionStatment = predicate.ToSelectionStatement(out var parameters);
+
+            selectionStatment.Should().Be("SELECT [user].* FROM [user] WITH (NOLOCK) WHERE ([user].[Id] < {=Id_0}) AND ([user].[first_name] = @FirstName_0)");
+            parameters["Id_0"].Should().Be(1);
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("123");
+        }
+
+        [TestMethod]
+        public void Test_ToSelectionStatement_with_Alias()
+        {
+            Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
+
+            var selectionStatment = predicate.ToSelectionStatement(null, "jjj", out var parameters);
+
+            selectionStatment.Should().Be("SELECT jjj.* FROM [user] jjj WITH (NOLOCK) WHERE (jjj.[Id] < {=Id_0}) AND (jjj.[first_name] = @FirstName_0)");
+            parameters["Id_0"].Should().Be(1);
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("123");
+        }
+
+        [TestMethod]
+        public void Test_ToSelectionStatement_with_Alias_and_Hint()
+        {
+            Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
+
+            var selectionStatment = predicate.ToSelectionStatement(null, "ppp", string.Empty, out var parameters);
+
+            selectionStatment.Should().Be("SELECT ppp.* FROM [user] ppp WHERE (ppp.[Id] < {=Id_0}) AND (ppp.[first_name] = @FirstName_0)");
+            parameters["Id_0"].Should().Be(1);
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("123");
+        }
+
+        [TestMethod]
+        public void Test_ToSelectionStatement_with_SelectList_and_Alias()
+        {
+            Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
+            Expression<Func<Member, object>> selectList = x => new { x.Id, x.FirstName, x.LastName };
+
+            var selectionStatment = predicate.ToSelectionStatement(selectList, "ooo", out var parameters);
+
+            selectionStatment.Should().Be("SELECT ooo.[Id], ooo.[first_name] AS [FirstName], ooo.[last_name] AS [LastName] FROM [user] ooo WITH (NOLOCK) WHERE (ooo.[Id] < {=Id_0}) AND (ooo.[first_name] = @FirstName_0)");
+            parameters["Id_0"].Should().Be(1);
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("123");
+        }
     }
 
     [Table("user")]
