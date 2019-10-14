@@ -336,9 +336,9 @@ Example:
 
         List<T> Query(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> partition);
 
-        T Extract(Expression<Func<T, bool>> predicate);
+        T QueryOne(Expression<Func<T, bool>> predicate);
 
-        T Extract(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> partition);
+        T QueryOne(Expression<Func<T, bool>> predicate, Expression<Func<T, object>> partition);
 
         void Update(Expression<Func<T>> setters, Expression<Func<Mutable, bool>> predicate);
 
