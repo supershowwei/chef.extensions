@@ -553,9 +553,18 @@ namespace Chef.Extensions.Dapper
         {
             var tableType = typeof(T);
             var tableAttribute = tableType.GetCustomAttribute<TableAttribute>();
-            var tableName = $"[{tableAttribute?.Name ?? tableType.Name}]";
+            var tableName = tableAttribute?.Name ?? tableType.Name;
 
-            return $"UPDATE {tableName} SET {ToSetStatements(me, out parameters)} WHERE {ToSearchCondition(predicate, parameters)}";
+            return $"UPDATE [{tableName}] SET {ToSetStatements(me, out parameters)} WHERE {ToSearchCondition(predicate, parameters)}";
+        }
+
+        public static string ToDeletionStatement<T>(this Expression<Func<T, bool>> me, out IDictionary<string, object> parameters)
+        {
+            var tableType = typeof(T);
+            var tableAttribute = tableType.GetCustomAttribute<TableAttribute>();
+            var tableName = tableAttribute?.Name ?? tableType.Name;
+
+            return $"DELETE FROM [{tableName}] WHERE {ToSearchCondition(me, out parameters)}";
         }
 
         private static ExpandoObject GetParameter(List<string> props, object obj)

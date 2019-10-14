@@ -381,7 +381,35 @@ Example:
 
         var updateStatment = setters.ToUpdateStatement(predicate, out var parameters);
 
-        // updateStatement is "UPDATE [user] SET [first_name] = @FirstName_0, [last_name] = @LastName_0 WHERE ([Id] < {=Id_0}) AND ([first_name] = @FirstName_1)"
+        // updateStatement is "UPDATE [user] SET [first_name] = @FirstName_0, [last_name] = @LastName_0 WHERE ([Id] < {=Id_0}) AND ([first_name] = @FirstName_1)".
+    }
+    
+    [Table("user")]
+    internal class Member
+    {
+        public int Id { get; set; }
+
+        [Column("first_name", TypeName = "varchar")]
+        [StringLength(20)]
+        public string FirstName { get; set; }
+
+        [Column("last_name")]
+        public string LastName { get; set; }
+    }
+
+### ToDeletionStatement&lt;T&gt;(out IDictionary<string, object> parameters)
+
+Generate deletion statement. Look example.
+
+Example:
+
+    public void Test_ToDelettionStatement()
+    {
+        Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
+
+        var deletionStatement = predicate.ToDeletionStatement(out var parameters);
+
+        // deletionStatement is "DELETE FROM [user] WHERE ([Id] < {=Id_0}) AND ([first_name] = @FirstName_0)".
     }
     
     [Table("user")]

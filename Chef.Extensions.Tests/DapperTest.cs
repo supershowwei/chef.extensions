@@ -347,6 +347,18 @@ namespace Chef.Extensions.Tests
             ((DbString)parameters["FirstName_1"]).Value.Should().Be("123");
             parameters["LastName_0"].Should().Be("222");
         }
+
+        [TestMethod]
+        public void Test_ToDelettionStatement_Simple()
+        {
+            Expression<Func<Member, bool>> predicate = x => x.Id < 1 && x.FirstName == "123";
+
+            var deletionStatement = predicate.ToDeletionStatement(out var parameters);
+
+            deletionStatement.Should().Be("DELETE FROM [user] WHERE ([Id] < {=Id_0}) AND ([first_name] = @FirstName_0)");
+            parameters["Id_0"].Should().Be(1);
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("123");
+        }
     }
 
     [Table("user")]
