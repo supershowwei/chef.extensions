@@ -27,5 +27,13 @@ namespace Chef.Extensions.Tests
             "A1(3".IsNumeric().Should().BeFalse();
             "12-34".IsNumeric().Should().BeFalse();
         }
+
+        [TestMethod]
+        public void Test_Remove()
+        {
+            var input = "1[2]345[6[7]]";
+
+            input.Remove("[", "]").Should().Be("1234567");
+        }
     }
 }

@@ -195,5 +195,10 @@ namespace Chef.Extensions.String
 
             return decimal.TryParse(me, NumberStyles.Any, NumberFormatInfo.InvariantInfo, out var result);
         }
+
+        public static string Remove(this string me, params string[] values)
+        {
+            return values.Aggregate(me, (accu, next) => accu.Replace(next, string.Empty));
+        }
     }
 }

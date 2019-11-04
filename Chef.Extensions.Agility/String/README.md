@@ -339,3 +339,13 @@ Example:
     var result = "123.456".IsNumeric();
     
     // result is true.
+
+### Remove(params string[] values)
+
+Remove values from string.
+
+Example:
+
+    var result = "1[2]345[6[7]]".Remove("[", "]");
+    
+    // result is "1234567".
