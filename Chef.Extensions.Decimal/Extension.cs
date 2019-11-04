@@ -52,5 +52,10 @@ namespace Chef.Extensions.Decimal
         {
             return (me - baseValue) / baseValue;
         }
+
+        public static decimal Normalize(this decimal me)
+        {
+            return me / 1.0000000000000000000000000000m;
+        }
     }
 }

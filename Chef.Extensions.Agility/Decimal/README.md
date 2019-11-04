@@ -103,3 +103,14 @@ Example:
     var result = num.Gradient(baseValue);
     
     // result is 0.1
+
+### Normalize()
+
+Remove trailing zeros.
+
+Example:
+
+    var num = 1.1000m;
+    var result = num.Normalize();
+    
+    // result is 1.1
