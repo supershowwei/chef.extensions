@@ -424,7 +424,7 @@ namespace Chef.Extensions.Dapper
 
                 SetParameter(memberAssignment.Member, ExtractConstant(memberAssignment.Expression), columnAttribute, parameters, out var parameterName);
 
-                sb.AppendAlias($"[{columnName}] = {GenerateParameterStatement(parameterName, parameters)}, ", alias);
+                sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, parameters)}, ", alias);
             }
 
             sb.Remove(sb.Length - 2, 2);
@@ -537,7 +537,7 @@ namespace Chef.Extensions.Dapper
 
                     SetParameter(left.Member, ExtractConstant(binaryExpr.Right), columnAttribute, parameters, out var parameterName);
 
-                    sb.AppendAlias($"[{columnName}] {MapOperator(binaryExpr.NodeType)} {GenerateParameterStatement(parameterName, parameters)}", alias);
+                    sb.AliasAppend($"[{columnName}] {MapOperator(binaryExpr.NodeType)} {GenerateParameterStatement(parameterName, parameters)}", alias);
                 }
             }
             else if (expr is MethodCallExpression methodCallExpr)
@@ -557,12 +557,12 @@ namespace Chef.Extensions.Dapper
                     {
                         SetParameter(parameterExpr.Member, item, columnAttribute, parameters, out var parameterName);
 
-                        sb.AppendAlias($"[{columnName}] = {GenerateParameterStatement(parameterName, parameters)} OR ", alias);
+                        sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, parameters)} OR ", alias);
                     }
 
                     sb.Remove(sb.Length - 4, 4);
                 }
-                else if (Regex.IsMatch(methodFullName, "System\\.String\\.(Contains|StartsWith|EndsWith)"))
+                else if (methodFullName.IsLikeOperator())
                 {
                     var parameterExpr = (MemberExpression)methodCallExpr.Object;
 
@@ -571,17 +571,17 @@ namespace Chef.Extensions.Dapper
 
                     SetParameter(parameterExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out var parameterName);
 
-                    if (methodFullName.EndsWith("Contains"))
+                    if (methodFullName.Equals("System.String.Contains"))
                     {
-                        sb.AppendAlias($"[{columnName}] LIKE '%' + {GenerateParameterStatement(parameterName, parameters)} + '%'", alias);
+                        sb.AliasAppend($"[{columnName}] LIKE '%' + {GenerateParameterStatement(parameterName, parameters)} + '%'", alias);
                     }
-                    else if (methodFullName.EndsWith("StartsWith"))
+                    else if (methodFullName.Equals("System.String.StartsWith"))
                     {
-                        sb.AppendAlias($"[{columnName}] LIKE {GenerateParameterStatement(parameterName, parameters)} + '%'", alias);
+                        sb.AliasAppend($"[{columnName}] LIKE {GenerateParameterStatement(parameterName, parameters)} + '%'", alias);
                     }
-                    else if (methodFullName.EndsWith("EndsWith"))
+                    else if (methodFullName.Equals("System.String.EndsWith"))
                     {
-                        sb.AppendAlias($"[{columnName}] LIKE '%' + {GenerateParameterStatement(parameterName, parameters)}", alias);
+                        sb.AliasAppend($"[{columnName}] LIKE '%' + {GenerateParameterStatement(parameterName, parameters)}", alias);
                     }
                 }
             }
