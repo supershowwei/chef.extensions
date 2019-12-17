@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Chef.Extensions.Dapper</AssemblyName>
+    <RootNamespace>Chef.Extensions.Dapper</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Chef.Extensions.Dapper\DefaultRowParserProvider.cs" Link="DefaultRowParserProvider.cs" />
+    <Compile Include="..\Chef.Extensions.Dapper\Extension.cs" Link="Extension.cs" />
+    <Compile Include="..\Chef.Extensions.Dapper\Extensions\ConstructorInfoExtension.cs" Link="Extensions\ConstructorInfoExtension.cs" />
+    <Compile Include="..\Chef.Extensions.Dapper\Extensions\DictionaryExtension.cs" Link="Extensions\DictionaryExtension.cs" />
+    <Compile Include="..\Chef.Extensions.Dapper\Extensions\IDataReaderExtension.cs" Link="Extensions\IDataReaderExtension.cs" />
+    <Compile Include="..\Chef.Extensions.Dapper\Extensions\MethodInfoExtension.cs" Link="Extensions\MethodInfoExtension.cs" />
+    <Compile Include="..\Chef.Extensions.Dapper\Extensions\StringBuilderExtension.cs" Link="Extensions\StringBuilderExtension.cs" />
+    <Compile Include="..\Chef.Extensions.Dapper\Extensions\StringExtension.cs" Link="Extensions\StringExtension.cs" />
+    <Compile Include="..\Chef.Extensions.Dapper\Extensions\TypeExtension.cs" Link="Extensions\TypeExtension.cs" />
+    <Compile Include="..\Chef.Extensions.Dapper\IRowParserProvider.cs" Link="IRowParserProvider.cs" />
+    <Compile Include="..\Chef.Extensions.Dapper\TypeHandlers.cs" Link="TypeHandlers.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.30" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>
