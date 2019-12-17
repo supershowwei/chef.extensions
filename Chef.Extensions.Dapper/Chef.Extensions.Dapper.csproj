@@ -51,6 +51,8 @@
     <Compile Include="Extensions\ConstructorInfoExtension.cs" />
     <Compile Include="Extensions\DictionaryExtension.cs" />
     <Compile Include="Extensions\IDataReaderExtension.cs" />
+    <Compile Include="Extensions\MethodInfoExtension.cs" />
+    <Compile Include="Extensions\StringBuilderExtension.cs" />
     <Compile Include="Extensions\TypeExtension.cs" />
     <Compile Include="IRowParserProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

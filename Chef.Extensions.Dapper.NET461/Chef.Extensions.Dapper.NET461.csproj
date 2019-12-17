@@ -60,6 +60,12 @@
     <Compile Include="..\Chef.Extensions.Dapper\Extensions\IDataReaderExtension.cs">
       <Link>Extensions\IDataReaderExtension.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.Dapper\Extensions\MethodInfoExtension.cs">
+      <Link>Extensions\MethodInfoExtension.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.Dapper\Extensions\StringBuilderExtension.cs">
+      <Link>Extensions\StringBuilderExtension.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.Dapper\Extensions\TypeExtension.cs">
       <Link>Extensions\TypeExtension.cs</Link>
     </Compile>

@@ -228,6 +228,48 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToSearchCondition_use_String_Contains()
+        {
+            var keyword = "777";
+
+            Expression<Func<Member, bool>> predicate = x => x.LastName.Contains("888") || x.FirstName.Contains(keyword);
+
+            var searchCondition = predicate.ToSearchCondition(out var parameters);
+
+            searchCondition.Should().Be("([last_name] LIKE '%' + @LastName_0 + '%') OR ([first_name] LIKE '%' + @FirstName_0 + '%')");
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("777");
+            parameters["LastName_0"].Should().Be("888");
+        }
+
+        [TestMethod]
+        public void Test_ToSearchCondition_use_String_StartsWith()
+        {
+            var keyword = "666";
+
+            Expression<Func<Member, bool>> predicate = x => x.LastName.StartsWith("777") || x.FirstName.StartsWith(keyword);
+
+            var searchCondition = predicate.ToSearchCondition(out var parameters);
+
+            searchCondition.Should().Be("([last_name] LIKE @LastName_0 + '%') OR ([first_name] LIKE @FirstName_0 + '%')");
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("666");
+            parameters["LastName_0"].Should().Be("777");
+        }
+
+        [TestMethod]
+        public void Test_ToSearchCondition_use_String_EndsWith()
+        {
+            var keyword = "555";
+
+            Expression<Func<Member, bool>> predicate = x => x.LastName.EndsWith("666") || x.FirstName.EndsWith(keyword);
+
+            var searchCondition = predicate.ToSearchCondition(out var parameters);
+
+            searchCondition.Should().Be("([last_name] LIKE '%' + @LastName_0) OR ([first_name] LIKE '%' + @FirstName_0)");
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("555");
+            parameters["LastName_0"].Should().Be("666");
+        }
+
+        [TestMethod]
         public void Test_ToSelectList_Simple()
         {
             Expression<Func<Member, object>> select = x => new { x.Id, x.FirstName, x.LastName };
