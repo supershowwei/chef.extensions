@@ -1,0 +1,47 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Chef.Extensions.Agility</AssemblyName>
+    <RootNamespace>Chef.Extensions.Agility</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Chef.Extensions.Assembly\Extension.cs" Link="Assembly\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.Boolean\Extension.cs" Link="Boolean\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.Byte\Extension.cs" Link="Byte\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.DateTime\Extension.cs" Link="DateTime\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.Decimal\Extension.cs" Link="Decimal\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.Dictionary\Extension.cs" Link="Dictionary\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.Double\Extension.cs" Link="Double\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.Enum\Extension.cs" Link="Enum\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.IEnumerable\Extension.cs" Link="IEnumerable\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.Int\Extension.cs" Link="Int\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.Long\Extension.cs" Link="Long\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.Object\Extension.cs" Link="Object\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.String\Base32.cs" Link="String\Base32.cs" />
+    <Compile Include="..\Chef.Extensions.String\Extension.cs" Link="String\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.Type\Extension.cs" Link="Type\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.Type\ObjectActivatorBuilder.cs" Link="Type\ObjectActivatorBuilder.cs" />
+    <Compile Include="..\Chef.Extensions.XElement\Extension.cs" Link="XElement\Extension.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Assembly\" />
+    <Folder Include="Boolean\" />
+    <Folder Include="Byte\" />
+    <Folder Include="DateTime\" />
+    <Folder Include="Decimal\" />
+    <Folder Include="Dictionary\" />
+    <Folder Include="Double\" />
+    <Folder Include="Enum\" />
+    <Folder Include="IEnumerable\" />
+    <Folder Include="Int\" />
+    <Folder Include="Long\" />
+    <Folder Include="XElement\" />
+    <Folder Include="Type\" />
+    <Folder Include="String\" />
+    <Folder Include="Object\" />
+  </ItemGroup>
+
+</Project>
