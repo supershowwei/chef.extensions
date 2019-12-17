@@ -562,7 +562,7 @@ namespace Chef.Extensions.Dapper
 
                     sb.Remove(sb.Length - 4, 4);
                 }
-                else if (methodFullName.Equals("System.String.Contains"))
+                else if (Regex.IsMatch(methodFullName, "System\\.String\\.(Contains|StartsWith|EndsWith)"))
                 {
                     var parameterExpr = (MemberExpression)methodCallExpr.Object;
 
@@ -571,29 +571,18 @@ namespace Chef.Extensions.Dapper
 
                     SetParameter(parameterExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out var parameterName);
 
-                    sb.AppendAlias($"[{columnName}] LIKE '%' + {GenerateParameterStatement(parameterName, parameters)} + '%'", alias);
-                }
-                else if (methodFullName.Equals("System.String.StartsWith"))
-                {
-                    var parameterExpr = (MemberExpression)methodCallExpr.Object;
-
-                    var columnAttribute = parameterExpr.Member.GetCustomAttribute<ColumnAttribute>();
-                    var columnName = columnAttribute?.Name ?? parameterExpr.Member.Name;
-
-                    SetParameter(parameterExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out var parameterName);
-
-                    sb.AppendAlias($"[{columnName}] LIKE {GenerateParameterStatement(parameterName, parameters)} + '%'", alias);
-                }
-                else if (methodFullName.Equals("System.String.EndsWith"))
-                {
-                    var parameterExpr = (MemberExpression)methodCallExpr.Object;
-
-                    var columnAttribute = parameterExpr.Member.GetCustomAttribute<ColumnAttribute>();
-                    var columnName = columnAttribute?.Name ?? parameterExpr.Member.Name;
-
-                    SetParameter(parameterExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out var parameterName);
-
-                    sb.AppendAlias($"[{columnName}] LIKE '%' + {GenerateParameterStatement(parameterName, parameters)}", alias);
+                    if (methodFullName.EndsWith("Contains"))
+                    {
+                        sb.AppendAlias($"[{columnName}] LIKE '%' + {GenerateParameterStatement(parameterName, parameters)} + '%'", alias);
+                    }
+                    else if (methodFullName.EndsWith("StartsWith"))
+                    {
+                        sb.AppendAlias($"[{columnName}] LIKE {GenerateParameterStatement(parameterName, parameters)} + '%'", alias);
+                    }
+                    else if (methodFullName.EndsWith("EndsWith"))
+                    {
+                        sb.AppendAlias($"[{columnName}] LIKE '%' + {GenerateParameterStatement(parameterName, parameters)}", alias);
+                    }
                 }
             }
         }
