@@ -270,6 +270,22 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToSelectList_Whole_Type()
+        {
+            var selectList = typeof(Member).ToSelectList();
+
+            selectList.Should().Be("[Id], [first_name] AS [FirstName], [last_name] AS [LastName]");
+        }
+
+        [TestMethod]
+        public void Test_ToSelectList_Whole_Type_with_Alias()
+        {
+            var selectList = typeof(Member).ToSelectList("m");
+
+            selectList.Should().Be("m.[Id], m.[first_name] AS [FirstName], m.[last_name] AS [LastName]");
+        }
+
+        [TestMethod]
         public void Test_ToSelectList_Simple()
         {
             Expression<Func<Member, object>> select = x => new { x.Id, x.FirstName, x.LastName };
@@ -314,6 +330,17 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToColumnList_Just_ColumnList()
+        {
+            Expression<Func<Member, object>> selector = x => new { x.Id, x.FirstName, x.LastName };
+
+            var columnList = selector.ToColumnList(out var valueList);
+
+            columnList.Should().Be("[Id], [first_name], [last_name]");
+            valueList.Should().Be("{=Id}, @FirstName, @LastName");
+        }
+
+        [TestMethod]
         public void Test_ToColumnList_Simple()
         {
             Expression<Func<Member>> setters = () => new Member { Id = 123, FirstName = "abab", LastName = "baba" };
@@ -339,6 +366,9 @@ namespace Chef.Extensions.Tests
 
         [Column("last_name")]
         public string LastName { get; set; }
+
+        [NotMapped]
+        public int Age { get; set; }
     }
 
     internal class QueryParameter

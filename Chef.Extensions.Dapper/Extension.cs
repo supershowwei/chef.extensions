@@ -21,6 +21,7 @@ namespace Chef.Extensions.Dapper
 
         private static readonly HashSet<Type> NumericTypes = new HashSet<Type>
                                                              {
+                                                                 typeof(bool),
                                                                  typeof(byte),
                                                                  typeof(sbyte),
                                                                  typeof(short),
@@ -364,6 +365,30 @@ namespace Chef.Extensions.Dapper
             return sb.ToString();
         }
 
+        public static string ToSelectList(this Type me)
+        {
+            return ToSelectList(me, string.Empty);
+        }
+
+        public static string ToSelectList(this Type me, string alias)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var property in me.GetCacheProperties().Where(p => p.CustomAttributes.All(a => a.AttributeType != typeof(NotMappedAttribute))))
+            {
+                var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
+                var columnName = columnAttribute?.Name;
+
+                if (!string.IsNullOrEmpty(alias)) sb.Append($"{alias}.");
+
+                sb.Append(string.IsNullOrEmpty(columnName) ? $"[{property.Name}], " : $"[{columnName}] AS [{property.Name}], ");
+            }
+
+            sb.Remove(sb.Length - 2, 2);
+
+            return sb.ToString();
+        }
+
         public static string ToSelectList<T>(this Expression<Func<T, object>> me)
         {
             return ToSelectList(me, string.Empty);
@@ -430,6 +455,30 @@ namespace Chef.Extensions.Dapper
             sb.Remove(sb.Length - 2, 2);
 
             return sb.ToString();
+        }
+
+        public static string ToColumnList<T>(this Expression<Func<T, object>> me, out string valueList)
+        {
+            var columnListBuilder = new StringBuilder();
+            var valueListBuilder = new StringBuilder();
+            var targetType = typeof(T);
+
+            foreach (var returnProp in me.Body.Type.GetCacheProperties())
+            {
+                var property = targetType.GetProperty(returnProp.Name);
+                var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
+                var columnName = columnAttribute?.Name ?? property.Name;
+
+                columnListBuilder.Append($"[{columnName}], ");
+                valueListBuilder.Append($"{GenerateParameterStatement(property)}, ");
+            }
+
+            columnListBuilder.Remove(columnListBuilder.Length - 2, 2);
+            valueListBuilder.Remove(valueListBuilder.Length - 2, 2);
+
+            valueList = valueListBuilder.ToString();
+
+            return columnListBuilder.ToString();
         }
 
         public static string ToColumnList<T>(this Expression<Func<T>> me, out string valueList, out IDictionary<string, object> parameters)
@@ -679,9 +728,16 @@ namespace Chef.Extensions.Dapper
         {
             var parameter = parameters[parameterName];
 
-            if (parameter is bool || NumericTypes.Contains(parameter.GetType())) return $"{{={parameterName}}}";
+            if (NumericTypes.Contains(parameter.GetType())) return $"{{={parameterName}}}";
 
             return $"@{parameterName}";
+        }
+
+        private static string GenerateParameterStatement(PropertyInfo propertyInfo)
+        {
+            if (NumericTypes.Contains(propertyInfo.PropertyType)) return $"{{={propertyInfo.Name}}}";
+
+            return $"@{propertyInfo.Name}";
         }
 
         private static PropertyInfo[] GetCacheProperties(this Type me)
