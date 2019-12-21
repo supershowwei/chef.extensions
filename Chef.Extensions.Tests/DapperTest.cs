@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -270,19 +271,61 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
-        public void Test_ToSelectList_Whole_Type()
+        public void Test_ToSearchCondition_Multiply()
         {
-            var selectList = typeof(Member).ToSelectList();
+            var keyword = "666";
 
-            selectList.Should().Be("[Id], [first_name] AS [FirstName], [last_name] AS [LastName]");
+            var predicates = new List<Expression<Func<Member, bool>>>
+                             {
+                                 x => x.LastName.EndsWith("777") || x.FirstName.EndsWith(keyword),
+                                 x => x.LastName.StartsWith("777") || x.FirstName.StartsWith(keyword)
+                             };
+
+            var searchCondition = string.Empty;
+            var parameters = new Dictionary<string, object>();
+
+            foreach (var predicate in predicates)
+            {
+                if (!string.IsNullOrEmpty(searchCondition)) searchCondition += ", ";
+
+                searchCondition += predicate.ToSearchCondition(parameters);
+            }
+
+            searchCondition.Should().Be("([last_name] LIKE '%' + @LastName_0) OR ([first_name] LIKE '%' + @FirstName_0), ([last_name] LIKE @LastName_1 + '%') OR ([first_name] LIKE @FirstName_1 + '%')");
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("666");
+            parameters["LastName_0"].Should().Be("777");
+            ((DbString)parameters["FirstName_1"]).Value.Should().Be("666");
+            parameters["LastName_1"].Should().Be("777");
         }
 
         [TestMethod]
-        public void Test_ToSelectList_Whole_Type_with_Alias()
+        public void Test_ToSearchCondition_Multiply_with_Values()
         {
-            var selectList = typeof(Member).ToSelectList("m");
+            var values = new List<Member>
+                         {
+                             new Member { LastName = "777", FirstName = "888" }, new Member { LastName = "888", FirstName = "999" }
+                         };
 
-            selectList.Should().Be("m.[Id], m.[first_name] AS [FirstName], m.[last_name] AS [LastName]");
+            var predicates = values
+                .Select(v => (Expression<Func<Member, bool>>)(x => x.LastName == v.LastName && x.FirstName == v.FirstName))
+                .ToList();
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicates.Aggregate(
+                string.Empty,
+                (accu, next) =>
+                    {
+                        if (!string.IsNullOrEmpty(accu)) accu += ", ";
+
+                        return accu + next.ToSearchCondition(parameters);
+                    });
+
+            searchCondition.Should().Be("([last_name] = @LastName_0) AND ([first_name] = @FirstName_0), ([last_name] = @LastName_1) AND ([first_name] = @FirstName_1)");
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("888");
+            parameters["LastName_0"].Should().Be("777");
+            ((DbString)parameters["FirstName_1"]).Value.Should().Be("999");
+            parameters["LastName_1"].Should().Be("888");
         }
 
         [TestMethod]
@@ -303,6 +346,16 @@ namespace Chef.Extensions.Tests
             var selectList = select.ToSelectList("att");
 
             selectList.Should().Be("att.[Id], att.[first_name] AS [FirstName], att.[last_name] AS [LastName]");
+        }
+
+        [TestMethod]
+        public void Test_ToSetStatements_Just_SetStatements()
+        {
+            Expression<Func<Member, object>> selector = x => new { x.Id, x.FirstName, x.LastName };
+
+            var setStatements = selector.ToSetStatements();
+
+            setStatements.Should().Be("[Id] = {=Id}, [first_name] = @FirstName, [last_name] = @LastName");
         }
 
         [TestMethod]
@@ -330,14 +383,29 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
-        public void Test_ToColumnList_Just_ColumnList()
+        public void Test_ToSetStatements_Multiply()
         {
-            Expression<Func<Member, object>> selector = x => new { x.Id, x.FirstName, x.LastName };
+            var setterList = new List<Expression<Func<Member>>>
+                             {
+                                 () => new Member { FirstName = "abab", LastName = "baba" },
+                                 () => new Member { FirstName = "baba", LastName = "abab" }
+                             };
 
-            var columnList = selector.ToColumnList(out var valueList);
+            var setStatements = string.Empty;
+            var parameters = new Dictionary<string, object>();
 
-            columnList.Should().Be("[Id], [first_name], [last_name]");
-            valueList.Should().Be("{=Id}, @FirstName, @LastName");
+            foreach (var setters in setterList)
+            {
+                if (!string.IsNullOrEmpty(setStatements)) setStatements += ", ";
+
+                setStatements += setters.ToSetStatements(parameters);
+            }
+
+            setStatements.Should().Be("[first_name] = @FirstName_0, [last_name] = @LastName_0, [first_name] = @FirstName_1, [last_name] = @LastName_1");
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("abab");
+            parameters["LastName_0"].Should().Be("baba");
+            ((DbString)parameters["FirstName_1"]).Value.Should().Be("baba");
+            parameters["LastName_1"].Should().Be("abab");
         }
 
         [TestMethod]

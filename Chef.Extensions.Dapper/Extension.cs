@@ -339,6 +339,30 @@ namespace Chef.Extensions.Dapper
             return new DbString { Value = me, Length = length, IsFixedLength = true };
         }
 
+        public static string ToSelectList<T>(this Expression<Func<T, object>> me)
+        {
+            return ToSelectList(me, string.Empty);
+        }
+
+        public static string ToSelectList<T>(this Expression<Func<T, object>> me, string alias)
+        {
+            var sb = new StringBuilder();
+            var targetType = typeof(T);
+
+            foreach (var returnProp in me.Body.Type.GetCacheProperties())
+            {
+                var property = targetType.GetProperty(returnProp.Name);
+                var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
+                var columnName = columnAttribute?.Name;
+
+                sb.AliasAppend(string.IsNullOrEmpty(columnName) ? $"[{property.Name}], " : $"[{columnName}] AS [{property.Name}], ", alias);
+            }
+
+            sb.Remove(sb.Length - 2, 2);
+
+            return sb.ToString();
+        }
+
         public static string ToSearchCondition<T>(this Expression<Func<T, bool>> me, out IDictionary<string, object> parameters)
         {
             return ToSearchCondition(me, string.Empty, out parameters);
@@ -365,36 +389,42 @@ namespace Chef.Extensions.Dapper
             return sb.ToString();
         }
 
-        public static string ToSelectList(this Type me)
+        public static string ToColumnList<T>(this Expression<Func<T>> me, out string valueList, out IDictionary<string, object> parameters)
         {
-            return ToSelectList(me, string.Empty);
-        }
+            if (!(me.Body is MemberInitExpression memberInitExpr)) throw new ArgumentException("Must be member initializer.");
 
-        public static string ToSelectList(this Type me, string alias)
-        {
-            var sb = new StringBuilder();
+            parameters = new Dictionary<string, object>();
 
-            foreach (var property in me.GetCacheProperties().Where(p => p.CustomAttributes.All(a => a.AttributeType != typeof(NotMappedAttribute))))
+            var columnListBuilder = new StringBuilder();
+            var valueListBuilder = new StringBuilder();
+
+            foreach (var binding in memberInitExpr.Bindings)
             {
-                var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
-                var columnName = columnAttribute?.Name;
+                if (!(binding is MemberAssignment memberAssignment)) throw new ArgumentException("Must be member assignment.");
 
-                if (!string.IsNullOrEmpty(alias)) sb.Append($"{alias}.");
+                var columnAttribute = memberAssignment.Member.GetCustomAttribute<ColumnAttribute>();
+                var columnName = columnAttribute?.Name ?? memberAssignment.Member.Name;
 
-                sb.Append(string.IsNullOrEmpty(columnName) ? $"[{property.Name}], " : $"[{columnName}] AS [{property.Name}], ");
+                SetParameter(memberAssignment.Member, ExtractConstant(memberAssignment.Expression), columnAttribute, parameters, out var parameterName);
+
+                columnListBuilder.Append($"[{columnName}], ");
+                valueListBuilder.Append($"{GenerateParameterStatement(parameterName, parameters)}, ");
             }
 
-            sb.Remove(sb.Length - 2, 2);
+            columnListBuilder.Remove(columnListBuilder.Length - 2, 2);
+            valueListBuilder.Remove(valueListBuilder.Length - 2, 2);
 
-            return sb.ToString();
+            valueList = valueListBuilder.ToString();
+
+            return columnListBuilder.ToString();
         }
 
-        public static string ToSelectList<T>(this Expression<Func<T, object>> me)
+        public static string ToSetStatements<T>(this Expression<Func<T, object>> me)
         {
-            return ToSelectList(me, string.Empty);
+            return ToSetStatements(me, string.Empty);
         }
 
-        public static string ToSelectList<T>(this Expression<Func<T, object>> me, string alias)
+        public static string ToSetStatements<T>(this Expression<Func<T, object>> me, string alias)
         {
             var sb = new StringBuilder();
             var targetType = typeof(T);
@@ -403,11 +433,9 @@ namespace Chef.Extensions.Dapper
             {
                 var property = targetType.GetProperty(returnProp.Name);
                 var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
-                var columnName = columnAttribute?.Name;
+                var columnName = columnAttribute?.Name ?? property.Name;
 
-                if (!string.IsNullOrEmpty(alias)) sb.Append($"{alias}.");
-
-                sb.Append(string.IsNullOrEmpty(columnName) ? $"[{property.Name}], " : $"[{columnName}] AS [{property.Name}], ");
+                sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(property)}, ", alias);
             }
 
             sb.Remove(sb.Length - 2, 2);
@@ -455,60 +483,6 @@ namespace Chef.Extensions.Dapper
             sb.Remove(sb.Length - 2, 2);
 
             return sb.ToString();
-        }
-
-        public static string ToColumnList<T>(this Expression<Func<T, object>> me, out string valueList)
-        {
-            var columnListBuilder = new StringBuilder();
-            var valueListBuilder = new StringBuilder();
-            var targetType = typeof(T);
-
-            foreach (var returnProp in me.Body.Type.GetCacheProperties())
-            {
-                var property = targetType.GetProperty(returnProp.Name);
-                var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
-                var columnName = columnAttribute?.Name ?? property.Name;
-
-                columnListBuilder.Append($"[{columnName}], ");
-                valueListBuilder.Append($"{GenerateParameterStatement(property)}, ");
-            }
-
-            columnListBuilder.Remove(columnListBuilder.Length - 2, 2);
-            valueListBuilder.Remove(valueListBuilder.Length - 2, 2);
-
-            valueList = valueListBuilder.ToString();
-
-            return columnListBuilder.ToString();
-        }
-
-        public static string ToColumnList<T>(this Expression<Func<T>> me, out string valueList, out IDictionary<string, object> parameters)
-        {
-            if (!(me.Body is MemberInitExpression memberInitExpr)) throw new ArgumentException("Must be member initializer.");
-
-            parameters = new Dictionary<string, object>();
-
-            var columnListBuilder = new StringBuilder();
-            var valueListBuilder = new StringBuilder();
-
-            foreach (var binding in memberInitExpr.Bindings)
-            {
-                if (!(binding is MemberAssignment memberAssignment)) throw new ArgumentException("Must be member assignment.");
-
-                var columnAttribute = memberAssignment.Member.GetCustomAttribute<ColumnAttribute>();
-                var columnName = columnAttribute?.Name ?? memberAssignment.Member.Name;
-
-                SetParameter(memberAssignment.Member, ExtractConstant(memberAssignment.Expression), columnAttribute, parameters, out var parameterName);
-
-                columnListBuilder.Append($"[{columnName}], ");
-                valueListBuilder.Append($"{GenerateParameterStatement(parameterName, parameters)}, ");
-            }
-
-            columnListBuilder.Remove(columnListBuilder.Length - 2, 2);
-            valueListBuilder.Remove(valueListBuilder.Length - 2, 2);
-
-            valueList = valueListBuilder.ToString();
-
-            return columnListBuilder.ToString();
         }
 
         private static ExpandoObject GetParameter(List<string> props, object obj)
