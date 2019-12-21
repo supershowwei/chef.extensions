@@ -86,6 +86,18 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToSearchCondition_support_Equals()
+        {
+            Expression<Func<Member, bool>> predicate = x => x.Id.Equals(1) && x.FirstName.Equals("GoodJob");
+
+            var searchCondition = predicate.ToSearchCondition(out var parameters);
+
+            searchCondition.Should().Be("([Id] = {=Id_0}) AND ([first_name] = @FirstName_0)");
+            parameters["Id_0"].Should().Be(1);
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be("GoodJob");
+        }
+
+        [TestMethod]
         public void Test_ToSearchCondition_use_Object_Property()
         {
             var queryParameter = new QueryParameter { Id = 1, Name = "444" };

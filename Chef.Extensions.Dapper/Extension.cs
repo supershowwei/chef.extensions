@@ -828,7 +828,18 @@ namespace Chef.Extensions.Dapper
             {
                 var methodFullName = methodCallExpr.Method.GetFullName();
 
-                if (methodFullName.Equals("System.Linq.Enumerable.Contains"))
+                if (methodFullName.EndsWith("Equals"))
+                {
+                    var parameterExpr = (MemberExpression)methodCallExpr.Object;
+
+                    var columnAttribute = parameterExpr.Member.GetCustomAttribute<ColumnAttribute>();
+                    var columnName = columnAttribute?.Name ?? parameterExpr.Member.Name;
+
+                    SetParameter(parameterExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out var parameterName);
+
+                    sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, parameters)}", alias);
+                }
+                else if (methodFullName.Equals("System.Linq.Enumerable.Contains"))
                 {
                     var parameterExpr = (MemberExpression)methodCallExpr.Arguments[1];
 
