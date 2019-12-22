@@ -654,30 +654,6 @@ namespace Chef.Extensions.Dapper
             return columnListBuilder.ToString();
         }
 
-        public static string ToSetStatements<T>(this Expression<Func<T, object>> me)
-        {
-            return ToSetStatements(me, string.Empty);
-        }
-
-        public static string ToSetStatements<T>(this Expression<Func<T, object>> me, string alias)
-        {
-            var sb = new StringBuilder();
-            var targetType = typeof(T);
-
-            foreach (var returnProp in me.Body.Type.GetCacheProperties())
-            {
-                var property = targetType.GetProperty(returnProp.Name);
-                var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
-                var columnName = columnAttribute?.Name ?? property.Name;
-
-                sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(property)}, ", alias);
-            }
-
-            sb.Remove(sb.Length - 2, 2);
-
-            return sb.ToString();
-        }
-
         public static string ToSetStatements<T>(this Expression<Func<T>> me, out IDictionary<string, object> parameters)
         {
             parameters = new Dictionary<string, object>();
@@ -977,13 +953,6 @@ namespace Chef.Extensions.Dapper
             if (NumericTypes.Contains(parameter.GetType())) return $"{{={parameterName}}}";
 
             return $"@{parameterName}";
-        }
-
-        private static string GenerateParameterStatement(PropertyInfo propertyInfo)
-        {
-            if (NumericTypes.Contains(propertyInfo.PropertyType)) return $"{{={propertyInfo.Name}}}";
-
-            return $"@{propertyInfo.Name}";
         }
 
         private static PropertyInfo[] GetCacheProperties(this Type me)

@@ -74,6 +74,17 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToSearchCondition_use_Equals()
+        {
+            Expression<Func<Member, bool>> predicate = x => x.Id.Equals(1);
+
+            var searchCondition = predicate.ToSearchCondition(out var parameters);
+
+            searchCondition.Should().Be("[Id] = {=Id_0}");
+            parameters["Id_0"].Should().Be(1);
+        }
+
+        [TestMethod]
         public void Test_ToSearchCondition_And()
         {
             Expression<Func<Member, bool>> predicate = x => x.Id == 1 && x.FirstName == "GoodJob";
@@ -358,16 +369,6 @@ namespace Chef.Extensions.Tests
             var selectList = select.ToSelectList("att");
 
             selectList.Should().Be("att.[Id], att.[first_name] AS [FirstName], att.[last_name] AS [LastName]");
-        }
-
-        [TestMethod]
-        public void Test_ToSetStatements_Just_SetStatements()
-        {
-            Expression<Func<Member, object>> selector = x => new { x.Id, x.FirstName, x.LastName };
-
-            var setStatements = selector.ToSetStatements();
-
-            setStatements.Should().Be("[Id] = {=Id}, [first_name] = @FirstName, [last_name] = @LastName");
         }
 
         [TestMethod]
