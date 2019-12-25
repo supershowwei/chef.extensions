@@ -332,3 +332,59 @@ Example:
         public string LastName { get; set; }
     }
 
+### ToOrderAscending&lt;T&gt;()
+
+Generate ascending order expression.
+
+Example:
+
+    public void Test_ToAscendingOrder()
+    {
+        Expression<Func<Member, string>> orderBy = x => x.FirstName;
+
+        var orderExpression = orderBy.ToOrderAscending("m");
+
+        // orderExpression is "[first_name] ASC".
+    }
+    
+    [Table("user")]
+    internal class Member
+    {
+        public int Id { get; set; }
+
+        [Column("first_name", TypeName = "varchar")]
+        [StringLength(20)]
+        public string FirstName { get; set; }
+
+        [Column("last_name")]
+        public string LastName { get; set; }
+    }
+
+### ToOrderDescending&lt;T&gt;()
+
+Generate descending order expression.
+
+Example:
+
+    public void Test_ToDescendingOrder()
+    {
+        Expression<Func<Member, string>> orderBy = x => x.FirstName;
+
+        var orderExpression = orderBy.ToOrderDescending("m");
+
+        // orderExpression is "[first_name] DESC".
+    }
+    
+    [Table("user")]
+    internal class Member
+    {
+        public int Id { get; set; }
+
+        [Column("first_name", TypeName = "varchar")]
+        [StringLength(20)]
+        public string FirstName { get; set; }
+
+        [Column("last_name")]
+        public string LastName { get; set; }
+    }
+

@@ -696,6 +696,42 @@ namespace Chef.Extensions.Dapper
             return sb.ToString();
         }
 
+        public static string ToOrderAscending<T, TColumn>(this Expression<Func<T, TColumn>> me)
+        {
+            return ToOrderAscending(me, string.Empty);
+        }
+
+        public static string ToOrderAscending<T, TColumn>(this Expression<Func<T, TColumn>> me, string alias)
+        {
+            if (!(me.Body is MemberExpression body))
+            {
+                throw new ArgumentException("Body expression must be MemberExpression.");
+            }
+
+            var columnAttribute = body.Member.GetCustomAttribute<ColumnAttribute>();
+            var columnName = columnAttribute?.Name ?? body.Member.Name;
+
+            return string.IsNullOrEmpty(alias) ? $"[{columnName}] ASC" : $"{alias}.[{columnName}] ASC";
+        }
+
+        public static string ToOrderDescending<T, TColumn>(this Expression<Func<T, TColumn>> me)
+        {
+            return ToOrderDescending(me, string.Empty);
+        }
+
+        public static string ToOrderDescending<T, TColumn>(this Expression<Func<T, TColumn>> me, string alias)
+        {
+            if (!(me.Body is MemberExpression body))
+            {
+                throw new ArgumentException("Body expression must be MemberExpression.");
+            }
+
+            var columnAttribute = body.Member.GetCustomAttribute<ColumnAttribute>();
+            var columnName = columnAttribute?.Name ?? body.Member.Name;
+
+            return string.IsNullOrEmpty(alias) ? $"[{columnName}] DESC" : $"{alias}.[{columnName}] DESC";
+        }
+
         private static IEnumerable<T> PolymorphicExecuteReaderSync<T>(this IDataReader me, string sql, string discriminator)
         {
             using (me)
