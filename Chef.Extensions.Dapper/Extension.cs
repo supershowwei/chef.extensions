@@ -696,38 +696,32 @@ namespace Chef.Extensions.Dapper
             return sb.ToString();
         }
 
-        public static string ToOrderAscending<T, TColumn>(this Expression<Func<T, TColumn>> me)
+        public static string ToOrderAscending<T>(this Expression<Func<T, object>> me)
         {
             return ToOrderAscending(me, string.Empty);
         }
 
-        public static string ToOrderAscending<T, TColumn>(this Expression<Func<T, TColumn>> me, string alias)
+        public static string ToOrderAscending<T>(this Expression<Func<T, object>> me, string alias)
         {
-            if (!(me.Body is MemberExpression body))
-            {
-                throw new ArgumentException("Body expression must be MemberExpression.");
-            }
+            var memberExpr = ExtractMember(me.Body);
 
-            var columnAttribute = body.Member.GetCustomAttribute<ColumnAttribute>();
-            var columnName = columnAttribute?.Name ?? body.Member.Name;
+            var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
+            var columnName = columnAttribute?.Name ?? memberExpr.Member.Name;
 
             return string.IsNullOrEmpty(alias) ? $"[{columnName}] ASC" : $"{alias}.[{columnName}] ASC";
         }
 
-        public static string ToOrderDescending<T, TColumn>(this Expression<Func<T, TColumn>> me)
+        public static string ToOrderDescending<T>(this Expression<Func<T, object>> me)
         {
             return ToOrderDescending(me, string.Empty);
         }
 
-        public static string ToOrderDescending<T, TColumn>(this Expression<Func<T, TColumn>> me, string alias)
+        public static string ToOrderDescending<T>(this Expression<Func<T, object>> me, string alias)
         {
-            if (!(me.Body is MemberExpression body))
-            {
-                throw new ArgumentException("Body expression must be MemberExpression.");
-            }
+            var memberExpr = ExtractMember(me.Body);
 
-            var columnAttribute = body.Member.GetCustomAttribute<ColumnAttribute>();
-            var columnName = columnAttribute?.Name ?? body.Member.Name;
+            var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
+            var columnName = columnAttribute?.Name ?? memberExpr.Member.Name;
 
             return string.IsNullOrEmpty(alias) ? $"[{columnName}] DESC" : $"{alias}.[{columnName}] DESC";
         }
@@ -1005,6 +999,16 @@ namespace Chef.Extensions.Dapper
             }
 
             return PropertyCollection[me];
+        }
+
+        private static MemberExpression ExtractMember(Expression expr)
+        {
+            switch (expr)
+            {
+                case UnaryExpression unaryExpr: return (MemberExpression)unaryExpr.Operand;
+                case MemberExpression memberExpr: return memberExpr;
+                default: throw new ArgumentException("Body expression must be MemberExpression.");
+            }
         }
     }
 }

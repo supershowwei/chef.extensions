@@ -340,7 +340,7 @@ Example:
 
     public void Test_ToAscendingOrder()
     {
-        Expression<Func<Member, string>> orderBy = x => x.FirstName;
+        Expression<Func<Member, object>> orderBy = x => x.FirstName;
 
         var orderExpression = orderBy.ToOrderAscending("m");
 
@@ -368,7 +368,7 @@ Example:
 
     public void Test_ToDescendingOrder()
     {
-        Expression<Func<Member, string>> orderBy = x => x.FirstName;
+        Expression<Func<Member, object>> orderBy = x => x.FirstName;
 
         var orderExpression = orderBy.ToOrderDescending("m");
 

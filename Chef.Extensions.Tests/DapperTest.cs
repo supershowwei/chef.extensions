@@ -434,6 +434,28 @@ namespace Chef.Extensions.Tests
             ((DbString)parameters["FirstName_0"]).Value.Should().Be("abab");
             parameters["LastName_0"].Should().Be("baba");
         }
+
+        [TestMethod]
+        public void Test_ToAscendingOrder_Simple()
+        {
+            Expression<Func<Member, object>> orderBy = x => x.Id;
+            Expression<Func<Member, object>> thenBy = x => x.FirstName;
+
+            var orderExpression = orderBy.ToOrderAscending("m") + ", " + thenBy.ToOrderAscending("m");
+
+            Assert.AreEqual("m.[Id] ASC, m.[first_name] ASC", orderExpression);
+        }
+
+        [TestMethod]
+        public void Test_ToDescendingOrder_Simple()
+        {
+            Expression<Func<Member, object>> orderBy = x => x.Id;
+            Expression<Func<Member, object>> thenBy = x => x.Seniority;
+
+            var orderExpression = orderBy.ToOrderDescending("m") + ", " + thenBy.ToOrderDescending("m");
+
+            Assert.AreEqual("m.[Id] DESC, m.[Seniority] DESC", orderExpression);
+        }
     }
 
     [Table("user")]
@@ -447,6 +469,8 @@ namespace Chef.Extensions.Tests
 
         [Column("last_name")]
         public string LastName { get; set; }
+
+        public double Seniority { get; set; }
 
         [NotMapped]
         public int Age { get; set; }
