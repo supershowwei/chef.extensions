@@ -598,6 +598,16 @@ namespace Chef.Extensions.Dapper
             return sb.ToString();
         }
 
+        public static string ToSearchCondition<T>(this Expression<Func<T, bool>> me)
+        {
+            return ToSearchCondition(me, string.Empty, null);
+        }
+
+        public static string ToSearchCondition<T>(this Expression<Func<T, bool>> me, string alias)
+        {
+            return ToSearchCondition(me, alias, null);
+        }
+
         public static string ToSearchCondition<T>(this Expression<Func<T, bool>> me, out IDictionary<string, object> parameters)
         {
             return ToSearchCondition(me, string.Empty, out parameters);
@@ -643,7 +653,7 @@ namespace Chef.Extensions.Dapper
                 SetParameter(memberAssignment.Member, ExtractConstant(memberAssignment.Expression), columnAttribute, parameters, out var parameterName);
 
                 columnListBuilder.Append($"[{columnName}], ");
-                valueListBuilder.Append($"{GenerateParameterStatement(parameterName, parameters)}, ");
+                valueListBuilder.Append($"{GenerateParameterStatement(parameterName, memberAssignment.Member.DeclaringType, parameters)}, ");
             }
 
             columnListBuilder.Remove(columnListBuilder.Length - 2, 2);
@@ -652,6 +662,16 @@ namespace Chef.Extensions.Dapper
             valueList = valueListBuilder.ToString();
 
             return columnListBuilder.ToString();
+        }
+
+        public static string ToSetStatements<T>(this Expression<Func<T>> me)
+        {
+            return ToSetStatements(me, string.Empty, null);
+        }
+
+        public static string ToSetStatements<T>(this Expression<Func<T>> me, string alias)
+        {
+            return ToSetStatements(me, alias, null);
         }
 
         public static string ToSetStatements<T>(this Expression<Func<T>> me, out IDictionary<string, object> parameters)
@@ -684,11 +704,15 @@ namespace Chef.Extensions.Dapper
                 if (!(binding is MemberAssignment memberAssignment)) throw new ArgumentException("Must be member assignment.");
 
                 var columnAttribute = memberAssignment.Member.GetCustomAttribute<ColumnAttribute>();
-                var columnName = columnAttribute?.Name ?? memberAssignment.Member.Name;
+                var parameterName = memberAssignment.Member.Name;
+                var columnName = columnAttribute?.Name ?? parameterName;
 
-                SetParameter(memberAssignment.Member, ExtractConstant(memberAssignment.Expression), columnAttribute, parameters, out var parameterName);
+                if (parameters != null)
+                {
+                    SetParameter(memberAssignment.Member, ExtractConstant(memberAssignment.Expression), columnAttribute, parameters, out parameterName);
+                }
 
-                sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, parameters)}, ", alias);
+                sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, memberAssignment.Member.DeclaringType, parameters)}, ", alias);
             }
 
             sb.Remove(sb.Length - 2, 2);
@@ -823,11 +847,15 @@ namespace Chef.Extensions.Dapper
                     }
 
                     var columnAttribute = left.Member.GetCustomAttribute<ColumnAttribute>();
-                    var columnName = columnAttribute?.Name ?? left.Member.Name;
+                    var parameterName = left.Member.Name;
+                    var columnName = columnAttribute?.Name ?? parameterName;
 
-                    SetParameter(left.Member, ExtractConstant(binaryExpr.Right), columnAttribute, parameters, out var parameterName);
+                    if (parameters != null)
+                    {
+                        SetParameter(left.Member, ExtractConstant(binaryExpr.Right), columnAttribute, parameters, out parameterName);
+                    }
 
-                    sb.AliasAppend($"[{columnName}] {MapOperator(binaryExpr.NodeType)} {GenerateParameterStatement(parameterName, parameters)}", alias);
+                    sb.AliasAppend($"[{columnName}] {MapOperator(binaryExpr.NodeType)} {GenerateParameterStatement(parameterName, left.Member.DeclaringType, parameters)}", alias);
                 }
             }
             else if (expr is MethodCallExpression methodCallExpr)
@@ -839,11 +867,15 @@ namespace Chef.Extensions.Dapper
                     var parameterExpr = (MemberExpression)methodCallExpr.Object;
 
                     var columnAttribute = parameterExpr.Member.GetCustomAttribute<ColumnAttribute>();
-                    var columnName = columnAttribute?.Name ?? parameterExpr.Member.Name;
+                    var parameterName = parameterExpr.Member.Name;
+                    var columnName = columnAttribute?.Name ?? parameterName;
 
-                    SetParameter(parameterExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out var parameterName);
+                    if (parameters != null)
+                    {
+                        SetParameter(parameterExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out parameterName);
+                    }
 
-                    sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, parameters)}", alias);
+                    sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, parameterExpr.Member.DeclaringType, parameters)}", alias);
                 }
                 else if (methodFullName.Equals("System.Linq.Enumerable.Contains"))
                 {
@@ -856,9 +888,11 @@ namespace Chef.Extensions.Dapper
 
                     foreach (var item in array)
                     {
+                        if (parameters == null) throw new NullReferenceException($"'{nameof(parameters)}' can not be null.");
+
                         SetParameter(parameterExpr.Member, item, columnAttribute, parameters, out var parameterName);
 
-                        sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, parameters)} OR ", alias);
+                        sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, parameterExpr.Member.DeclaringType, parameters)} OR ", alias);
                     }
 
                     sb.Remove(sb.Length - 4, 4);
@@ -868,21 +902,25 @@ namespace Chef.Extensions.Dapper
                     var parameterExpr = (MemberExpression)methodCallExpr.Object;
 
                     var columnAttribute = parameterExpr.Member.GetCustomAttribute<ColumnAttribute>();
-                    var columnName = columnAttribute?.Name ?? parameterExpr.Member.Name;
+                    var parameterName = parameterExpr.Member.Name;
+                    var columnName = columnAttribute?.Name ?? parameterName;
 
-                    SetParameter(parameterExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out var parameterName);
+                    if (parameters != null)
+                    {
+                        SetParameter(parameterExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out parameterName);
+                    }
 
                     if (methodFullName.Equals("System.String.Contains"))
                     {
-                        sb.AliasAppend($"[{columnName}] LIKE '%' + {GenerateParameterStatement(parameterName, parameters)} + '%'", alias);
+                        sb.AliasAppend($"[{columnName}] LIKE '%' + {GenerateParameterStatement(parameterName, parameterExpr.Member.DeclaringType, parameters)} + '%'", alias);
                     }
                     else if (methodFullName.Equals("System.String.StartsWith"))
                     {
-                        sb.AliasAppend($"[{columnName}] LIKE {GenerateParameterStatement(parameterName, parameters)} + '%'", alias);
+                        sb.AliasAppend($"[{columnName}] LIKE {GenerateParameterStatement(parameterName, parameterExpr.Member.DeclaringType, parameters)} + '%'", alias);
                     }
                     else if (methodFullName.Equals("System.String.EndsWith"))
                     {
-                        sb.AliasAppend($"[{columnName}] LIKE '%' + {GenerateParameterStatement(parameterName, parameters)}", alias);
+                        sb.AliasAppend($"[{columnName}] LIKE '%' + {GenerateParameterStatement(parameterName, parameterExpr.Member.DeclaringType, parameters)}", alias);
                     }
                 }
             }
@@ -976,11 +1014,14 @@ namespace Chef.Extensions.Dapper
             }
         }
 
-        private static string GenerateParameterStatement(string parameterName, IDictionary<string, object> parameters)
+        private static string GenerateParameterStatement(string parameterName, Type parameterType, IDictionary<string, object> parameters)
         {
-            var parameter = parameters[parameterName];
+            if (parameters != null)
+            {
+                parameterType = parameters[parameterName].GetType();
+            }
 
-            if (NumericTypes.Contains(parameter.GetType())) return $"{{={parameterName}}}";
+            if (NumericTypes.Contains(parameterType)) return $"{{={parameterName}}}";
 
             return $"@{parameterName}";
         }

@@ -352,6 +352,28 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToSearchCondition_for_Multiply_Update()
+        {
+            Expression<Func<Member, bool>> predicate = x => x.Id == 0 && x.FirstName == default(string) && x.LastName.Equals(default(string));
+
+            var searchCondition = predicate.ToSearchCondition();
+
+            searchCondition.Should().Be("(([Id] = @Id) AND ([first_name] = @FirstName)) AND ([last_name] = @LastName)");
+        }
+
+        [TestMethod]
+        public void Test_ToSearchCondition_for_Multiply_Update_use_Contains_will_Throw_NullReferenceException()
+        {
+            Expression<Func<Member, bool>> predicate = x =>
+                new[] { 1, 2, 3 }.Contains(x.Id) && x.FirstName == default(string) && x.LastName.Equals(default(string));
+
+            predicate.Invoking(p => p.ToSearchCondition())
+                .Should()
+                .Throw<NullReferenceException>()
+                .WithMessage("'parameters' can not be null.");
+        }
+
+        [TestMethod]
         public void Test_ToSelectList_Simple()
         {
             Expression<Func<Member, object>> select = x => new { x.Id, x.FirstName, x.LastName };
@@ -396,29 +418,14 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
-        public void Test_ToSetStatements_Multiply()
+        public void Test_ToSetStatements_for_Multiply()
         {
-            var setterList = new List<Expression<Func<Member>>>
-                             {
-                                 () => new Member { FirstName = "abab", LastName = "baba" },
-                                 () => new Member { FirstName = "baba", LastName = "abab" }
-                             };
+            Expression<Func<Member>> setters = () =>
+                new Member { Id = default(int), FirstName = default(string), LastName = default(string), Age = default(int) };
 
-            var setStatements = string.Empty;
-            var parameters = new Dictionary<string, object>();
+            var setStatements = setters.ToSetStatements("kkk");
 
-            foreach (var setters in setterList)
-            {
-                if (!string.IsNullOrEmpty(setStatements)) setStatements += ", ";
-
-                setStatements += setters.ToSetStatements(parameters);
-            }
-
-            setStatements.Should().Be("[first_name] = @FirstName_0, [last_name] = @LastName_0, [first_name] = @FirstName_1, [last_name] = @LastName_1");
-            ((DbString)parameters["FirstName_0"]).Value.Should().Be("abab");
-            parameters["LastName_0"].Should().Be("baba");
-            ((DbString)parameters["FirstName_1"]).Value.Should().Be("baba");
-            parameters["LastName_1"].Should().Be("abab");
+            setStatements.Should().Be("kkk.[Id] = @Id, kkk.[first_name] = @FirstName, kkk.[last_name] = @LastName, kkk.[Age] = @Age");
         }
 
         [TestMethod]
@@ -458,7 +465,6 @@ namespace Chef.Extensions.Tests
         }
     }
 
-    [Table("user")]
     internal class Member
     {
         public int Id { get; set; }
@@ -472,7 +478,6 @@ namespace Chef.Extensions.Tests
 
         public double Seniority { get; set; }
 
-        [NotMapped]
         public int Age { get; set; }
     }
 
