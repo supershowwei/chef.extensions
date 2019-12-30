@@ -358,7 +358,7 @@ namespace Chef.Extensions.Tests
 
             var searchCondition = predicate.ToSearchCondition();
 
-            searchCondition.Should().Be("(([Id] = @Id) AND ([first_name] = @FirstName)) AND ([last_name] = @LastName)");
+            searchCondition.Should().Be("(([Id] = {=Id}) AND ([first_name] = @FirstName)) AND ([last_name] = @LastName)");
         }
 
         [TestMethod]
@@ -425,7 +425,7 @@ namespace Chef.Extensions.Tests
 
             var setStatements = setters.ToSetStatements("kkk");
 
-            setStatements.Should().Be("kkk.[Id] = @Id, kkk.[first_name] = @FirstName, kkk.[last_name] = @LastName, kkk.[Age] = @Age");
+            setStatements.Should().Be("kkk.[Id] = {=Id}, kkk.[first_name] = @FirstName, kkk.[last_name] = @LastName, kkk.[Age] = {=Age}");
         }
 
         [TestMethod]
@@ -440,6 +440,17 @@ namespace Chef.Extensions.Tests
             parameters["Id_0"].Should().Be(123);
             ((DbString)parameters["FirstName_0"]).Value.Should().Be("abab");
             parameters["LastName_0"].Should().Be("baba");
+        }
+
+        [TestMethod]
+        public void Test_ToColumnList_without_Parameters()
+        {
+            Expression<Func<Member>> setters = () => new Member { Id = 123, FirstName = "abab", LastName = "baba" };
+
+            var columnList = setters.ToColumnList(out var valueList);
+
+            columnList.Should().Be("[Id], [first_name], [last_name]");
+            valueList.Should().Be("{=Id}, @FirstName, @LastName");
         }
 
         [TestMethod]
