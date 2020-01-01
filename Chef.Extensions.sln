@@ -79,6 +79,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper.DbAc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper.DbAccess.NETStandard20", "Chef.Extensions.Dapper.DbAccess.NETStandard20\Chef.Extensions.Dapper.DbAccess.NETStandard20.csproj", "{9D663D09-F795-4C71-B898-380F3391C45F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper.DbAccess.SqlServer.NET451", "Chef.Extensions.Dapper.DbAccess.SqlServer.NET451\Chef.Extensions.Dapper.DbAccess.SqlServer.NET451.csproj", "{EFBDDFCD-D94C-4E30-818C-A5DAC662DAD8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper.DbAccess.SqlServer.NETStandard20", "Chef.Extensions.Dapper.DbAccess.SqlServer.NETStandard20\Chef.Extensions.Dapper.DbAccess.SqlServer.NETStandard20.csproj", "{160F088B-880E-4125-9ABF-DF325A52DBEF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -391,6 +395,22 @@ Global
 		{9D663D09-F795-4C71-B898-380F3391C45F}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
 		{9D663D09-F795-4C71-B898-380F3391C45F}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
 		{9D663D09-F795-4C71-B898-380F3391C45F}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{EFBDDFCD-D94C-4E30-818C-A5DAC662DAD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFBDDFCD-D94C-4E30-818C-A5DAC662DAD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFBDDFCD-D94C-4E30-818C-A5DAC662DAD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFBDDFCD-D94C-4E30-818C-A5DAC662DAD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFBDDFCD-D94C-4E30-818C-A5DAC662DAD8}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{EFBDDFCD-D94C-4E30-818C-A5DAC662DAD8}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{EFBDDFCD-D94C-4E30-818C-A5DAC662DAD8}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{EFBDDFCD-D94C-4E30-818C-A5DAC662DAD8}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{160F088B-880E-4125-9ABF-DF325A52DBEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{160F088B-880E-4125-9ABF-DF325A52DBEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{160F088B-880E-4125-9ABF-DF325A52DBEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{160F088B-880E-4125-9ABF-DF325A52DBEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{160F088B-880E-4125-9ABF-DF325A52DBEF}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{160F088B-880E-4125-9ABF-DF325A52DBEF}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{160F088B-880E-4125-9ABF-DF325A52DBEF}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{160F088B-880E-4125-9ABF-DF325A52DBEF}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
