@@ -25,7 +25,7 @@ namespace Chef.Extensions.DbAccess
         }
     }
 
-    public abstract class SqlServerDataAccess<T> : SqlServerDataAccess
+    public abstract class SqlServerDataAccess<T> : SqlServerDataAccess, IDataAccess<T>
     {
         private readonly string connectionString;
         private readonly string tableName;
@@ -42,6 +42,15 @@ namespace Chef.Extensions.DbAccess
         protected abstract Expression<Func<T, object>> DefaultSelector { get; }
 
         protected abstract Expression<Func<T>> RequiredColumns { get; }
+
+        public virtual T QueryOne(
+            Expression<Func<T, bool>> predicate,
+            IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
+            Expression<Func<T, object>> selector = null,
+            int? top = null)
+        {
+            return this.QueryOneAsync(predicate, orderings, selector, top).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
 
         public virtual async Task<T> QueryOneAsync(
             Expression<Func<T, bool>> predicate,
@@ -70,6 +79,15 @@ FROM {this.tableName} {this.alias} WITH (NOLOCK)";
 
                 return result;
             }
+        }
+
+        public List<T> Query(
+            Expression<Func<T, bool>> predicate,
+            IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
+            Expression<Func<T, object>> selector = null,
+            int? top = null)
+        {
+            return this.QueryAsync(predicate, orderings, selector, top).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task<List<T>> QueryAsync(
@@ -101,6 +119,11 @@ FROM {this.tableName} {this.alias} WITH (NOLOCK)";
             }
         }
 
+        public void Insert(T value)
+        {
+            this.InsertAsync(value).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
         public virtual async Task InsertAsync(T value)
         {
             var columnList = this.RequiredColumns.ToColumnList(out var valueList);
@@ -115,6 +138,11 @@ INSERT INTO {this.tableName}({columnList})
             }
         }
 
+        public void Insert(Expression<Func<T>> setter)
+        {
+            this.InsertAsync(setter).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
         public virtual async Task InsertAsync(Expression<Func<T>> setter)
         {
             var columnList = setter.ToColumnList(out var valueList, out var parameters);
@@ -127,6 +155,11 @@ INSERT INTO {this.tableName}({columnList})
             {
                 await db.ExecuteAsync(sql, parameters);
             }
+        }
+
+        public void Insert(IEnumerable<T> values)
+        {
+            this.InsertAsync(values).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task InsertAsync(IEnumerable<T> values)
@@ -158,6 +191,11 @@ INSERT INTO {this.tableName}({columnList})
             }
         }
 
+        public void Insert(Expression<Func<T>> setter, IEnumerable<T> values)
+        {
+            this.InsertAsync(setter, values).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
         public virtual async Task InsertAsync(Expression<Func<T>> setter, IEnumerable<T> values)
         {
             var columnList = setter.ToColumnList(out var valueList);
@@ -187,6 +225,11 @@ INSERT INTO {this.tableName}({columnList})
             }
         }
 
+        public void BulkInsert(Expression<Func<T>> setter, IEnumerable<T> values)
+        {
+            this.BulkInsertAsync(setter, values).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
         public virtual async Task BulkInsertAsync(Expression<Func<T>> setter, IEnumerable<T> values)
         {
             var columnList = setter.ToColumnList(out _);
@@ -204,6 +247,11 @@ INSERT INTO {this.tableName}({columnList})
             }
         }
 
+        public void Update(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter)
+        {
+            this.UpdateAsync(predicate, setter).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
         public virtual async Task UpdateAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter)
         {
             SqlBuilder sql = $@"
@@ -219,6 +267,11 @@ WHERE ";
             {
                 await db.ExecuteAsync(sql, parameters);
             }
+        }
+
+        public void Update(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
+        {
+            this.UpdateAsync(predicate, setter, values).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task UpdateAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
@@ -255,6 +308,11 @@ WHERE ";
             }
         }
 
+        public void BulkUpdate(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
+        {
+            this.BulkUpdateAsync(predicate, setter, values).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
         public virtual async Task BulkUpdateAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
         {
             var columnList = setter.ToColumnList(out _);
@@ -273,6 +331,11 @@ INNER JOIN @TableVariable tvp
             {
                 await db.ExecuteAsync(sql, new { TableVariable = tableVariable.AsTableValuedParameter(tableType) });
             }
+        }
+
+        public void Upsert(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter)
+        {
+            this.UpsertAsync(predicate, setter).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task UpsertAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter)
@@ -317,6 +380,11 @@ IF @@rowcount = 0
             }
         }
 
+        public void Upsert(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
+        {
+            this.UpsertAsync(predicate, setter, values).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
         public virtual async Task UpsertAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
         {
             SqlBuilder sql = $@"
@@ -357,6 +425,11 @@ IF @@rowcount = 0
                     }
                 }
             }
+        }
+
+        public void BulkUpsert(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
+        {
+            this.BulkUpsertAsync(predicate, setter, values).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task BulkUpsertAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
@@ -404,6 +477,11 @@ INSERT INTO {this.tableName}({columnList})
                     }
                 }
             }
+        }
+
+        public virtual void Delete(Expression<Func<T, bool>> predicate)
+        {
+            this.DeleteAsync(predicate).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task DeleteAsync(Expression<Func<T, bool>> predicate)
