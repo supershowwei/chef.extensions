@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Chef.Extensions.Dapper;
 
-namespace Chef.Extensions.Dapper.DbAccess.SqlServer.Extensions
+namespace Chef.Extensions.DbAccess.SqlServer.Extensions
 {
     internal static class ExpressionExtension
     {

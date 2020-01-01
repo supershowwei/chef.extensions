@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EFBDDFCD-D94C-4E30-818C-A5DAC662DAD8}</ProjectGuid>
+    <ProjectGuid>{F8CFA5E2-BE16-42D0-A5D0-5375C44BFB40}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Chef.Extensions.Dapper.DbAccess.SqlServer</RootNamespace>
-    <AssemblyName>Chef.Extensions.Dapper.DbAccess.SqlServer</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <RootNamespace>Chef.Extensions.DbAccess.SqlServer</RootNamespace>
+    <AssemblyName>Chef.Extensions.DbAccess.SqlServer</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -34,8 +34,8 @@
     <Reference Include="Chef.Extensions.Dapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Chef.Extensions.Dapper.2.1.2\lib\net451\Chef.Extensions.Dapper.dll</HintPath>
     </Reference>
-    <Reference Include="Chef.Extensions.Dapper.DbAccess, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Chef.Extensions.Dapper.DbAccess.1.0.1\lib\net451\Chef.Extensions.Dapper.DbAccess.dll</HintPath>
+    <Reference Include="Chef.Extensions.DbAccess, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Chef.Extensions.DbAccess.1.0.0\lib\net451\Chef.Extensions.DbAccess.dll</HintPath>
     </Reference>
     <Reference Include="Dapper, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapper.1.50.0\lib\net451\Dapper.dll</HintPath>
@@ -44,7 +44,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -54,16 +54,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Chef.Extensions.Dapper.DbAccess.SqlServer\Extensions\ExpressionExtension.cs">
-      <Link>Extensions\ExpressionExtension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Dapper.DbAccess.SqlServer\SqlBuilder.cs">
-      <Link>SqlBuilder.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Dapper.DbAccess.SqlServer\SqlServerDataAccess.cs">
-      <Link>SqlServerDataAccess.cs</Link>
-    </Compile>
+    <Compile Include="Extensions\ExpressionExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlBuilder.cs" />
+    <Compile Include="SqlServerDataAccess.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -8,11 +8,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Chef.Extensions.Dapper.DbAccess.SqlServer;
-using Chef.Extensions.Dapper.DbAccess.SqlServer.Extensions;
+using Chef.Extensions.Dapper;
+using Chef.Extensions.DbAccess.SqlServer;
+using Chef.Extensions.DbAccess.SqlServer.Extensions;
 using Dapper;
 
-namespace Chef.Extensions.Dapper.DbAccess
+namespace Chef.Extensions.DbAccess
 {
     public abstract class SqlServerDataAccess
     {

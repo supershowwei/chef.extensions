@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Chef.Extensions.Dapper.DbAccess.SqlServer
+namespace Chef.Extensions.DbAccess.SqlServer
 {
     internal class SqlBuilder
     {
