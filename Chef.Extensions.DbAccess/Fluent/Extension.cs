@@ -105,9 +105,19 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me;
         }
 
+        public static T QueryOne<T>(this QueryObject<T> me)
+        {
+            return me.DataAccess.QueryOne(me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+        }
+
         public static Task<T> QueryOneAsync<T>(this QueryObject<T> me)
         {
             return me.DataAccess.QueryOneAsync(me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+        }
+
+        public static List<T> Query<T>(this QueryObject<T> me)
+        {
+            return me.DataAccess.Query(me.Predicate, me.OrderExpressions, me.Selector, me.Top);
         }
 
         public static Task<List<T>> QueryAsync<T>(this QueryObject<T> me)
@@ -115,9 +125,19 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me.DataAccess.QueryAsync(me.Predicate, me.OrderExpressions, me.Selector, me.Top);
         }
 
+        public static void Insert<T>(this QueryObject<T> me)
+        {
+            me.DataAccess.Insert(me.Setter);
+        }
+
         public static Task InsertAsync<T>(this QueryObject<T> me)
         {
             return me.DataAccess.InsertAsync(me.Setter);
+        }
+
+        public static void Insert<T>(this QueryObject<T> me, IEnumerable<T> values)
+        {
+            me.DataAccess.Insert(me.Setter, values);
         }
 
         public static Task InsertAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
@@ -125,9 +145,19 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me.DataAccess.InsertAsync(me.Setter, values);
         }
 
+        public static void BulkInsert<T>(this QueryObject<T> me, IEnumerable<T> values)
+        {
+            me.DataAccess.BulkInsert(me.Setter, values);
+        }
+
         public static Task BulkInsertAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
         {
             return me.DataAccess.BulkInsertAsync(me.Setter, values);
+        }
+
+        public static void Update<T>(this QueryObject<T> me)
+        {
+            me.DataAccess.Update(me.Predicate, me.Setter);
         }
 
         public static Task UpdateAsync<T>(this QueryObject<T> me)
@@ -135,9 +165,19 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me.DataAccess.UpdateAsync(me.Predicate, me.Setter);
         }
 
+        public static void Update<T>(this QueryObject<T> me, IEnumerable<T> values)
+        {
+            me.DataAccess.Update(me.Predicate, me.Setter, values);
+        }
+
         public static Task UpdateAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
         {
             return me.DataAccess.UpdateAsync(me.Predicate, me.Setter, values);
+        }
+
+        public static void BulkUpdate<T>(this QueryObject<T> me, IEnumerable<T> values)
+        {
+            me.DataAccess.Update(me.Predicate, me.Setter, values);
         }
 
         public static Task BulkUpdateAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
@@ -145,9 +185,19 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me.DataAccess.UpdateAsync(me.Predicate, me.Setter, values);
         }
 
+        public static void Upsert<T>(this QueryObject<T> me)
+        {
+            me.DataAccess.Upsert(me.Predicate, me.Setter);
+        }
+
         public static Task UpsertAsync<T>(this QueryObject<T> me)
         {
             return me.DataAccess.UpsertAsync(me.Predicate, me.Setter);
+        }
+
+        public static void Upsert<T>(this QueryObject<T> me, IEnumerable<T> values)
+        {
+            me.DataAccess.Upsert(me.Predicate, me.Setter, values);
         }
 
         public static Task UpsertAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
@@ -155,9 +205,19 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me.DataAccess.UpsertAsync(me.Predicate, me.Setter, values);
         }
 
+        public static void BulkUpsert<T>(this QueryObject<T> me, IEnumerable<T> values)
+        {
+            me.DataAccess.Upsert(me.Predicate, me.Setter, values);
+        }
+
         public static Task BulkUpsertAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
         {
             return me.DataAccess.UpsertAsync(me.Predicate, me.Setter, values);
+        }
+
+        public static void Delete<T>(this QueryObject<T> me)
+        {
+            me.DataAccess.Delete(me.Predicate);
         }
 
         public static Task DeleteAsync<T>(this QueryObject<T> me)
