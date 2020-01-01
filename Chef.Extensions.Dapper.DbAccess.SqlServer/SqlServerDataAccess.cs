@@ -433,6 +433,5 @@ WHERE ";
 
             return (string.Join(", ", columnList.Keys), string.Join(", ", columnList.Values));
         }
-
     }
 }
