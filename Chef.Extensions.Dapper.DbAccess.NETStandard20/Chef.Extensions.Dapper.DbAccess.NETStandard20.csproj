@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Chef.Extensions.Dapper.DbAccess</AssemblyName>
+    <RootNamespace>Chef.Extensions.Dapper.DbAccess</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Chef.Extensions.Dapper.DbAccess\Fluent\Extension.cs" Link="Fluent\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.Dapper.DbAccess\IDataAccess.cs" Link="IDataAccess.cs" />
+    <Compile Include="..\Chef.Extensions.Dapper.DbAccess\QueryObject.cs" Link="QueryObject.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Fluent\" />
+  </ItemGroup>
+
+</Project>
