@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // 組件的一般資訊是由下列的屬性集控制。
 // 變更這些屬性的值即可修改組件的相關
 // 資訊。
-[assembly: AssemblyTitle("Chef.Extensions.Dapper.DbAccess.NET451")]
+[assembly: AssemblyTitle("Chef.Extensions.DbAccess")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Chef.Extensions.Dapper.DbAccess.NET451")]
+[assembly: AssemblyProduct("Chef.Extensions.DbAccess")]
 [assembly: AssemblyCopyright("Copyright ©  2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 下列 GUID 為專案公開 (Expose) 至 COM 時所要使用的 typelib ID
-[assembly: Guid("7e67443c-c355-48fe-86fb-507a56457e69")]
+[assembly: Guid("efc54692-8f66-4125-bb1c-60ac498afafc")]
 
 // 組件的版本資訊由下列四個值所組成: 
 //

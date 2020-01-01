@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9D9011D6-AD69-4465-8DE8-9B216F379367}</ProjectGuid>
+    <ProjectGuid>{6DC09BF6-840F-442E-8CD9-69104CB9DEAD}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Chef.Extensions.Dapper.DbAccess</RootNamespace>
-    <AssemblyName>Chef.Extensions.Dapper.DbAccess</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <RootNamespace>Chef.Extensions.DbAccess</RootNamespace>
+    <AssemblyName>Chef.Extensions.DbAccess</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -31,14 +31,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Chef.Extensions.Dapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Chef.Extensions.Dapper.2.1.2\lib\net451\Chef.Extensions.Dapper.dll</HintPath>
-    </Reference>
-    <Reference Include="Dapper, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Dapper.1.50.0\lib\net451\Dapper.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -47,10 +44,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Fluent\Extension.cs" />
-    <Compile Include="IDataAccess.cs" />
+    <Compile Include="..\Chef.Extensions.DbAccess\Fluent\Extension.cs">
+      <Link>Fluent\Extension.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.DbAccess\IDataAccess.cs">
+      <Link>IDataAccess.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.DbAccess\QueryObject.cs">
+      <Link>QueryObject.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueryObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

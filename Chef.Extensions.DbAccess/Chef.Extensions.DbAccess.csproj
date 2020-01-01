@@ -4,12 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7E67443C-C355-48FE-86FB-507A56457E69}</ProjectGuid>
+    <ProjectGuid>{EFC54692-8F66-4125-BB1C-60AC498AFAFC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Chef.Extensions.Dapper.DbAccess</RootNamespace>
-    <AssemblyName>Chef.Extensions.Dapper.DbAccess</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <RootNamespace>Chef.Extensions.DbAccess</RootNamespace>
+    <AssemblyName>Chef.Extensions.DbAccess</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -34,7 +34,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net47\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -44,16 +44,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Chef.Extensions.Dapper.DbAccess\Fluent\Extension.cs">
-      <Link>Fluent\Extension.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Dapper.DbAccess\IDataAccess.cs">
-      <Link>IDataAccess.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.Dapper.DbAccess\QueryObject.cs">
-      <Link>QueryObject.cs</Link>
-    </Compile>
+    <Compile Include="Fluent\Extension.cs" />
+    <Compile Include="IDataAccess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

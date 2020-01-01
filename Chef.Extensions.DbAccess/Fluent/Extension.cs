@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace Chef.Extensions.Dapper.DbAccess.Fluent
+namespace Chef.Extensions.DbAccess.Fluent
 {
     public static class Extension
     {

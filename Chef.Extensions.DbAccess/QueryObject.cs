@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace Chef.Extensions.Dapper.DbAccess
+namespace Chef.Extensions.DbAccess
 {
     public class QueryObject<T>
     {

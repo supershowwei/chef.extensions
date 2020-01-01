@@ -71,17 +71,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chef.Extensions.Agility.NET
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chef.Extensions.Dapper.NETStandard20", "Chef.Extensions.Dapper.NETStandard20\Chef.Extensions.Dapper.NETStandard20.csproj", "{ACBA1758-BA60-4614-8FAF-2E53B21820A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper.DbAccess", "Chef.Extensions.Dapper.DbAccess\Chef.Extensions.Dapper.DbAccess.csproj", "{9D9011D6-AD69-4465-8DE8-9B216F379367}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper.DbAccess.SqlServer", "Chef.Extensions.Dapper.DbAccess.SqlServer\Chef.Extensions.Dapper.DbAccess.SqlServer.csproj", "{FFF21475-A442-47BB-BB10-E28F52D48F12}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper.DbAccess.NET451", "Chef.Extensions.Dapper.DbAccess.NET451\Chef.Extensions.Dapper.DbAccess.NET451.csproj", "{7E67443C-C355-48FE-86FB-507A56457E69}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper.DbAccess.NETStandard20", "Chef.Extensions.Dapper.DbAccess.NETStandard20\Chef.Extensions.Dapper.DbAccess.NETStandard20.csproj", "{9D663D09-F795-4C71-B898-380F3391C45F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper.DbAccess.SqlServer.NET451", "Chef.Extensions.Dapper.DbAccess.SqlServer.NET451\Chef.Extensions.Dapper.DbAccess.SqlServer.NET451.csproj", "{EFBDDFCD-D94C-4E30-818C-A5DAC662DAD8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Dapper.DbAccess.SqlServer.NETStandard20", "Chef.Extensions.Dapper.DbAccess.SqlServer.NETStandard20\Chef.Extensions.Dapper.DbAccess.SqlServer.NETStandard20.csproj", "{160F088B-880E-4125-9ABF-DF325A52DBEF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.DbAccess", "Chef.Extensions.DbAccess\Chef.Extensions.DbAccess.csproj", "{EFC54692-8F66-4125-BB1C-60AC498AFAFC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.DbAccess.NET451", "Chef.Extensions.DbAccess.NET451\Chef.Extensions.DbAccess.NET451.csproj", "{6DC09BF6-840F-442E-8CD9-69104CB9DEAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.DbAccess.NETStandard20", "Chef.Extensions.DbAccess.NETStandard20\Chef.Extensions.DbAccess.NETStandard20.csproj", "{DA6CEDED-BB2C-49C5-AE7A-C1B6D8A13E9F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -363,14 +363,6 @@ Global
 		{ACBA1758-BA60-4614-8FAF-2E53B21820A3}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
 		{ACBA1758-BA60-4614-8FAF-2E53B21820A3}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
 		{ACBA1758-BA60-4614-8FAF-2E53B21820A3}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
-		{9D9011D6-AD69-4465-8DE8-9B216F379367}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9D9011D6-AD69-4465-8DE8-9B216F379367}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9D9011D6-AD69-4465-8DE8-9B216F379367}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9D9011D6-AD69-4465-8DE8-9B216F379367}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9D9011D6-AD69-4465-8DE8-9B216F379367}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
-		{9D9011D6-AD69-4465-8DE8-9B216F379367}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
-		{9D9011D6-AD69-4465-8DE8-9B216F379367}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
-		{9D9011D6-AD69-4465-8DE8-9B216F379367}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
 		{FFF21475-A442-47BB-BB10-E28F52D48F12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FFF21475-A442-47BB-BB10-E28F52D48F12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFF21475-A442-47BB-BB10-E28F52D48F12}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -379,22 +371,6 @@ Global
 		{FFF21475-A442-47BB-BB10-E28F52D48F12}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
 		{FFF21475-A442-47BB-BB10-E28F52D48F12}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
 		{FFF21475-A442-47BB-BB10-E28F52D48F12}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
-		{7E67443C-C355-48FE-86FB-507A56457E69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7E67443C-C355-48FE-86FB-507A56457E69}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7E67443C-C355-48FE-86FB-507A56457E69}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7E67443C-C355-48FE-86FB-507A56457E69}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7E67443C-C355-48FE-86FB-507A56457E69}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
-		{7E67443C-C355-48FE-86FB-507A56457E69}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
-		{7E67443C-C355-48FE-86FB-507A56457E69}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
-		{7E67443C-C355-48FE-86FB-507A56457E69}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
-		{9D663D09-F795-4C71-B898-380F3391C45F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9D663D09-F795-4C71-B898-380F3391C45F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9D663D09-F795-4C71-B898-380F3391C45F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9D663D09-F795-4C71-B898-380F3391C45F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9D663D09-F795-4C71-B898-380F3391C45F}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
-		{9D663D09-F795-4C71-B898-380F3391C45F}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
-		{9D663D09-F795-4C71-B898-380F3391C45F}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
-		{9D663D09-F795-4C71-B898-380F3391C45F}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
 		{EFBDDFCD-D94C-4E30-818C-A5DAC662DAD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EFBDDFCD-D94C-4E30-818C-A5DAC662DAD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFBDDFCD-D94C-4E30-818C-A5DAC662DAD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -411,6 +387,30 @@ Global
 		{160F088B-880E-4125-9ABF-DF325A52DBEF}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
 		{160F088B-880E-4125-9ABF-DF325A52DBEF}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
 		{160F088B-880E-4125-9ABF-DF325A52DBEF}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{EFC54692-8F66-4125-BB1C-60AC498AFAFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFC54692-8F66-4125-BB1C-60AC498AFAFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFC54692-8F66-4125-BB1C-60AC498AFAFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFC54692-8F66-4125-BB1C-60AC498AFAFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFC54692-8F66-4125-BB1C-60AC498AFAFC}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{EFC54692-8F66-4125-BB1C-60AC498AFAFC}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{EFC54692-8F66-4125-BB1C-60AC498AFAFC}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{EFC54692-8F66-4125-BB1C-60AC498AFAFC}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{6DC09BF6-840F-442E-8CD9-69104CB9DEAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DC09BF6-840F-442E-8CD9-69104CB9DEAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DC09BF6-840F-442E-8CD9-69104CB9DEAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DC09BF6-840F-442E-8CD9-69104CB9DEAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DC09BF6-840F-442E-8CD9-69104CB9DEAD}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{6DC09BF6-840F-442E-8CD9-69104CB9DEAD}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{6DC09BF6-840F-442E-8CD9-69104CB9DEAD}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{6DC09BF6-840F-442E-8CD9-69104CB9DEAD}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{DA6CEDED-BB2C-49C5-AE7A-C1B6D8A13E9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA6CEDED-BB2C-49C5-AE7A-C1B6D8A13E9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA6CEDED-BB2C-49C5-AE7A-C1B6D8A13E9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA6CEDED-BB2C-49C5-AE7A-C1B6D8A13E9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA6CEDED-BB2C-49C5-AE7A-C1B6D8A13E9F}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{DA6CEDED-BB2C-49C5-AE7A-C1B6D8A13E9F}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{DA6CEDED-BB2C-49C5-AE7A-C1B6D8A13E9F}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{DA6CEDED-BB2C-49C5-AE7A-C1B6D8A13E9F}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
