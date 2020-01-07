@@ -374,6 +374,30 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToSearchCondition_for_Nullable_Parameter()
+        {
+            Expression<Func<OrderViewItem, bool>> predicate = x => x.PackageId == 48;
+
+            var searchCondition = predicate.ToSearchCondition(out var parameters);
+
+            searchCondition.Should().Be("[PackageId] = {=PackageId_0}");
+            parameters["PackageId_0"].Should().Be(48);
+        }
+
+        [TestMethod]
+        public void Test_ToSearchCondition_for_Nullable_Parameter_and_Value()
+        {
+            var storedValue = new StoredValue(new OrderViewItem { PackageId = 48 });
+
+            Expression<Func<Video, bool>> predicate = x => x.PackageId == storedValue.OrderViewItem.PackageId;
+
+            var searchCondition = predicate.ToSearchCondition(out var parameters);
+
+            searchCondition.Should().Be("[PackageID] = {=PackageId_0}");
+            parameters["PackageId_0"].Should().Be(48);
+        }
+
+        [TestMethod]
         public void Test_ToSelectList_Simple()
         {
             Expression<Func<Member, object>> select = x => new { x.Id, x.FirstName, x.LastName };
@@ -391,6 +415,16 @@ namespace Chef.Extensions.Tests
             var selectList = select.ToSelectList("att");
 
             selectList.Should().Be("att.[Id], att.[first_name] AS [FirstName], att.[last_name] AS [LastName]");
+        }
+
+        [TestMethod]
+        public void Test_ToSelectList_for_Nullable_Parameter_and_Value()
+        {
+            Expression<Func<Video, object>> select = x => new { x.Id, x.PackageId };
+
+            var selectList = select.ToSelectList();
+
+            selectList.Should().Be("[ID] AS [Id], [PackageID] AS [PackageId]");
         }
 
         [TestMethod]
@@ -429,6 +463,28 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToSetStatements_for_Nullable_Parameter()
+        {
+            Expression<Func<Video>> setters = () => new Video { Id = 1, PackageId = 2 };
+
+            var setStatements = setters.ToSetStatements();
+
+            setStatements.Should().Be("[ID] = {=Id}, [PackageID] = {=PackageId}");
+        }
+
+        [TestMethod]
+        public void Test_ToSetStatements_for_Nullable_Parameter_and_Value()
+        {
+            Expression<Func<Video>> setters = () => new Video { Id = 1, PackageId = 2 };
+
+            var setStatements = setters.ToSetStatements(out var parameters);
+
+            setStatements.Should().Be("[ID] = {=Id_0}, [PackageID] = {=PackageId_0}");
+            parameters["Id_0"].Should().Be(1);
+            parameters["PackageId_0"].Should().Be(2);
+        }
+
+        [TestMethod]
         public void Test_ToColumnList_Simple()
         {
             Expression<Func<Member>> setters = () => new Member { Id = 123, FirstName = "abab", LastName = "baba" };
@@ -451,6 +507,30 @@ namespace Chef.Extensions.Tests
 
             columnList.Should().Be("[Id], [first_name], [last_name]");
             valueList.Should().Be("{=Id}, @FirstName, @LastName");
+        }
+
+        [TestMethod]
+        public void Test_ToColumnList_for_Nullable_Parameter()
+        {
+            Expression<Func<Video>> setters = () => new Video { Id = 123, PackageId = 321 };
+
+            var columnList = setters.ToColumnList(out var valueList);
+
+            columnList.Should().Be("[ID], [PackageID]");
+            valueList.Should().Be("{=Id}, {=PackageId}");
+        }
+
+        [TestMethod]
+        public void Test_ToColumnList_for_Nullable_Parameter_and_Value()
+        {
+            Expression<Func<Video>> setters = () => new Video { Id = 123, PackageId = 321 };
+
+            var columnList = setters.ToColumnList(out var valueList, out var parameters);
+
+            columnList.Should().Be("[ID], [PackageID]");
+            valueList.Should().Be("{=Id_0}, {=PackageId_0}");
+            parameters["Id_0"].Should().Be(123);
+            parameters["PackageId_0"].Should().Be(321);
         }
 
         [TestMethod]
@@ -504,5 +584,29 @@ namespace Chef.Extensions.Tests
     internal class Address
     {
         public string Value { get; set; }
+    }
+
+    internal class Video
+    {
+        [Column("ID")]
+        public int Id { get; set; }
+
+        [Column("PackageID")]
+        public int PackageId { get; set; }
+    }
+
+    internal class StoredValue
+    {
+        public StoredValue(OrderViewItem orderViewItem)
+        {
+            this.OrderViewItem = orderViewItem;
+        }
+
+        public OrderViewItem OrderViewItem { get; }
+    }
+
+    internal class OrderViewItem
+    {
+        public int? PackageId { get; set; }
     }
 }

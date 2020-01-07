@@ -854,7 +854,15 @@ namespace Chef.Extensions.Dapper
                 {
                     if (!(binaryExpr.Left is MemberExpression left))
                     {
-                        throw new ArgumentException("Left expression must be MemberExpression.");
+                        if (!(binaryExpr.Left is UnaryExpression unaryExpr))
+                        {
+                            throw new ArgumentException("Left expression must be MemberExpression.");
+                        }
+
+                        if ((left = unaryExpr.Operand as MemberExpression) == null)
+                        {
+                            throw new ArgumentException("Left expression must be MemberExpression.");
+                        }
                     }
 
                     if (left.Expression.NodeType != ExpressionType.Parameter)
@@ -993,6 +1001,11 @@ namespace Chef.Extensions.Dapper
             if (expr is ConstantExpression constantExpr)
             {
                 return constantExpr.Value;
+            }
+
+            if (expr is UnaryExpression unaryExpr)
+            {
+                return ExtractConstant(unaryExpr.Operand);
             }
 
             throw new ArgumentException("Right expression's node type must be Field or Property'");
