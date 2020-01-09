@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 
 namespace Chef.Extensions.Object
 {
@@ -58,6 +59,16 @@ namespace Chef.Extensions.Object
             if (me == null) return false;
 
             return NumericTypes.Contains(me.GetType());
+        }
+
+        public static bool Exists<Ta, Tb>(this Ta me, IEnumerable<Tb> collection, Func<Ta, Tb, bool> predicate)
+        {
+            return collection.Any(item => predicate(me, item));
+        }
+
+        public static bool NotExists<Ta, Tb>(this Ta me, IEnumerable<Tb> collection, Func<Ta, Tb, bool> predicate)
+        {
+            return collection.All(item => !predicate(me, item));
         }
     }
 }

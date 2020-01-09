@@ -51,3 +51,23 @@ Exmaple:
     var result = 1.IsNumeric();
     
     // result = is true.
+
+### Exists&lt;Ta, Tb&gt;(IEnumerable&lt;Tb&gt; collection, Func&lt;Ta, Tb, bool&gt; predicate)
+
+Check if object is in collection
+
+Example:
+
+    var result = 1.Exists(new[] { 1, 2, 3 }, (a, b) => a == b);
+    
+    // result is true.
+
+### NotExists&lt;Ta, Tb&gt;(IEnumerable&lt;Tb&gt; collection, Func&lt;Ta, Tb, bool&gt; predicate)
+
+Check if object is not in collection
+
+Example:
+
+    var result = 1.NotExists(new[] { 1, 2, 3 }, (a, b) => a == b);
+    
+    // result is false.
