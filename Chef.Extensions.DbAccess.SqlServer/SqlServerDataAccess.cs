@@ -39,9 +39,9 @@ namespace Chef.Extensions.DbAccess
             this.alias = Regex.Replace(typeof(T).Name, "[^A-Z]", string.Empty).ToLower();
         }
 
-        protected abstract Expression<Func<T, object>> DefaultSelector { get; }
+        protected virtual Expression<Func<T, object>> DefaultSelector { get; } = null;
 
-        protected abstract Expression<Func<T>> RequiredColumns { get; }
+        protected virtual Expression<Func<T>> RequiredColumns { get; } = null;
 
         public virtual T QueryOne(
             Expression<Func<T, bool>> predicate,
@@ -60,7 +60,7 @@ namespace Chef.Extensions.DbAccess
         {
             if (selector == null && this.DefaultSelector == null)
             {
-                throw new NullReferenceException($"At least one of '{nameof(selector)}' and '{nameof(this.DefaultSelector)}' is not null.");
+                throw new NullReferenceException($"If there is no '{nameof(selector)}', must override '{nameof(this.DefaultSelector)}' property to determine the default selector.");
             }
 
             SqlBuilder sql = @"
@@ -98,7 +98,7 @@ FROM {this.tableName} {this.alias} WITH (NOLOCK)";
         {
             if (selector == null && this.DefaultSelector == null)
             {
-                throw new NullReferenceException($"At least one of '{nameof(selector)}' and '{nameof(this.DefaultSelector)}' is not null.");
+                throw new NullReferenceException($"If there is no '{nameof(selector)}', must override '{nameof(this.DefaultSelector)}' property to determine the default selector.");
             }
 
             SqlBuilder sql = @"
@@ -126,6 +126,11 @@ FROM {this.tableName} {this.alias} WITH (NOLOCK)";
 
         public virtual async Task InsertAsync(T value)
         {
+            if (this.RequiredColumns == null)
+            {
+                throw new NullReferenceException($"Must override '{nameof(this.RequiredColumns)}' property to determine the required columns.");
+            }
+
             var columnList = this.RequiredColumns.ToColumnList(out var valueList);
 
             var sql = $@"
@@ -164,6 +169,11 @@ INSERT INTO {this.tableName}({columnList})
 
         public virtual async Task InsertAsync(IEnumerable<T> values)
         {
+            if (this.RequiredColumns == null)
+            {
+                throw new NullReferenceException($"Must override '{nameof(this.RequiredColumns)}' property to determine the required columns.");
+            }
+
             var columnList = this.RequiredColumns.ToColumnList(out var valueList);
 
             var sql = $@"
@@ -232,14 +242,19 @@ INSERT INTO {this.tableName}({columnList})
 
         public virtual async Task BulkInsertAsync(Expression<Func<T>> setter, IEnumerable<T> values)
         {
+            var (tableType, tableVariable) = this.ConvertToTableValuedParameters(values);
+
+            if (tableType == null || tableVariable == null)
+            {
+                throw new NullReferenceException($"If want to use Bulk- related methods, must override '{nameof(this.ConvertToTableValuedParameters)}' method to create table value for User Defined Table Types.");
+            }
+
             var columnList = setter.ToColumnList(out _);
 
             SqlBuilder sql = $@"
 INSERT INTO {this.tableName}({columnList})
     SELECT {ColumnRegex.Replace(columnList, "$0 = tvp.$0")}
     FROM @TableVariable tvp;";
-
-            var (tableType, tableVariable) = this.ConvertToTableValuedParameters(values);
 
             using (var db = new SqlConnection(this.connectionString))
             {
@@ -315,6 +330,13 @@ WHERE ";
 
         public virtual async Task BulkUpdateAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
         {
+            var (tableType, tableVariable) = this.ConvertToTableValuedParameters(values);
+
+            if (tableType == null || tableVariable == null)
+            {
+                throw new NullReferenceException($"If want to use Bulk- related methods, must override '{nameof(this.ConvertToTableValuedParameters)}' method to create table value for User Defined Table Types.");
+            }
+
             var columnList = setter.ToColumnList(out _);
             var searchCondition = predicate.ToSearchCondition();
 
@@ -324,8 +346,6 @@ SET {ColumnRegex.Replace(columnList, "$0 = tvp.$0")}
 FROM {this.tableName} t
 INNER JOIN @TableVariable tvp
     ON {ColumnValueRegex.Replace(searchCondition, "t.$1 = tvp.$1")};";
-
-            var (tableType, tableVariable) = this.ConvertToTableValuedParameters(values);
 
             using (var db = new SqlConnection(this.connectionString))
             {
@@ -434,6 +454,13 @@ IF @@rowcount = 0
 
         public virtual async Task BulkUpsertAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
         {
+            var (tableType, tableVariable) = this.ConvertToTableValuedParameters(values);
+
+            if (tableType == null || tableVariable == null)
+            {
+                throw new NullReferenceException($"If want to use Bulk- related methods, must override '{nameof(this.ConvertToTableValuedParameters)}' method to create table value for User Defined Table Types.");
+            }
+
             var columnList = setter.ToColumnList(out _);
             var searchCondition = predicate.ToSearchCondition();
 
@@ -455,8 +482,6 @@ INSERT INTO {this.tableName}({columnList})
                 1
             FROM {this.tableName} t WITH (NOLOCK)
             WHERE {ColumnValueRegex.Replace(searchCondition, "t.$1 = tvp.$1")});";
-
-            var (tableType, tableVariable) = this.ConvertToTableValuedParameters(values);
 
             using (var db = new SqlConnection(this.connectionString))
             {
@@ -497,7 +522,10 @@ WHERE ";
             }
         }
 
-        protected abstract (string, DataTable) ConvertToTableValuedParameters(IEnumerable<T> values);
+        protected virtual (string, DataTable) ConvertToTableValuedParameters(IEnumerable<T> values)
+        {
+            return (null, null);
+        }
 
         private static (string, string) ResolveColumnList(string sql)
         {
