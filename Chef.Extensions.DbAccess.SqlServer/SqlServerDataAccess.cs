@@ -37,6 +37,8 @@ namespace Chef.Extensions.DbAccess
 
             this.tableName = typeof(T).GetCustomAttribute<TableAttribute>()?.Name ?? typeof(T).Name;
             this.alias = Regex.Replace(typeof(T).Name, "[^A-Z]", string.Empty).ToLower();
+
+            if (string.IsNullOrEmpty(this.alias)) this.alias = typeof(T).Name.Left(3);
         }
 
         protected virtual Expression<Func<T, object>> DefaultSelector { get; } = null;

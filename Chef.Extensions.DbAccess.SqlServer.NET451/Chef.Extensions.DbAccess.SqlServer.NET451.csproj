@@ -57,6 +57,9 @@
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\Extensions\ExpressionExtension.cs">
       <Link>Extensions\ExpressionExtension.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\Extensions\StringExtension.cs">
+      <Link>Extensions\StringExtension.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\SqlBuilder.cs">
       <Link>SqlBuilder.cs</Link>
     </Compile>
