@@ -183,7 +183,7 @@ INSERT INTO {this.tableName}({columnList})
 INSERT INTO {this.tableName}({columnList})
     VALUES ({valueList});";
 
-            return Transaction.Current == null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
+            return Transaction.Current != null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
         }
 
         public virtual void BulkInsert(Expression<Func<T>> setterTemplate, IEnumerable<T> values)
@@ -247,7 +247,7 @@ WHERE ";
             sql += predicateTemplate.ToSearchCondition();
             sql += ";";
 
-            return Transaction.Current == null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
+            return Transaction.Current != null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
         }
 
         public virtual void BulkUpdate(Expression<Func<T, bool>> predicateTemplate, Expression<Func<T>> setterTemplate, IEnumerable<T> values)
@@ -303,7 +303,7 @@ IF @@rowcount = 0
             VALUES ({valueList});
     END";
 
-            return Transaction.Current == null ? this.ExecuteCommandAsync(sql, parameters) : this.ExecuteTransactionalCommandAsync(sql, parameters);
+            return Transaction.Current != null ? this.ExecuteCommandAsync(sql, parameters) : this.ExecuteTransactionalCommandAsync(sql, parameters);
         }
 
         public virtual void Upsert(Expression<Func<T, bool>> predicateTemplate, Expression<Func<T>> setterTemplate, IEnumerable<T> values)
@@ -332,7 +332,7 @@ IF @@rowcount = 0
             VALUES ({valueList});
     END";
 
-            return Transaction.Current == null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
+            return Transaction.Current != null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
         }
 
         public virtual void BulkUpsert(Expression<Func<T, bool>> predicateTemplate, Expression<Func<T>> setterTemplate, IEnumerable<T> values)
@@ -371,7 +371,7 @@ INSERT INTO {this.tableName}({columnList})
             FROM {this.tableName} t WITH (NOLOCK)
             WHERE {ColumnValueRegex.Replace(searchCondition, "t.$1 = tvp.$1")});";
 
-            return Transaction.Current == null
+            return Transaction.Current != null
                        ? this.ExecuteCommandAsync(sql, new { TableVariable = tableVariable.AsTableValuedParameter(tableType) })
                        : this.ExecuteTransactionalCommandAsync(sql,  new { TableVariable = tableVariable.AsTableValuedParameter(tableType) });
         }

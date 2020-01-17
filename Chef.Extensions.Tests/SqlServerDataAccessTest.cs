@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Chef.Extensions.DbAccess;
 using Chef.Extensions.DbAccess.Fluent;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Chef.Extensions.Tests
@@ -23,7 +24,7 @@ namespace Chef.Extensions.Tests
 
             var club = clubDataAccess.QueryOne(x => x.Id == 25);
 
-            Assert.AreEqual("鄧偉成", club.Name);
+            club.Name.Should().Be("鄧偉成");
         }
 
         [TestMethod]
@@ -33,7 +34,7 @@ namespace Chef.Extensions.Tests
 
             var club = await clubDataAccess.QueryOneAsync(x => x.Id == 25);
 
-            Assert.AreEqual("鄧偉成", club.Name);
+            club.Name.Should().Be("鄧偉成");
         }
 
         [TestMethod]
@@ -43,8 +44,8 @@ namespace Chef.Extensions.Tests
 
             var club = await clubDataAccess.QueryOneAsync(x => x.Id == 25, selector: x => new { x.Name });
 
-            Assert.AreEqual(0, club.Id);
-            Assert.AreEqual("鄧偉成", club.Name);
+            club.Id.Should().Be(0);
+            club.Name.Should().Be("鄧偉成");
         }
 
         [TestMethod]
@@ -54,8 +55,8 @@ namespace Chef.Extensions.Tests
 
             var club = await clubDataAccess.Where(x => x.Id == 25).Select(x => new { x.Name }).QueryOneAsync();
 
-            Assert.AreEqual(0, club.Id);
-            Assert.AreEqual("鄧偉成", club.Name);
+            club.Id.Should().Be(0);
+            club.Name.Should().Be("鄧偉成");
         }
 
         [TestMethod]
@@ -65,11 +66,11 @@ namespace Chef.Extensions.Tests
 
             var clubs = await clubDataAccess.QueryAsync(x => new[] { 17, 25 }.Contains(x.Id), selector: x => new { x.Name });
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual(0, clubs[0].Id);
-            Assert.AreEqual(0, clubs[1].Id);
-            Assert.AreEqual("吳淑娟", clubs[0].Name);
-            Assert.AreEqual("鄧偉成", clubs[1].Name);
+            clubs.Count.Should().Be(2);
+            clubs[0].Id.Should().Be(0);
+            clubs[1].Id.Should().Be(0);
+            clubs[0].Name.Should().Be("吳淑娟");
+            clubs[1].Name.Should().Be("鄧偉成");
         }
 
         [TestMethod]
@@ -79,11 +80,11 @@ namespace Chef.Extensions.Tests
 
             var clubs = await clubDataAccess.Where(x => new[] { 17, 25 }.Contains(x.Id)).Select(x => new { x.Name }).QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual(0, clubs[0].Id);
-            Assert.AreEqual(0, clubs[1].Id);
-            Assert.AreEqual("吳淑娟", clubs[0].Name);
-            Assert.AreEqual("鄧偉成", clubs[1].Name);
+            clubs.Count.Should().Be(2);
+            clubs[0].Id.Should().Be(0);
+            clubs[1].Id.Should().Be(0);
+            clubs[0].Name.Should().Be("吳淑娟");
+            clubs[1].Name.Should().Be("鄧偉成");
         }
 
         [TestMethod]
@@ -96,11 +97,11 @@ namespace Chef.Extensions.Tests
                             .Select(x => new { x.Name })
                             .QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual(0, clubs[0].Id);
-            Assert.AreEqual(0, clubs[1].Id);
-            Assert.AreEqual("鄧偉成", clubs[0].Name);
-            Assert.AreEqual("吳淑娟", clubs[1].Name);
+            clubs.Count.Should().Be(2);
+            clubs[0].Id.Should().Be(0);
+            clubs[1].Id.Should().Be(0);
+            clubs[0].Name.Should().Be("鄧偉成");
+            clubs[1].Name.Should().Be("吳淑娟");
         }
 
         [TestMethod]
@@ -114,9 +115,9 @@ namespace Chef.Extensions.Tests
                             .Top(1)
                             .QueryAsync();
 
-            Assert.AreEqual(1, clubs.Count);
-            Assert.AreEqual(0, clubs[0].Id);
-            Assert.AreEqual("鄧偉成", clubs[0].Name);
+            clubs.Count.Should().Be(1);
+            clubs[0].Id.Should().Be(0);
+            clubs[0].Name.Should().Be("鄧偉成");
         }
 
         [TestMethod]
@@ -130,9 +131,9 @@ namespace Chef.Extensions.Tests
                             .Top(1)
                             .QueryAsync();
 
-            Assert.AreEqual(1, clubs.Count);
-            Assert.AreEqual(9, clubs[0].Id);
-            Assert.AreEqual("吳美惠", clubs[0].Name);
+            clubs.Count.Should().Be(1);
+            clubs[0].Id.Should().Be(9);
+            clubs[0].Name.Should().Be("吳美惠");
         }
 
         [TestMethod]
@@ -148,8 +149,8 @@ namespace Chef.Extensions.Tests
 
             var club = await clubDataAccess.QueryOneAsync(x => x.Id == 15);
 
-            Assert.AreEqual(15, club.Id);
-            Assert.AreEqual("歐陽邦瑋" + suffix, club.Name);
+            club.Id.Should().Be(15);
+            club.Name.Should().Be("歐陽邦瑋" + suffix);
         }
 
         [TestMethod]
@@ -165,8 +166,8 @@ namespace Chef.Extensions.Tests
 
             var club = await clubDataAccess.QueryOneAsync(x => x.Id == 15);
 
-            Assert.AreEqual(15, club.Id);
-            Assert.AreEqual("歐陽邦瑋" + suffix, club.Name);
+            club.Id.Should().Be(15);
+            club.Name.Should().Be("歐陽邦瑋" + suffix);
         }
 
         [TestMethod]
@@ -187,9 +188,9 @@ namespace Chef.Extensions.Tests
 
             var actual = await clubDataAccess.QueryAsync(x => new[] { 15, 16, 19 }.Contains(x.Id), selector: x => new { x.Id, x.Name });
 
-            Assert.AreEqual("歐陽邦瑋" + suffix, actual.Single(x => x.Id.Equals(15)).Name);
-            Assert.AreEqual("羅怡君" + suffix, actual.Single(x => x.Id.Equals(16)).Name);
-            Assert.AreEqual("楊翊貴" + suffix, actual.Single(x => x.Id.Equals(19)).Name);
+            actual.Single(x => x.Id.Equals(15)).Name.Should().Be("歐陽邦瑋" + suffix);
+            actual.Single(x => x.Id.Equals(16)).Name.Should().Be("羅怡君" + suffix);
+            actual.Single(x => x.Id.Equals(19)).Name.Should().Be("楊翊貴" + suffix);
         }
 
         [TestMethod]
@@ -210,9 +211,9 @@ namespace Chef.Extensions.Tests
 
             var actual = await clubDataAccess.QueryAsync(x => new[] { 15, 16, 19 }.Contains(x.Id), selector: x => new { x.Id, x.Name });
 
-            Assert.AreEqual("歐陽邦瑋" + suffix, actual.Single(x => x.Id.Equals(15)).Name);
-            Assert.AreEqual("羅怡君" + suffix, actual.Single(x => x.Id.Equals(16)).Name);
-            Assert.AreEqual("楊翊貴" + suffix, actual.Single(x => x.Id.Equals(19)).Name);
+            actual.Single(x => x.Id.Equals(15)).Name.Should().Be("歐陽邦瑋" + suffix);
+            actual.Single(x => x.Id.Equals(16)).Name.Should().Be("羅怡君" + suffix);
+            actual.Single(x => x.Id.Equals(19)).Name.Should().Be("楊翊貴" + suffix);
         }
 
         [TestMethod]
@@ -226,14 +227,14 @@ namespace Chef.Extensions.Tests
 
             var club = await clubDataAccess.Where(x => x.Id == clubId).Select(x => new { x.Id, x.Name }).QueryOneAsync();
 
-            Assert.AreEqual(clubId, club.Id);
-            Assert.AreEqual("TestClub", club.Name);
-
             await clubDataAccess.DeleteAsync(x => x.Id == clubId);
+
+            club.Id.Should().Be(clubId);
+            club.Name.Should().Be("TestClub");
 
             club = await clubDataAccess.Where(x => x.Id == clubId).Select(x => new { x.Id, x.Name }).QueryOneAsync();
 
-            Assert.IsNull(club);
+            club.Should().BeNull();
         }
 
         [TestMethod]
@@ -247,14 +248,14 @@ namespace Chef.Extensions.Tests
 
             var club = await clubDataAccess.Where(x => x.Id == clubId).Select(x => new { x.Id, x.Name }).QueryOneAsync();
 
-            Assert.AreEqual(clubId, club.Id);
-            Assert.AreEqual("TestClub", club.Name);
-
             await clubDataAccess.DeleteAsync(x => x.Id == clubId);
+
+            club.Id.Should().Be(clubId);
+            club.Name.Should().Be("TestClub");
 
             club = await clubDataAccess.Where(x => x.Id == clubId).Select(x => new { x.Id, x.Name }).QueryOneAsync();
 
-            Assert.IsNull(club);
+            club.Should().BeNull();
         }
 
         [TestMethod]
@@ -268,14 +269,14 @@ namespace Chef.Extensions.Tests
 
             var club = await clubDataAccess.Where(x => x.Id == clubId).Select(x => new { x.Id, x.Name }).QueryOneAsync();
 
-            Assert.AreEqual(clubId, club.Id);
-            Assert.AreEqual("TestClub", club.Name);
-
             await clubDataAccess.Where(x => x.Id == clubId).DeleteAsync();
+
+            club.Id.Should().Be(clubId);
+            club.Name.Should().Be("TestClub");
 
             club = await clubDataAccess.Where(x => x.Id == clubId).Select(x => new { x.Id, x.Name }).QueryOneAsync();
 
-            Assert.IsNull(club);
+            club.Should().BeNull();
         }
 
         [TestMethod]
@@ -300,17 +301,17 @@ namespace Chef.Extensions.Tests
                             .Select(x => new { x.Id, x.Name, x.IsActive })
                             .QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual(clubIds[0], clubs[0].Id);
-            Assert.AreEqual(false, clubs[0].IsActive);
-            Assert.AreEqual(true, clubs[1].IsActive);
-            Assert.AreEqual("TestClub999", clubs[1].Name);
-
             await clubDataAccess.DeleteAsync(x => clubIds.Contains(x.Id));
+
+            clubs.Count.Should().Be(2);
+            clubs[0].Id.Should().Be(clubIds[0]);
+            clubs[0].IsActive.Should().BeFalse();
+            clubs[1].IsActive.Should().BeTrue();
+            clubs[1].Name.Should().Be("TestClub999");
 
             clubs = await clubDataAccess.Where(x => clubIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).QueryAsync();
 
-            Assert.AreEqual(0, clubs.Count);
+            clubs.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -333,15 +334,15 @@ namespace Chef.Extensions.Tests
                             .Select(x => new { x.Id, x.Name })
                             .QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual(clubIds[0], clubs[0].Id);
-            Assert.AreEqual("TestClub999", clubs[1].Name);
-
             await clubDataAccess.DeleteAsync(x => clubIds.Contains(x.Id));
+
+            clubs.Count.Should().Be(2);
+            clubs[0].Id.Should().Be(clubIds[0]);
+            clubs[1].Name.Should().Be("TestClub999");
 
             clubs = await clubDataAccess.Where(x => clubIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).QueryAsync();
 
-            Assert.AreEqual(0, clubs.Count);
+            clubs.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -363,15 +364,15 @@ namespace Chef.Extensions.Tests
                             .Select(x => new { x.Id, x.Name })
                             .QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual(clubIds[0], clubs[0].Id);
-            Assert.AreEqual("TestClub999", clubs[1].Name);
-
             await clubDataAccess.DeleteAsync(x => clubIds.Contains(x.Id));
+
+            clubs.Count.Should().Be(2);
+            clubs[0].Id.Should().Be(clubIds[0]);
+            clubs[1].Name.Should().Be("TestClub999");
 
             clubs = await clubDataAccess.Where(x => clubIds.Contains(x.Id)).Select(x => new { x.Id, x.Name }).QueryAsync();
 
-            Assert.AreEqual(0, clubs.Count);
+            clubs.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -387,9 +388,9 @@ namespace Chef.Extensions.Tests
                             .Select(x => new { x.Id, x.Name, x.IsActive })
                             .QueryOneAsync();
 
-            Assert.AreEqual(clubId, club.Id);
-            Assert.AreEqual("TestClub", club.Name);
-            Assert.AreEqual(true, club.IsActive);
+            club.Id.Should().Be(clubId);
+            club.Name.Should().Be("TestClub");
+            club.IsActive.Should().BeTrue();
 
             await clubDataAccess.UpsertAsync(
                 x => x.Id == clubId && x.IsActive == true,
@@ -399,17 +400,17 @@ namespace Chef.Extensions.Tests
                        .Select(x => new { x.Id, x.Name, x.IsActive })
                        .QueryOneAsync();
 
-            Assert.AreEqual(clubId, club.Id);
-            Assert.AreEqual("TestClub997", club.Name);
-            Assert.AreEqual(false, club.IsActive);
-
             await clubDataAccess.DeleteAsync(x => x.Id == clubId);
+
+            club.Id.Should().Be(clubId);
+            club.Name.Should().Be("TestClub997");
+            club.IsActive.Should().BeFalse();
 
             club = await clubDataAccess.Where(x => x.Id == clubId)
                        .Select(x => new { x.Id, x.Name, x.IsActive })
                        .QueryOneAsync();
 
-            Assert.IsNull(club);
+            club.Should().BeNull();
         }
 
         [TestMethod]
@@ -425,10 +426,9 @@ namespace Chef.Extensions.Tests
                             .Select(x => new { x.Id, x.Name, x.IsActive })
                             .QueryOneAsync();
 
-            Assert.AreEqual(clubId, club.Id);
-            Assert.AreEqual("TestClub", club.Name);
-            Assert.AreEqual(true, club.IsActive);
-
+            club.Id.Should().Be(clubId);
+            club.Name.Should().Be("TestClub");
+            club.IsActive.Should().BeTrue();
 
             await clubDataAccess.Where(x => x.Id == clubId && x.IsActive == true)
                 .Set(() => new Club { Name = "TestClub997", IsActive = false })
@@ -438,17 +438,17 @@ namespace Chef.Extensions.Tests
                        .Select(x => new { x.Id, x.Name, x.IsActive })
                        .QueryOneAsync();
 
-            Assert.AreEqual(clubId, club.Id);
-            Assert.AreEqual("TestClub997", club.Name);
-            Assert.AreEqual(false, club.IsActive);
-
             await clubDataAccess.DeleteAsync(x => x.Id == clubId);
+
+            club.Id.Should().Be(clubId);
+            club.Name.Should().Be("TestClub997");
+            club.IsActive.Should().BeFalse();
 
             club = await clubDataAccess.Where(x => x.Id == clubId)
                        .Select(x => new { x.Id, x.Name, x.IsActive })
                        .QueryOneAsync();
 
-            Assert.IsNull(club);
+            club.Should().BeNull();
         }
 
         [TestMethod]
@@ -472,9 +472,9 @@ namespace Chef.Extensions.Tests
                             .Select(x => new { x.Id, x.Name })
                             .QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual("TestClub1", clubs[0].Name);
-            Assert.AreEqual("TestClub2", clubs[1].Name);
+            clubs.Count.Should().Be(2);
+            clubs[0].Name.Should().Be("TestClub1");
+            clubs[1].Name.Should().Be("TestClub2");
 
             await clubDataAccess.UpsertAsync(
                 x => x.Id == default(int),
@@ -486,11 +486,11 @@ namespace Chef.Extensions.Tests
                         .Select(x => new { x.Id, x.Name })
                         .QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual("TestClub3", clubs[0].Name);
-            Assert.AreEqual("TestClub4", clubs[1].Name);
-
             await clubDataAccess.DeleteAsync(x => clubIds.Contains(x.Id));
+
+            clubs.Count.Should().Be(2);
+            clubs[0].Name.Should().Be("TestClub3");
+            clubs[1].Name.Should().Be("TestClub4");
         }
 
         [TestMethod]
@@ -514,9 +514,9 @@ namespace Chef.Extensions.Tests
                             .Select(x => new { x.Id, x.Name })
                             .QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual("TestClub1", clubs[0].Name);
-            Assert.AreEqual("TestClub2", clubs[1].Name);
+            clubs.Count.Should().Be(2);
+            clubs[0].Name.Should().Be("TestClub1");
+            clubs[1].Name.Should().Be("TestClub2");
 
             await clubDataAccess.Where(x => x.Id == default(int))
                 .Set(() => new Club { Name = default(string) })
@@ -528,11 +528,11 @@ namespace Chef.Extensions.Tests
                         .Select(x => new { x.Id, x.Name })
                         .QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual("TestClub3", clubs[0].Name);
-            Assert.AreEqual("TestClub4", clubs[1].Name);
-
             await clubDataAccess.DeleteAsync(x => clubIds.Contains(x.Id));
+
+            clubs.Count.Should().Be(2);
+            clubs[0].Name.Should().Be("TestClub3");
+            clubs[1].Name.Should().Be("TestClub4");
         }
 
         [TestMethod]
@@ -555,11 +555,11 @@ namespace Chef.Extensions.Tests
                             .Select(x => new { x.Id, x.Name })
                             .QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual("TestClub1", clubs[0].Name);
-            Assert.AreEqual("TestClub2", clubs[1].Name);
-
             await clubDataAccess.DeleteAsync(x => clubIds.Contains(x.Id));
+
+            clubs.Count.Should().Be(2);
+            clubs[0].Name.Should().Be("TestClub1");
+            clubs[1].Name.Should().Be("TestClub2");
         }
 
         [TestMethod]
@@ -582,11 +582,11 @@ namespace Chef.Extensions.Tests
                             .Select(x => new { x.Id, x.Name })
                             .QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual("TestClub1", clubs[0].Name);
-            Assert.AreEqual("TestClub2", clubs[1].Name);
-
             await clubDataAccess.DeleteAsync(x => clubIds.Contains(x.Id));
+
+            clubs.Count.Should().Be(2);
+            clubs[0].Name.Should().Be("TestClub1");
+            clubs[1].Name.Should().Be("TestClub2");
         }
 
         [TestMethod]
@@ -607,9 +607,9 @@ namespace Chef.Extensions.Tests
 
             var actual = await clubDataAccess.QueryAsync(x => new[] { 15, 16, 19 }.Contains(x.Id), selector: x => new { x.Id, x.Name });
 
-            Assert.AreEqual("歐陽邦瑋" + suffix, actual.Single(x => x.Id.Equals(15)).Name);
-            Assert.AreEqual("羅怡君" + suffix, actual.Single(x => x.Id.Equals(16)).Name);
-            Assert.AreEqual("楊翊貴" + suffix, actual.Single(x => x.Id.Equals(19)).Name);
+            actual.Single(x => x.Id.Equals(15)).Name.Should().Be("歐陽邦瑋" + suffix);
+            actual.Single(x => x.Id.Equals(16)).Name.Should().Be("羅怡君" + suffix);
+            actual.Single(x => x.Id.Equals(19)).Name.Should().Be("楊翊貴" + suffix);
         }
 
         [TestMethod]
@@ -630,9 +630,9 @@ namespace Chef.Extensions.Tests
 
             var actual = await clubDataAccess.QueryAsync(x => new[] { 15, 16, 19 }.Contains(x.Id), selector: x => new { x.Id, x.Name });
 
-            Assert.AreEqual("歐陽邦瑋" + suffix, actual.Single(x => x.Id.Equals(15)).Name);
-            Assert.AreEqual("羅怡君" + suffix, actual.Single(x => x.Id.Equals(16)).Name);
-            Assert.AreEqual("楊翊貴" + suffix, actual.Single(x => x.Id.Equals(19)).Name);
+            actual.Single(x => x.Id.Equals(15)).Name.Should().Be("歐陽邦瑋" + suffix);
+            actual.Single(x => x.Id.Equals(16)).Name.Should().Be("羅怡君" + suffix);
+            actual.Single(x => x.Id.Equals(19)).Name.Should().Be("楊翊貴" + suffix);
         }
 
         [TestMethod]
@@ -656,9 +656,9 @@ namespace Chef.Extensions.Tests
                             .Select(x => new { x.Id, x.Name })
                             .QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual("TestClub1", clubs[0].Name);
-            Assert.AreEqual("TestClub2", clubs[1].Name);
+            clubs.Count.Should().Be(2);
+            clubs[0].Name.Should().Be("TestClub1");
+            clubs[1].Name.Should().Be("TestClub2");
 
             await clubDataAccess.BulkUpsertAsync(
                 x => x.Id == default(int),
@@ -670,11 +670,11 @@ namespace Chef.Extensions.Tests
                         .Select(x => new { x.Id, x.Name })
                         .QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual("TestClub3", clubs[0].Name);
-            Assert.AreEqual("TestClub4", clubs[1].Name);
-
             await clubDataAccess.DeleteAsync(x => clubIds.Contains(x.Id));
+
+            clubs.Count.Should().Be(2);
+            clubs[0].Name.Should().Be("TestClub3");
+            clubs[1].Name.Should().Be("TestClub4");
         }
 
         [TestMethod]
@@ -698,9 +698,9 @@ namespace Chef.Extensions.Tests
                             .Select(x => new { x.Id, x.Name })
                             .QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual("TestClub1", clubs[0].Name);
-            Assert.AreEqual("TestClub2", clubs[1].Name);
+            clubs.Count.Should().Be(2);
+            clubs[0].Name.Should().Be("TestClub1");
+            clubs[1].Name.Should().Be("TestClub2");
 
             await clubDataAccess.Where(x => x.Id == default(int))
                 .Set(() => new Club { Name = default(string) })
@@ -712,11 +712,11 @@ namespace Chef.Extensions.Tests
                         .Select(x => new { x.Id, x.Name })
                         .QueryAsync();
 
-            Assert.AreEqual(2, clubs.Count);
-            Assert.AreEqual("TestClub3", clubs[0].Name);
-            Assert.AreEqual("TestClub4", clubs[1].Name);
-
             await clubDataAccess.DeleteAsync(x => clubIds.Contains(x.Id));
+
+            clubs.Count.Should().Be(2);
+            clubs[0].Name.Should().Be("TestClub3");
+            clubs[1].Name.Should().Be("TestClub4");
         }
 
         [TestMethod]
@@ -744,7 +744,7 @@ namespace Chef.Extensions.Tests
 
             await clubDataAccess.DeleteAsync(x => x.Id == clubId);
 
-            Assert.AreEqual("TestClub989", club.Name);
+            club.Name.Should().Be("TestClub989");
         }
 
         [TestMethod]
@@ -774,7 +774,7 @@ namespace Chef.Extensions.Tests
 
             await clubDataAccess.DeleteAsync(x => x.Id == clubId);
 
-            Assert.AreEqual("TestClub979", club.Name);
+            club.Name.Should().Be("TestClub979");
         }
     }
 
