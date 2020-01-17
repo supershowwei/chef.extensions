@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Transactions;
 using Chef.Extensions.Dapper;
 using Chef.Extensions.DbAccess.SqlServer;
 using Chef.Extensions.DbAccess.SqlServer.Extensions;
@@ -54,7 +55,7 @@ namespace Chef.Extensions.DbAccess
             return this.QueryOneAsync(predicate, orderings, selector, top).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        public virtual async Task<T> QueryOneAsync(
+        public virtual Task<T> QueryOneAsync(
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
             Expression<Func<T, object>> selector = null,
@@ -75,12 +76,7 @@ FROM {this.tableName} {this.alias} WITH (NOLOCK)";
             sql += orderings.ToOrderByStatement(this.alias);
             sql += ";";
 
-            using (var db = new SqlConnection(this.connectionString))
-            {
-                var result = await db.QuerySingleOrDefaultAsync<T>(sql, parameters);
-
-                return result;
-            }
+            return this.ExecuteQueryOneAsync(sql, parameters);
         }
 
         public virtual List<T> Query(
@@ -92,7 +88,7 @@ FROM {this.tableName} {this.alias} WITH (NOLOCK)";
             return this.QueryAsync(predicate, orderings, selector, top).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        public virtual async Task<List<T>> QueryAsync(
+        public virtual Task<List<T>> QueryAsync(
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
             Expression<Func<T, object>> selector = null,
@@ -113,12 +109,7 @@ FROM {this.tableName} {this.alias} WITH (NOLOCK)";
             sql += orderings.ToOrderByStatement(this.alias);
             sql += ";";
 
-            using (var db = new SqlConnection(this.connectionString))
-            {
-                var result = await db.QueryAsync<T>(sql, parameters);
-
-                return result.ToList();
-            }
+            return this.ExecuteQueryAsync(sql, parameters);
         }
 
         public virtual void Insert(T value)
@@ -126,7 +117,7 @@ FROM {this.tableName} {this.alias} WITH (NOLOCK)";
             this.InsertAsync(value).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        public virtual async Task InsertAsync(T value)
+        public virtual Task InsertAsync(T value)
         {
             if (this.RequiredColumns == null)
             {
@@ -139,10 +130,7 @@ FROM {this.tableName} {this.alias} WITH (NOLOCK)";
 INSERT INTO {this.tableName}({columnList})
     VALUES ({valueList});";
 
-            using (var db = new SqlConnection(this.connectionString))
-            {
-                await db.ExecuteAsync(sql, value);
-            }
+            return this.ExecuteCommandAsync(sql, value);
         }
 
         public virtual void Insert(Expression<Func<T>> setter)
@@ -150,7 +138,7 @@ INSERT INTO {this.tableName}({columnList})
             this.InsertAsync(setter).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        public virtual async Task InsertAsync(Expression<Func<T>> setter)
+        public virtual Task InsertAsync(Expression<Func<T>> setter)
         {
             var columnList = setter.ToColumnList(out var valueList, out var parameters);
 
@@ -158,10 +146,7 @@ INSERT INTO {this.tableName}({columnList})
 INSERT INTO {this.tableName}({columnList})
     VALUES ({valueList});";
 
-            using (var db = new SqlConnection(this.connectionString))
-            {
-                await db.ExecuteAsync(sql, parameters);
-            }
+            return this.ExecuteCommandAsync(sql, parameters);
         }
 
         public virtual void Insert(IEnumerable<T> values)
@@ -169,7 +154,7 @@ INSERT INTO {this.tableName}({columnList})
             this.InsertAsync(values).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        public virtual async Task InsertAsync(IEnumerable<T> values)
+        public virtual Task InsertAsync(IEnumerable<T> values)
         {
             if (this.RequiredColumns == null)
             {
@@ -182,67 +167,31 @@ INSERT INTO {this.tableName}({columnList})
 INSERT INTO {this.tableName}({columnList})
     VALUES ({valueList});";
 
-            using (var db = new SqlConnection(this.connectionString))
-            {
-                await db.OpenAsync();
-
-                using (var tx = db.BeginTransaction())
-                {
-                    try
-                    {
-                        await db.ExecuteAsync(sql, values, transaction: tx);
-
-                        tx.Commit();
-                    }
-                    catch
-                    {
-                        tx.Rollback();
-                        throw;
-                    }
-                }
-            }
+            return Transaction.Current != null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
         }
 
-        public virtual void Insert(Expression<Func<T>> setter, IEnumerable<T> values)
+        public virtual void Insert(Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
-            this.InsertAsync(setter, values).ConfigureAwait(false).GetAwaiter().GetResult();
+            this.InsertAsync(setterTemplate, values).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        public virtual async Task InsertAsync(Expression<Func<T>> setter, IEnumerable<T> values)
+        public virtual Task InsertAsync(Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
-            var columnList = setter.ToColumnList(out var valueList);
+            var columnList = setterTemplate.ToColumnList(out var valueList);
 
             var sql = $@"
 INSERT INTO {this.tableName}({columnList})
     VALUES ({valueList});";
 
-            using (var db = new SqlConnection(this.connectionString))
-            {
-                await db.OpenAsync();
-
-                using (var tx = db.BeginTransaction())
-                {
-                    try
-                    {
-                        await db.ExecuteAsync(sql, values, transaction: tx);
-
-                        tx.Commit();
-                    }
-                    catch
-                    {
-                        tx.Rollback();
-                        throw;
-                    }
-                }
-            }
+            return Transaction.Current == null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
         }
 
-        public virtual void BulkInsert(Expression<Func<T>> setter, IEnumerable<T> values)
+        public virtual void BulkInsert(Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
-            this.BulkInsertAsync(setter, values).ConfigureAwait(false).GetAwaiter().GetResult();
+            this.BulkInsertAsync(setterTemplate, values).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        public virtual async Task BulkInsertAsync(Expression<Func<T>> setter, IEnumerable<T> values)
+        public virtual Task BulkInsertAsync(Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
             var (tableType, tableVariable) = this.ConvertToTableValuedParameters(values);
 
@@ -251,17 +200,14 @@ INSERT INTO {this.tableName}({columnList})
                 throw new NullReferenceException($"If want to use Bulk- related methods, must override '{nameof(this.ConvertToTableValuedParameters)}' method to create table value for User Defined Table Types.");
             }
 
-            var columnList = setter.ToColumnList(out _);
+            var columnList = setterTemplate.ToColumnList(out _);
 
             SqlBuilder sql = $@"
 INSERT INTO {this.tableName}({columnList})
     SELECT {ColumnRegex.Replace(columnList, "$0 = tvp.$0")}
     FROM @TableVariable tvp;";
 
-            using (var db = new SqlConnection(this.connectionString))
-            {
-                await db.ExecuteAsync(sql, new { TableVariable = tableVariable.AsTableValuedParameter(tableType) });
-            }
+            return this.ExecuteCommandAsync(sql, new { TableVariable = tableVariable.AsTableValuedParameter(tableType) });
         }
 
         public virtual void Update(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter)
@@ -269,7 +215,7 @@ INSERT INTO {this.tableName}({columnList})
             this.UpdateAsync(predicate, setter).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        public virtual async Task UpdateAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter)
+        public virtual Task UpdateAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter)
         {
             SqlBuilder sql = $@"
 UPDATE {this.tableName}
@@ -280,57 +226,36 @@ WHERE ";
             sql += predicate.ToSearchCondition(parameters);
             sql += ";";
 
-            using (var db = new SqlConnection(this.connectionString))
-            {
-                await db.ExecuteAsync(sql, parameters);
-            }
+            return this.ExecuteCommandAsync(sql, parameters);
         }
 
-        public virtual void Update(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
+        public virtual void Update(Expression<Func<T, bool>> predicateTemplate, Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
-            this.UpdateAsync(predicate, setter, values).ConfigureAwait(false).GetAwaiter().GetResult();
+            this.UpdateAsync(predicateTemplate, setterTemplate, values).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        public virtual async Task UpdateAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
+        public virtual Task UpdateAsync(Expression<Func<T, bool>> predicateTemplate, Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
             var sql = new SqlBuilder();
 
             sql += $@"
 UPDATE {this.tableName}
 SET ";
-            sql += setter.ToSetStatements();
+            sql += setterTemplate.ToSetStatements();
             sql += @"
 WHERE ";
-            sql += predicate.ToSearchCondition();
+            sql += predicateTemplate.ToSearchCondition();
             sql += ";";
 
-            using (var db = new SqlConnection(this.connectionString))
-            {
-                await db.OpenAsync();
-
-                using (var tx = db.BeginTransaction())
-                {
-                    try
-                    {
-                        await db.ExecuteAsync(sql, values, transaction: tx);
-
-                        tx.Commit();
-                    }
-                    catch
-                    {
-                        tx.Rollback();
-                        throw;
-                    }
-                }
-            }
+            return Transaction.Current == null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
         }
 
-        public virtual void BulkUpdate(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
+        public virtual void BulkUpdate(Expression<Func<T, bool>> predicateTemplate, Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
-            this.BulkUpdateAsync(predicate, setter, values).ConfigureAwait(false).GetAwaiter().GetResult();
+            this.BulkUpdateAsync(predicateTemplate, setterTemplate, values).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        public virtual async Task BulkUpdateAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
+        public virtual Task BulkUpdateAsync(Expression<Func<T, bool>> predicateTemplate, Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
             var (tableType, tableVariable) = this.ConvertToTableValuedParameters(values);
 
@@ -339,8 +264,8 @@ WHERE ";
                 throw new NullReferenceException($"If want to use Bulk- related methods, must override '{nameof(this.ConvertToTableValuedParameters)}' method to create table value for User Defined Table Types.");
             }
 
-            var columnList = setter.ToColumnList(out _);
-            var searchCondition = predicate.ToSearchCondition();
+            var columnList = setterTemplate.ToColumnList(out _);
+            var searchCondition = predicateTemplate.ToSearchCondition();
 
             var sql = $@"
 UPDATE {this.tableName}
@@ -349,10 +274,7 @@ FROM {this.tableName} t
 INNER JOIN @TableVariable tvp
     ON {ColumnValueRegex.Replace(searchCondition, "t.$1 = tvp.$1")};";
 
-            using (var db = new SqlConnection(this.connectionString))
-            {
-                await db.ExecuteAsync(sql, new { TableVariable = tableVariable.AsTableValuedParameter(tableType) });
-            }
+            return this.ExecuteCommandAsync(sql, new { TableVariable = tableVariable.AsTableValuedParameter(tableType) });
         }
 
         public virtual void Upsert(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter)
@@ -360,7 +282,7 @@ INNER JOIN @TableVariable tvp
             this.UpsertAsync(predicate, setter).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        public virtual async Task UpsertAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter)
+        public virtual Task UpsertAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter)
         {
             SqlBuilder sql = $@"
 UPDATE {this.tableName}
@@ -381,41 +303,23 @@ IF @@rowcount = 0
             VALUES ({valueList});
     END";
 
-            using (var db = new SqlConnection(this.connectionString))
-            {
-                await db.OpenAsync();
-
-                using (var tx = db.BeginTransaction())
-                {
-                    try
-                    {
-                        await db.ExecuteAsync(sql, parameters, transaction: tx);
-
-                        tx.Commit();
-                    }
-                    catch
-                    {
-                        tx.Rollback();
-                        throw;
-                    }
-                }
-            }
+            return Transaction.Current == null ? this.ExecuteCommandAsync(sql, parameters) : this.ExecuteTransactionalCommandAsync(sql, parameters);
         }
 
-        public virtual void Upsert(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
+        public virtual void Upsert(Expression<Func<T, bool>> predicateTemplate, Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
-            this.UpsertAsync(predicate, setter, values).ConfigureAwait(false).GetAwaiter().GetResult();
+            this.UpsertAsync(predicateTemplate, setterTemplate, values).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        public virtual async Task UpsertAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
+        public virtual Task UpsertAsync(Expression<Func<T, bool>> predicateTemplate, Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
             SqlBuilder sql = $@"
 UPDATE {this.tableName}
 SET ";
-            sql += setter.ToSetStatements();
+            sql += setterTemplate.ToSetStatements();
             sql += @"
 WHERE ";
-            sql += predicate.ToSearchCondition();
+            sql += predicateTemplate.ToSearchCondition();
             sql += ";";
 
             var (columnList, valueList) = ResolveColumnList(sql);
@@ -428,33 +332,15 @@ IF @@rowcount = 0
             VALUES ({valueList});
     END";
 
-            using (var db = new SqlConnection(this.connectionString))
-            {
-                await db.OpenAsync();
-
-                using (var tx = db.BeginTransaction())
-                {
-                    try
-                    {
-                        await db.ExecuteAsync(sql, values, transaction: tx);
-
-                        tx.Commit();
-                    }
-                    catch
-                    {
-                        tx.Rollback();
-                        throw;
-                    }
-                }
-            }
+            return Transaction.Current == null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
         }
 
-        public virtual void BulkUpsert(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
+        public virtual void BulkUpsert(Expression<Func<T, bool>> predicateTemplate, Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
-            this.BulkUpsertAsync(predicate, setter, values).ConfigureAwait(false).GetAwaiter().GetResult();
+            this.BulkUpsertAsync(predicateTemplate, setterTemplate, values).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        public virtual async Task BulkUpsertAsync(Expression<Func<T, bool>> predicate, Expression<Func<T>> setter, IEnumerable<T> values)
+        public virtual Task BulkUpsertAsync(Expression<Func<T, bool>> predicateTemplate, Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
             var (tableType, tableVariable) = this.ConvertToTableValuedParameters(values);
 
@@ -463,8 +349,8 @@ IF @@rowcount = 0
                 throw new NullReferenceException($"If want to use Bulk- related methods, must override '{nameof(this.ConvertToTableValuedParameters)}' method to create table value for User Defined Table Types.");
             }
 
-            var columnList = setter.ToColumnList(out _);
-            var searchCondition = predicate.ToSearchCondition();
+            var columnList = setterTemplate.ToColumnList(out _);
+            var searchCondition = predicateTemplate.ToSearchCondition();
 
             SqlBuilder sql = $@"
 UPDATE {this.tableName}
@@ -485,6 +371,56 @@ INSERT INTO {this.tableName}({columnList})
             FROM {this.tableName} t WITH (NOLOCK)
             WHERE {ColumnValueRegex.Replace(searchCondition, "t.$1 = tvp.$1")});";
 
+            return Transaction.Current == null
+                       ? this.ExecuteCommandAsync(sql, new { TableVariable = tableVariable.AsTableValuedParameter(tableType) })
+                       : this.ExecuteTransactionalCommandAsync(sql,  new { TableVariable = tableVariable.AsTableValuedParameter(tableType) });
+        }
+
+        public virtual void Delete(Expression<Func<T, bool>> predicate)
+        {
+            this.DeleteAsync(predicate).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual Task DeleteAsync(Expression<Func<T, bool>> predicate)
+        {
+            SqlBuilder sql = $@"
+DELETE FROM {this.tableName}
+WHERE ";
+            sql += predicate.ToSearchCondition(out var parameters);
+
+            return this.ExecuteCommandAsync(sql, parameters);
+        }
+
+        protected virtual async Task<T> ExecuteQueryOneAsync(string sql, IDictionary<string, object> parameters)
+        {
+            using (var db = new SqlConnection(this.connectionString))
+            {
+                var result = await db.QuerySingleOrDefaultAsync<T>(sql, parameters);
+
+                return result;
+            }
+        }
+
+        protected virtual async Task<List<T>> ExecuteQueryAsync(string sql, IDictionary<string, object> parameters)
+        {
+            using (var db = new SqlConnection(this.connectionString))
+            {
+                var result = await db.QueryAsync<T>(sql, parameters);
+
+                return result.ToList();
+            }
+        }
+
+        protected virtual async Task ExecuteCommandAsync(string sql, object param)
+        {
+            using (var db = new SqlConnection(this.connectionString))
+            {
+                await db.ExecuteAsync(sql, param);
+            }
+        }
+
+        protected virtual async Task ExecuteTransactionalCommandAsync(string sql, object param)
+        {
             using (var db = new SqlConnection(this.connectionString))
             {
                 await db.OpenAsync();
@@ -493,7 +429,7 @@ INSERT INTO {this.tableName}({columnList})
                 {
                     try
                     {
-                        await db.ExecuteAsync(sql, new { TableVariable = tableVariable.AsTableValuedParameter(tableType) }, transaction: tx);
+                        await db.ExecuteAsync(sql, param, transaction: tx);
 
                         tx.Commit();
                     }
@@ -503,24 +439,6 @@ INSERT INTO {this.tableName}({columnList})
                         throw;
                     }
                 }
-            }
-        }
-
-        public virtual void Delete(Expression<Func<T, bool>> predicate)
-        {
-            this.DeleteAsync(predicate).ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        public virtual async Task DeleteAsync(Expression<Func<T, bool>> predicate)
-        {
-            SqlBuilder sql = $@"
-DELETE FROM {this.tableName}
-WHERE ";
-            sql += predicate.ToSearchCondition(out var parameters);
-
-            using (var db = new SqlConnection(this.connectionString))
-            {
-                await db.ExecuteAsync(sql, parameters);
             }
         }
 
