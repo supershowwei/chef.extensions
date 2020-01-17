@@ -56,6 +56,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
@@ -67,6 +68,7 @@
     <Compile Include="DecimalTest.cs" />
     <Compile Include="StringTest.cs" />
     <Compile Include="DapperTest.cs" />
+    <Compile Include="SqlServerDataAccessTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -75,6 +77,14 @@
     <ProjectReference Include="..\Chef.Extensions.Dapper\Chef.Extensions.Dapper.csproj">
       <Project>{040c5a56-6b70-43cb-b580-8aaa9da608a6}</Project>
       <Name>Chef.Extensions.Dapper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chef.Extensions.DbAccess.SqlServer\Chef.Extensions.DbAccess.SqlServer.csproj">
+      <Project>{f8cfa5e2-be16-42d0-a5d0-5375c44bfb40}</Project>
+      <Name>Chef.Extensions.DbAccess.SqlServer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Chef.Extensions.DbAccess\Chef.Extensions.DbAccess.csproj">
+      <Project>{efc54692-8f66-4125-bb1c-60ac498afafc}</Project>
+      <Name>Chef.Extensions.DbAccess</Name>
     </ProjectReference>
     <ProjectReference Include="..\Chef.Extensions.Decimal\Chef.Extensions.Decimal.csproj">
       <Project>{a5f8c98a-e56a-4f0c-9deb-9c5f56155907}</Project>
