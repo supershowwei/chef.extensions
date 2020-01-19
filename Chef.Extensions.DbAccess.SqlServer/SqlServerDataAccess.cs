@@ -186,6 +186,30 @@ INSERT INTO {this.tableName}({columnList})
             return Transaction.Current != null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
         }
 
+        public virtual int BulkInsert(IEnumerable<T> values)
+        {
+            return this.BulkInsertAsync(values).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual Task<int> BulkInsertAsync(IEnumerable<T> values)
+        {
+            var (tableType, tableVariable) = this.ConvertToTableValuedParameters(values);
+
+            if (tableType == null || tableVariable == null)
+            {
+                throw new NullReferenceException($"If want to use Bulk- related methods, must override '{nameof(this.ConvertToTableValuedParameters)}' method to create table value for User Defined Table Types.");
+            }
+
+            var columnList = this.RequiredColumns.ToColumnList(out _);
+
+            SqlBuilder sql = $@"
+INSERT INTO {this.tableName}({columnList})
+    SELECT {ColumnRegex.Replace(columnList, "$0 = tvp.$0")}
+    FROM @TableVariable tvp;";
+
+            return this.ExecuteCommandAsync(sql, new { TableVariable = tableVariable.AsTableValuedParameter(tableType) });
+        }
+
         public virtual int BulkInsert(Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
             return this.BulkInsertAsync(setterTemplate, values).ConfigureAwait(false).GetAwaiter().GetResult();

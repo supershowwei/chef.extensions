@@ -600,6 +600,38 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_BulkInsert_use_QueryObject_with_RequiredColumns()
+        {
+            var clubIds = new[]
+                          {
+                              new Random(Guid.NewGuid().GetHashCode()).Next(100, 500),
+                              new Random(Guid.NewGuid().GetHashCode()).Next(500, 1000)
+                          };
+
+            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+
+            await clubDataAccess.BulkInsertAsync(
+                new List<Club>
+                {
+                    new Club { Id = clubIds[0], Name = "TestClub1", IsActive = false },
+                    new Club { Id = clubIds[1], Name = "TestClub2", IsActive = true }
+                });
+
+            var clubs = await clubDataAccess.Where(x => clubIds.Contains(x.Id))
+                            .OrderBy(x => x.Id)
+                            .Select(x => new { x.Id, x.Name, x.IsActive })
+                            .QueryAsync();
+
+            await clubDataAccess.DeleteAsync(x => clubIds.Contains(x.Id));
+
+            clubs.Count.Should().Be(2);
+            clubs[0].Name.Should().Be("TestClub1");
+            clubs[1].Name.Should().Be("TestClub2");
+            clubs[0].IsActive.Should().BeFalse();
+            clubs[1].IsActive.Should().BeTrue();
+        }
+
+        [TestMethod]
         public async Task Test_BulkUpdate()
         {
             var suffix = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000).ToString();

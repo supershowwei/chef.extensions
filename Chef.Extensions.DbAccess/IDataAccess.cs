@@ -53,6 +53,10 @@ namespace Chef.Extensions.DbAccess
 
         Task<int> InsertAsync(Expression<Func<T>> setterTemplate, IEnumerable<T> values);
 
+        int BulkInsert(IEnumerable<T> values);
+
+        Task<int> BulkInsertAsync(IEnumerable<T> values);
+
         int BulkInsert(Expression<Func<T>> setterTemplate, IEnumerable<T> values);
 
         Task<int> BulkInsertAsync(Expression<Func<T>> setterTemplate, IEnumerable<T> values);
