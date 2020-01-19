@@ -125,102 +125,102 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me.DataAccess.QueryAsync(me.Predicate, me.OrderExpressions, me.Selector, me.Top);
         }
 
-        public static void Insert<T>(this QueryObject<T> me)
+        public static int Insert<T>(this QueryObject<T> me)
         {
-            me.DataAccess.Insert(me.Setter);
+            return me.DataAccess.Insert(me.Setter);
         }
 
-        public static Task InsertAsync<T>(this QueryObject<T> me)
+        public static Task<int> InsertAsync<T>(this QueryObject<T> me)
         {
             return me.DataAccess.InsertAsync(me.Setter);
         }
 
-        public static void Insert<T>(this QueryObject<T> me, IEnumerable<T> values)
+        public static int Insert<T>(this QueryObject<T> me, IEnumerable<T> values)
         {
-            me.DataAccess.Insert(me.Setter, values);
+            return me.DataAccess.Insert(me.Setter, values);
         }
 
-        public static Task InsertAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
+        public static Task<int> InsertAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
         {
             return me.DataAccess.InsertAsync(me.Setter, values);
         }
 
-        public static void BulkInsert<T>(this QueryObject<T> me, IEnumerable<T> values)
+        public static int BulkInsert<T>(this QueryObject<T> me, IEnumerable<T> values)
         {
-            me.DataAccess.BulkInsert(me.Setter, values);
+            return me.DataAccess.BulkInsert(me.Setter, values);
         }
 
-        public static Task BulkInsertAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
+        public static Task<int> BulkInsertAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
         {
             return me.DataAccess.BulkInsertAsync(me.Setter, values);
         }
 
-        public static void Update<T>(this QueryObject<T> me)
+        public static int Update<T>(this QueryObject<T> me)
         {
-            me.DataAccess.Update(me.Predicate, me.Setter);
+            return me.DataAccess.Update(me.Predicate, me.Setter);
         }
 
-        public static Task UpdateAsync<T>(this QueryObject<T> me)
+        public static Task<int> UpdateAsync<T>(this QueryObject<T> me)
         {
             return me.DataAccess.UpdateAsync(me.Predicate, me.Setter);
         }
 
-        public static void Update<T>(this QueryObject<T> me, IEnumerable<T> values)
+        public static int Update<T>(this QueryObject<T> me, IEnumerable<T> values)
         {
-            me.DataAccess.Update(me.Predicate, me.Setter, values);
+            return me.DataAccess.Update(me.Predicate, me.Setter, values);
         }
 
-        public static Task UpdateAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
-        {
-            return me.DataAccess.UpdateAsync(me.Predicate, me.Setter, values);
-        }
-
-        public static void BulkUpdate<T>(this QueryObject<T> me, IEnumerable<T> values)
-        {
-            me.DataAccess.Update(me.Predicate, me.Setter, values);
-        }
-
-        public static Task BulkUpdateAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
+        public static Task<int> UpdateAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
         {
             return me.DataAccess.UpdateAsync(me.Predicate, me.Setter, values);
         }
 
-        public static void Upsert<T>(this QueryObject<T> me)
+        public static int BulkUpdate<T>(this QueryObject<T> me, IEnumerable<T> values)
         {
-            me.DataAccess.Upsert(me.Predicate, me.Setter);
+            return me.DataAccess.Update(me.Predicate, me.Setter, values);
         }
 
-        public static Task UpsertAsync<T>(this QueryObject<T> me)
+        public static Task<int> BulkUpdateAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
+        {
+            return me.DataAccess.UpdateAsync(me.Predicate, me.Setter, values);
+        }
+
+        public static int Upsert<T>(this QueryObject<T> me)
+        {
+            return me.DataAccess.Upsert(me.Predicate, me.Setter);
+        }
+
+        public static Task<int> UpsertAsync<T>(this QueryObject<T> me)
         {
             return me.DataAccess.UpsertAsync(me.Predicate, me.Setter);
         }
 
-        public static void Upsert<T>(this QueryObject<T> me, IEnumerable<T> values)
+        public static int Upsert<T>(this QueryObject<T> me, IEnumerable<T> values)
         {
-            me.DataAccess.Upsert(me.Predicate, me.Setter, values);
+            return me.DataAccess.Upsert(me.Predicate, me.Setter, values);
         }
 
-        public static Task UpsertAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
-        {
-            return me.DataAccess.UpsertAsync(me.Predicate, me.Setter, values);
-        }
-
-        public static void BulkUpsert<T>(this QueryObject<T> me, IEnumerable<T> values)
-        {
-            me.DataAccess.Upsert(me.Predicate, me.Setter, values);
-        }
-
-        public static Task BulkUpsertAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
+        public static Task<int> UpsertAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
         {
             return me.DataAccess.UpsertAsync(me.Predicate, me.Setter, values);
         }
 
-        public static void Delete<T>(this QueryObject<T> me)
+        public static int BulkUpsert<T>(this QueryObject<T> me, IEnumerable<T> values)
         {
-            me.DataAccess.Delete(me.Predicate);
+            return me.DataAccess.Upsert(me.Predicate, me.Setter, values);
         }
 
-        public static Task DeleteAsync<T>(this QueryObject<T> me)
+        public static Task<int> BulkUpsertAsync<T>(this QueryObject<T> me, IEnumerable<T> values)
+        {
+            return me.DataAccess.UpsertAsync(me.Predicate, me.Setter, values);
+        }
+
+        public static int Delete<T>(this QueryObject<T> me)
+        {
+            return me.DataAccess.Delete(me.Predicate);
+        }
+
+        public static Task<int> DeleteAsync<T>(this QueryObject<T> me)
         {
             return me.DataAccess.DeleteAsync(me.Predicate);
         }
