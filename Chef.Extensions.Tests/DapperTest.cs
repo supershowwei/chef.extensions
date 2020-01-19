@@ -69,8 +69,7 @@ namespace Chef.Extensions.Tests
 
             var searchCondition = predicate.ToSearchCondition(out var parameters);
 
-            searchCondition.Should().Be("[first_name] = @FirstName_0");
-            ((DbString)parameters["FirstName_0"]).Value.Should().BeNull();
+            searchCondition.Should().Be("[first_name] IS NULL");
         }
 
         [TestMethod]

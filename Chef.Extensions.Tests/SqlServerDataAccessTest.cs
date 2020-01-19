@@ -60,6 +60,16 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryAsync_with_Null()
+        {
+            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+
+            var clubs = await clubDataAccess.Where(x => x.Intro == null).QueryAsync();
+
+            clubs.Count.Should().BeGreaterOrEqualTo(5);
+        }
+
+        [TestMethod]
         public async Task Test_QueryAsync_with_Selector()
         {
             IDataAccess<Club> clubDataAccess = new ClubDataAccess();
@@ -787,6 +797,8 @@ namespace Chef.Extensions.Tests
         public string Name { get; set; }
 
         public bool IsActive { get; set; }
+
+        public string Intro { get; set; }
     }
 
     internal class ClubDataAccess : SqlServerDataAccess<Club>

@@ -880,7 +880,25 @@ namespace Chef.Extensions.Dapper
                         SetParameter(left.Member, ExtractConstant(binaryExpr.Right), columnAttribute, parameters, out parameterName);
                     }
 
-                    sb.AliasAppend($"[{columnName}] {MapOperator(binaryExpr.NodeType)} {GenerateParameterStatement(parameterName, parameterType, parameters)}", alias);
+                    if (parameters != null && parameters[parameterName] == null)
+                    {
+                        switch (binaryExpr.NodeType)
+                        {
+                            case ExpressionType.Equal:
+                                sb.AliasAppend($"[{columnName}] IS NULL", alias);
+                                break;
+
+                            case ExpressionType.NotEqual:
+                                sb.AliasAppend($"[{columnName}] IS NOT NULL", alias);
+                                break;
+
+                            default: throw new ArgumentException("Invalid NodeType.");
+                        }
+                    }
+                    else
+                    {
+                        sb.AliasAppend($"[{columnName}] {MapOperator(binaryExpr.NodeType)} {GenerateParameterStatement(parameterName, parameterType, parameters)}", alias);
+                    }
                 }
             }
             else if (expr is MethodCallExpression methodCallExpr)
@@ -958,7 +976,7 @@ namespace Chef.Extensions.Dapper
         {
             parameterName = CreateUniqueParameterName(member.Name, parameters);
 
-            if (!string.IsNullOrEmpty(columnAttribute?.TypeName))
+            if (value != null && !string.IsNullOrEmpty(columnAttribute?.TypeName))
             {
                 parameters[parameterName] = CreateDbString(
                     (string)value,

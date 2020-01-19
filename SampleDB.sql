@@ -99,6 +99,7 @@ CREATE TYPE [dbo].[ClubType] AS TABLE(
 	[ClubID] [int] NOT NULL,
 	[Name] [nvarchar](50) NULL,
 	[IsActive] [bit] NULL,
+    [Intro] [nvarchar](200) NULL
 	PRIMARY KEY CLUSTERED 
 (
 	[ClubID] ASC
@@ -115,34 +116,34 @@ GO
 
 USE [Club]
 GO
-INSERT INTO [Club] (ClubID, [Name], IsActive)
+INSERT INTO [Club] (ClubID, [Name], IsActive, Intro)
 VALUES
-(9, N'§d¬ü´f', CONVERT(bit, 'True')),
-(10, N'§f¨Î¿P', CONVERT(bit, 'True')),
-(11, N'´^§e¨k', CONVERT(bit, 'False')),
-(12, N'¶À«G­»', CONVERT(bit, 'False')),
-(15, N'¼Ú¶§¨¹Þ³', CONVERT(bit, 'False')),
-(16, N'Ã¹©É§g', CONVERT(bit, 'False')),
-(17, N'§d²Q®S', CONVERT(bit, 'True')),
-(18, N'³¯ÀR©É', CONVERT(bit, 'False')),
-(19, N'·¨Öö¶Q', CONVERT(bit, 'False')),
-(20, N'±i¨Î¦m', CONVERT(bit, 'False')),
-(21, N'³¯©{§g', CONVERT(bit, 'True')),
-(23, N'¤ý³Í¶v', CONVERT(bit, 'False')),
-(24, N'¿c©ú½÷', CONVERT(bit, 'False')),
-(25, N'¾H°¶¦¨', CONVERT(bit, 'True')),
-(26, N'½²©¯Ê¹', CONVERT(bit, 'True')),
-(27, N'¬x¥õ¿«', CONVERT(bit, 'False')),
-(28, N'¾G¨K§¡', CONVERT(bit, 'True')),
-(29, N'©PªY©u', CONVERT(bit, 'False')),
-(30, N'ªL©É±d', CONVERT(bit, 'False')),
-(31, N'³¯«T¦¨', CONVERT(bit, 'True')),
-(32, N'©P©ôÅï', CONVERT(bit, 'False')),
-(33, N'³\®a¨q', CONVERT(bit, 'True')),
-(34, N'¶À¤h·½', CONVERT(bit, 'True')),
-(35, N'ÁúÀR©y', CONVERT(bit, 'True')),
-(36, N'³s°¶µ¾', CONVERT(bit, 'True')),
-(37, N'¼B«a¦Ë', CONVERT(bit, 'True')),
-(38, N'ÁÂ¬î»ô', CONVERT(bit, 'True')),
-(39, N'¤ý¯u§Æ', CONVERT(bit, 'True'))
+(9, N'§d¬ü´f', CONVERT(bit, 'True'), N'§d'),
+(10, N'§f¨Î¿P', CONVERT(bit, 'True'), N'§f'),
+(11, N'´^§e¨k', CONVERT(bit, 'False'), N'´^'),
+(12, N'¶À«G­»', CONVERT(bit, 'False'), N'¶À'),
+(15, N'¼Ú¶§¨¹Þ³', CONVERT(bit, 'False'), NULL),
+(16, N'Ã¹©É§g', CONVERT(bit, 'False'), NULL),
+(17, N'§d²Q®S', CONVERT(bit, 'True'), NULL),
+(18, N'³¯ÀR©É', CONVERT(bit, 'False'), N'³¯'),
+(19, N'·¨Öö¶Q', CONVERT(bit, 'False'), N'·¨'),
+(20, N'±i¨Î¦m', CONVERT(bit, 'False'), N'±i'),
+(21, N'³¯©{§g', CONVERT(bit, 'True'), N'³¯'),
+(23, N'¤ý³Í¶v', CONVERT(bit, 'False'), N'¤ý'),
+(24, N'¿c©ú½÷', CONVERT(bit, 'False'), NULL),
+(25, N'¾H°¶¦¨', CONVERT(bit, 'True'), NULL),
+(26, N'½²©¯Ê¹', CONVERT(bit, 'True'), N'½²'),
+(27, N'¬x¥õ¿«', CONVERT(bit, 'False'), N'¬x'),
+(28, N'¾G¨K§¡', CONVERT(bit, 'True'), N'¾G'),
+(29, N'©PªY©u', CONVERT(bit, 'False'), N'©P'),
+(30, N'ªL©É±d', CONVERT(bit, 'False'), N'ªL'),
+(31, N'³¯«T¦¨', CONVERT(bit, 'True'), N'³¯'),
+(32, N'©P©ôÅï', CONVERT(bit, 'False'), N'©P'),
+(33, N'³\®a¨q', CONVERT(bit, 'True'), N'³\'),
+(34, N'¶À¤h·½', CONVERT(bit, 'True'), N'¶À'),
+(35, N'ÁúÀR©y', CONVERT(bit, 'True'), N'Áú'),
+(36, N'³s°¶µ¾', CONVERT(bit, 'True'), N'³s'),
+(37, N'¼B«a¦Ë', CONVERT(bit, 'True'), N'¼B'),
+(38, N'ÁÂ¬î»ô', CONVERT(bit, 'True'), N'ÁÂ'),
+(39, N'¤ý¯u§Æ', CONVERT(bit, 'True'), N'¤ý')
 GO
