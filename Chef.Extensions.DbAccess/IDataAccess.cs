@@ -37,6 +37,10 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, object>> selector = null,
             int? top = null);
 
+        int Count(Expression<Func<T, bool>> predicate);
+
+        Task<int> CountAsync(Expression<Func<T, bool>> predicate);
+
         int Insert(T value);
 
         Task<int> InsertAsync(T value);

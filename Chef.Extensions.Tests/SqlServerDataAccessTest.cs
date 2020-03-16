@@ -147,6 +147,16 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_CountAsync()
+        {
+            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+
+            var clubCount = await clubDataAccess.Where(x => x.Intro == "陳").CountAsync();
+
+            clubCount.Should().Be(3);
+        }
+
+        [TestMethod]
         public async Task Test_UpdateAsync()
         {
             var suffix = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000).ToString();

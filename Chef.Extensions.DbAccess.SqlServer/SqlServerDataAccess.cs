@@ -76,7 +76,7 @@ FROM {this.tableName} {this.alias} WITH (NOLOCK)";
             sql += orderings.ToOrderByStatement(this.alias);
             sql += ";";
 
-            return this.ExecuteQueryOneAsync(sql, parameters);
+            return this.ExecuteQueryOneAsync<T>(sql, parameters);
         }
 
         public virtual List<T> Query(
@@ -109,7 +109,23 @@ FROM {this.tableName} {this.alias} WITH (NOLOCK)";
             sql += orderings.ToOrderByStatement(this.alias);
             sql += ";";
 
-            return this.ExecuteQueryAsync(sql, parameters);
+            return this.ExecuteQueryAsync<T>(sql, parameters);
+        }
+
+        public virtual int Count(Expression<Func<T, bool>> predicate)
+        {
+            return this.CountAsync(predicate).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual Task<int> CountAsync(Expression<Func<T, bool>> predicate)
+        {
+            SqlBuilder sql = $@"
+SELECT COUNT(*)
+FROM {this.tableName} {this.alias} WITH (NOLOCK)";
+            sql += predicate.ToWhereStatement(this.alias, out var parameters);
+            sql += ";";
+
+            return this.ExecuteQueryOneAsync<int>(sql, parameters);
         }
 
         public virtual int Insert(T value)
@@ -415,21 +431,21 @@ WHERE ";
             return this.ExecuteCommandAsync(sql, parameters);
         }
 
-        protected virtual async Task<T> ExecuteQueryOneAsync(string sql, IDictionary<string, object> parameters)
+        protected virtual async Task<TResult> ExecuteQueryOneAsync<TResult>(string sql, IDictionary<string, object> parameters)
         {
             using (var db = new SqlConnection(this.connectionString))
             {
-                var result = await db.QuerySingleOrDefaultAsync<T>(sql, parameters);
+                var result = await db.QuerySingleOrDefaultAsync<TResult>(sql, parameters);
 
                 return result;
             }
         }
 
-        protected virtual async Task<List<T>> ExecuteQueryAsync(string sql, IDictionary<string, object> parameters)
+        protected virtual async Task<List<TResult>> ExecuteQueryAsync<TResult>(string sql, IDictionary<string, object> parameters)
         {
             using (var db = new SqlConnection(this.connectionString))
             {
-                var result = await db.QueryAsync<T>(sql, parameters);
+                var result = await db.QueryAsync<TResult>(sql, parameters);
 
                 return result.ToList();
             }

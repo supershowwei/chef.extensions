@@ -125,6 +125,16 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me.DataAccess.QueryAsync(me.Predicate, me.OrderExpressions, me.Selector, me.Top);
         }
 
+        public static int Count<T>(this QueryObject<T> me)
+        {
+            return me.DataAccess.Count(me.Predicate);
+        }
+
+        public static Task<int> CountAsync<T>(this QueryObject<T> me)
+        {
+            return me.DataAccess.CountAsync(me.Predicate);
+        }
+
         public static int Insert<T>(this QueryObject<T> me)
         {
             return me.DataAccess.Insert(me.Setter);
