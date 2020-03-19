@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="Chef.Extensions.Dapper" Version="2.1.4" />
-    <PackageReference Include="Chef.Extensions.DbAccess" Version="1.0.7" />
+    <PackageReference Include="Chef.Extensions.DbAccess" Version="1.0.8" />
     <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
   </ItemGroup>
