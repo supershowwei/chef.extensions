@@ -174,6 +174,21 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_UpdateAsync_set_Null()
+        {
+            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+
+            await clubDataAccess.UpdateAsync(x => x.Id.Equals(36), () => new Club { Intro = null });
+
+            var club = await clubDataAccess.QueryOneAsync(x => x.Id == 36, selector: x => new { x.Id, x.Intro });
+
+            await clubDataAccess.UpdateAsync(x => x.Id.Equals(36), () => new Club { Intro = "連" });
+
+            club.Id.Should().Be(36);
+            club.Intro.Should().BeNull();
+        }
+
+        [TestMethod]
         public async Task Test_UpdateAsync_use_QueryObject()
         {
             var suffix = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000).ToString();
@@ -188,6 +203,21 @@ namespace Chef.Extensions.Tests
 
             club.Id.Should().Be(15);
             club.Name.Should().Be("歐陽邦瑋" + suffix);
+        }
+
+        [TestMethod]
+        public async Task Test_UpdateAsync_use_QueryObject_set_Null()
+        {
+            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+
+            await clubDataAccess.Where(x => x.Id == 36).Set(() => new Club { Intro = null }).UpdateAsync();
+
+            var club = await clubDataAccess.Where(x => x.Id == 36).Select(x => new { x.Id, x.Intro }).QueryOneAsync();
+
+            await clubDataAccess.Where(x => x.Id == 36).Set(() => new Club { Intro = "連" }).UpdateAsync();
+
+            club.Id.Should().Be(36);
+            club.Intro.Should().BeNull();
         }
 
         [TestMethod]

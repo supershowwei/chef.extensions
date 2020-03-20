@@ -1067,7 +1067,7 @@ namespace Chef.Extensions.Dapper
 
         private static string GenerateParameterStatement(string parameterName, Type parameterType, IDictionary<string, object> parameters)
         {
-            if (parameters != null)
+            if (parameters?[parameterName] != null)
             {
                 parameterType = parameters[parameterName].GetType();
             }
