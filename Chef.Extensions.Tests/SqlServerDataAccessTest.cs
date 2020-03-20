@@ -178,9 +178,14 @@ namespace Chef.Extensions.Tests
         {
             IDataAccess<Club> clubDataAccess = new ClubDataAccess();
 
+            var club = await clubDataAccess.QueryOneAsync(x => x.Id == 36, selector: x => new { x.Id, x.Intro });
+
+            club.Id.Should().Be(36);
+            club.Intro.Should().Be("連");
+
             await clubDataAccess.UpdateAsync(x => x.Id.Equals(36), () => new Club { Intro = null });
 
-            var club = await clubDataAccess.QueryOneAsync(x => x.Id == 36, selector: x => new { x.Id, x.Intro });
+            club = await clubDataAccess.QueryOneAsync(x => x.Id == 36, selector: x => new { x.Id, x.Intro });
 
             await clubDataAccess.UpdateAsync(x => x.Id.Equals(36), () => new Club { Intro = "連" });
 
@@ -210,9 +215,14 @@ namespace Chef.Extensions.Tests
         {
             IDataAccess<Club> clubDataAccess = new ClubDataAccess();
 
+            var club = await clubDataAccess.QueryOneAsync(x => x.Id == 36, selector: x => new { x.Id, x.Intro });
+
+            club.Id.Should().Be(36);
+            club.Intro.Should().Be("連");
+
             await clubDataAccess.Where(x => x.Id == 36).Set(() => new Club { Intro = null }).UpdateAsync();
 
-            var club = await clubDataAccess.Where(x => x.Id == 36).Select(x => new { x.Id, x.Intro }).QueryOneAsync();
+            club = await clubDataAccess.Where(x => x.Id == 36).Select(x => new { x.Id, x.Intro }).QueryOneAsync();
 
             await clubDataAccess.Where(x => x.Id == 36).Set(() => new Club { Intro = "連" }).UpdateAsync();
 
