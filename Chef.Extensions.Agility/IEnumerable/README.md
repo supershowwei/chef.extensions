@@ -198,39 +198,6 @@ Example:
     
     // result is [{"Name":"ghi","Age":2}]
 
-### Merge&lt;T&gt;(IEnumerable&lt;T&gt; merged, Func&lt;T, T, bool&gt; compare, Action&lt;T, T&gt; merge)
-
-Merge two collection into one.
-
-Example:
-
-    public class Person
-    {
-        public string Name { get; set; }
-    
-        public int Age { get; set; }
-    }
-
-    var primaryPersons = new[]
-                         {
-                             new Person { Name = "abc" },
-                             new Person { Name = "def" }
-                         };
-
-    var mergedPersons = new[]
-                        {
-                            new Person { Name = "abc", Age = 1 },
-                            new Person { Name = "def", Age = 2 },
-                            new Person { Name = "ghi", Age = 3 }
-                        };
-
-    var result = primaryPersons.Merge(
-        mergedPersons,
-        (primary, merged) => primary.Name.Equals(merged.Name),
-        (primary, merged) => { primary.Age = merged.Age; });
-    
-    // result is [{"Name": "abc", "Age": 1}, {"Name": "def", "Age": 2}, {"Name": "ghi", "Age": 3}]
-
 ### FindIndex&lt;T&gt;(Func&lt;T, bool&gt; predicate)
 
 Find index by predicate.

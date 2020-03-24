@@ -150,32 +150,6 @@ namespace Chef.Extensions.IEnumerable
             while (queue.Count > 0);
         }
 
-        public static IEnumerable<T> Merge<T>(
-            this IEnumerable<T> me,
-            IEnumerable<T> merged,
-            System.Func<T, T, bool> compare,
-            Action<T, T> merge)
-        {
-            var mergedList = new List<T>(merged);
-
-            foreach (var element in me)
-            {
-                if (mergedList.Any(x => compare(x, element), out var index, out var existed))
-                {
-                    merge(element, existed);
-
-                    mergedList.RemoveAt(index);
-                }
-
-                yield return element;
-            }
-
-            foreach (var left in mergedList)
-            {
-                yield return left;
-            }
-        }
-
         public static int FindIndex<T>(this IEnumerable<T> me, Func<T, bool> predicate)
         {
             var index = 0;
