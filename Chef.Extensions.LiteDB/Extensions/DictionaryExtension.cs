@@ -7,18 +7,18 @@ namespace Chef.Extensions.LiteDB.Extensions
     {
         public static TValue SafeGetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key, Func<TValue> factory)
         {
-            if (!me.ContainsKey(key))
-            {
-                lock (me)
-                {
-                    if (!me.ContainsKey(key))
-                    {
-                        me.Add(key, factory());
-                    }
-                }
-            }
+            if (me.ContainsKey(key)) return me[key];
 
-            return me[key];
+            lock (me)
+            {
+                if (me.ContainsKey(key)) return me[key];
+
+                var value = factory();
+
+                me.Add(key, value);
+
+                return value;
+            }
         }
     }
 }
