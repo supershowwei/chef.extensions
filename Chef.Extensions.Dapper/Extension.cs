@@ -1079,18 +1079,18 @@ namespace Chef.Extensions.Dapper
 
         private static PropertyInfo[] GetCacheProperties(this Type me)
         {
-            if (!PropertyCollection.ContainsKey(me))
-            {
-                lock (PropertyCollection)
-                {
-                    if (!PropertyCollection.ContainsKey(me))
-                    {
-                        PropertyCollection[me] = me.GetProperties();
-                    }
-                }
-            }
+            if (PropertyCollection.ContainsKey(me)) return PropertyCollection[me];
 
-            return PropertyCollection[me];
+            lock (PropertyCollection)
+            {
+                if (PropertyCollection.ContainsKey(me)) return PropertyCollection[me];
+
+                var properties = me.GetProperties();
+
+                PropertyCollection[me] = properties;
+
+                return properties;
+            }
         }
 
         private static MemberExpression ExtractMember(Expression expr)

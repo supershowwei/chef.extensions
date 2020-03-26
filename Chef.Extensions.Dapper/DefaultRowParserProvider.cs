@@ -22,17 +22,16 @@ namespace Chef.Extensions.Dapper
 
             if (RowParsers.ContainsKey(key)) return (Func<IDataReader, T>)RowParsers[key];
 
-            var concreteType = FindConcreteType(concrete, baseType);
-
             lock (RowParsers)
             {
-                if (!RowParsers.ContainsKey(key))
-                {
-                    RowParsers[key] = reader.GetRowParser<T>(concreteType);
-                }
-            }
+                if (RowParsers.ContainsKey(key)) return (Func<IDataReader, T>)RowParsers[key];
 
-            return (Func<IDataReader, T>)RowParsers[key];
+                var rowParser = reader.GetRowParser<T>(FindConcreteType(concrete, baseType));
+
+                RowParsers[key] = rowParser;
+
+                return rowParser;
+            }
         }
 
         private static string Hash(string value)
