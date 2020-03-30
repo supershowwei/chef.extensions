@@ -128,6 +128,28 @@ FROM {this.tableName} {this.alias} WITH (NOLOCK)";
             return this.ExecuteQueryOneAsync<int>(sql, parameters);
         }
 
+        public virtual bool Exists(Expression<Func<T, bool>> predicate)
+        {
+            return this.ExistsAsync(predicate).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate)
+        {
+            SqlBuilder sql = $@"
+SELECT
+    CAST(CASE
+        WHEN
+            EXISTS (SELECT
+                    1
+                FROM {this.tableName} {this.alias} WITH (NOLOCK)";
+            sql += predicate.ToWhereStatement(this.alias, out var parameters);
+            sql += @") THEN 1
+        ELSE 0
+    END AS BIT);";
+
+            return this.ExecuteQueryOneAsync<bool>(sql, parameters);
+        }
+
         public virtual int Insert(T value)
         {
             return this.InsertAsync(value).ConfigureAwait(false).GetAwaiter().GetResult();

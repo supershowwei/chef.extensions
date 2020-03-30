@@ -157,6 +157,20 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_ExistsAsync()
+        {
+            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+
+            var isExists = await clubDataAccess.Where(x => x.Id > 0).ExistsAsync();
+
+            isExists.Should().BeTrue();
+
+            isExists = await clubDataAccess.Where(x => x.Id < 0).ExistsAsync();
+
+            isExists.Should().BeFalse();
+        }
+
+        [TestMethod]
         public async Task Test_UpdateAsync()
         {
             var suffix = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000).ToString();
