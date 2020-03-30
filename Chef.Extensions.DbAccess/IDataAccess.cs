@@ -41,6 +41,10 @@ namespace Chef.Extensions.DbAccess
 
         Task<int> CountAsync(Expression<Func<T, bool>> predicate);
 
+        bool Exists(Expression<Func<T, bool>> predicate);
+
+        Task<bool> ExistsAsync(Expression<Func<T, bool>> predicate);
+
         int Insert(T value);
 
         Task<int> InsertAsync(T value);
