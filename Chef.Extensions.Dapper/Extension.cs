@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -36,7 +37,7 @@ namespace Chef.Extensions.Dapper
                                                                  typeof(decimal),
                                                              };
 
-        private static readonly Dictionary<Type, PropertyInfo[]> PropertyCollection = new Dictionary<Type, PropertyInfo[]>();
+        private static readonly ConcurrentDictionary<Type, PropertyInfo[]> PropertyCollection = new ConcurrentDictionary<Type, PropertyInfo[]>();
 
         private static IRowParserProvider userDefinedRowParserProvider;
 
@@ -584,7 +585,7 @@ namespace Chef.Extensions.Dapper
             var sb = new StringBuilder();
             var targetType = typeof(T);
 
-            foreach (var returnProp in me.Body.Type.GetCacheProperties())
+            foreach (var returnProp in PropertyCollection.GetOrAdd(me.Body.Type, type => type.GetProperties()))
             {
                 var property = targetType.GetProperty(returnProp.Name);
                 var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
@@ -1075,22 +1076,6 @@ namespace Chef.Extensions.Dapper
             if (NumericTypes.Contains(parameterType)) return $"{{={parameterName}}}";
 
             return $"@{parameterName}";
-        }
-
-        private static PropertyInfo[] GetCacheProperties(this Type me)
-        {
-            if (PropertyCollection.ContainsKey(me)) return PropertyCollection[me];
-
-            lock (PropertyCollection)
-            {
-                if (PropertyCollection.ContainsKey(me)) return PropertyCollection[me];
-
-                var properties = me.GetProperties();
-
-                PropertyCollection[me] = properties;
-
-                return properties;
-            }
         }
 
         private static MemberExpression ExtractMember(Expression expr)

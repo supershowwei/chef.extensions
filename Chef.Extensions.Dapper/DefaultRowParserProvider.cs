@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -11,7 +11,7 @@ namespace Chef.Extensions.Dapper
 {
     internal class DefaultRowParserProvider : IRowParserProvider
     {
-        private static readonly Dictionary<string, object> RowParsers = new Dictionary<string, object>();
+        private static readonly ConcurrentDictionary<string, object> RowParsers = new ConcurrentDictionary<string, object>();
         private static readonly MD5 MD5 = MD5.Create();
 
         public Func<IDataReader, T> GetRowParser<T>(string discriminator, IDataReader reader, string sql)
@@ -20,18 +20,7 @@ namespace Chef.Extensions.Dapper
             var concrete = reader.GetString(reader.GetOrdinal(discriminator));
             var key = Hash($"{concrete}_{baseType.Name}_{sql}");
 
-            if (RowParsers.ContainsKey(key)) return (Func<IDataReader, T>)RowParsers[key];
-
-            lock (RowParsers)
-            {
-                if (RowParsers.ContainsKey(key)) return (Func<IDataReader, T>)RowParsers[key];
-
-                var rowParser = reader.GetRowParser<T>(FindConcreteType(concrete, baseType));
-
-                RowParsers[key] = rowParser;
-
-                return rowParser;
-            }
+            return (Func<IDataReader, T>)RowParsers.GetOrAdd(key, k => reader.GetRowParser<T>(FindConcreteType(concrete, baseType)));
         }
 
         private static string Hash(string value)
