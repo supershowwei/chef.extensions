@@ -98,6 +98,18 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryAsync_with_Selector_use_QueryObject_has_DateTime_Now()
+        {
+            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+
+            var clubs = await clubDataAccess.Where(x => x.RunningTime < DateTime.Now).Select(x => new { x.Id, x.Name }).QueryAsync();
+
+            clubs.Count.Should().Be(1);
+            clubs[0].Id.Should().Be(39);
+            clubs[0].Name.Should().Be("王真希");
+        }
+
+        [TestMethod]
         public async Task Test_QueryAsync_with_Selector_use_QueryObject_and_OrderByDescending()
         {
             IDataAccess<Club> clubDataAccess = new ClubDataAccess();
@@ -895,6 +907,8 @@ namespace Chef.Extensions.Tests
         public bool IsActive { get; set; }
 
         public string Intro { get; set; }
+
+        public DateTime? RunningTime { get; set; }
     }
 
     internal class ClubDataAccess : SqlServerDataAccess<Club>

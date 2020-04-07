@@ -1004,6 +1004,8 @@ namespace Chef.Extensions.Dapper
 
         private static object ExtractConstant(Expression expr)
         {
+            if (expr == null) return null;
+
             if (expr is MemberExpression memberExpr)
             {
                 if (memberExpr.Member.MemberType == MemberTypes.Field)
