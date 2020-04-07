@@ -58,14 +58,14 @@ namespace Chef.Extensions.DbAccess.Fluent
 
         public static QueryObject<T> And<T>(this QueryObject<T> me, Expression<Func<T, bool>> predicate)
         {
-            me.Predicate = me.Predicate.Update(Expression.AndAlso(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
+            me.Predicate = Expression.Lambda<Func<T, bool>>(Expression.AndAlso(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
             return me;
         }
 
         public static QueryObject<T> Or<T>(this QueryObject<T> me, Expression<Func<T, bool>> predicate)
         {
-            me.Predicate = me.Predicate.Update(Expression.OrElse(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
+            me.Predicate = Expression.Lambda<Func<T, bool>>(Expression.OrElse(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
             return me;
         }
