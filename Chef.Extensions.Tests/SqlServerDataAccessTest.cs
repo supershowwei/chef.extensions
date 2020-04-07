@@ -110,6 +110,34 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryAsync_with_Selector_use_QueryObject_and_And()
+        {
+            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+
+            var clubs = await clubDataAccess.Where(x => x.RunningTime < DateTime.Now)
+                            .And(y => y.IsActive == false)
+                            .Select(x => new { x.Id, x.Name })
+                            .QueryAsync();
+
+            clubs.Count.Should().Be(0);
+        }
+
+        [TestMethod]
+        public async Task Test_QueryAsync_with_Selector_use_QueryObject_and_Or()
+        {
+            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+
+            var clubs = await clubDataAccess.Where(x => x.RunningTime > DateTime.Now)
+                            .Or(y => y.Name == "王真希")
+                            .Select(x => new { x.Id, x.Name })
+                            .QueryAsync();
+
+            clubs.Count.Should().Be(1);
+            clubs[0].Id.Should().Be(39);
+            clubs[0].Name.Should().Be("王真希");
+        }
+
+        [TestMethod]
         public async Task Test_QueryAsync_with_Selector_use_QueryObject_and_OrderByDescending()
         {
             IDataAccess<Club> clubDataAccess = new ClubDataAccess();

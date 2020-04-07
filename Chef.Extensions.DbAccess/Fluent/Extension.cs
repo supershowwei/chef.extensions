@@ -56,6 +56,20 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me;
         }
 
+        public static QueryObject<T> And<T>(this QueryObject<T> me, Expression<Func<T, bool>> predicate)
+        {
+            me.Predicate = me.Predicate.Update(Expression.AndAlso(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
+
+            return me;
+        }
+
+        public static QueryObject<T> Or<T>(this QueryObject<T> me, Expression<Func<T, bool>> predicate)
+        {
+            me.Predicate = me.Predicate.Update(Expression.OrElse(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
+
+            return me;
+        }
+
         public static QueryObject<T> Select<T>(this QueryObject<T> me, Expression<Func<T, object>> selector)
         {
             me.Selector = selector;
