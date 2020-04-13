@@ -302,7 +302,7 @@ Example:
     
     // result is 34087729.
 
-### ToUnixTimeMilliseconds()
+### ToUnixTimestamp()
 
 Convert to milliseconds of Unix time.
 

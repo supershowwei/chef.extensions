@@ -161,7 +161,7 @@ namespace Chef.Extensions.DateTime
             return Math.Abs(Convert.ToInt32(Math.Floor(me.Subtract(value).TotalSeconds)));
         }
 
-        public static long ToUnixTimeMilliseconds(this System.DateTime me)
+        public static long ToUnixTimestamp(this System.DateTime me)
         {
             return Convert.ToInt64(me.ToUniversalTime().Subtract(InitialTime).TotalMilliseconds);
         }

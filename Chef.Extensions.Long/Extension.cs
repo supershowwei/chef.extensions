@@ -9,11 +9,11 @@ namespace Chef.Extensions.Long
         /// <summary>
         ///     Parse Unix time milliseconds to DateTime.
         /// </summary>
-        /// <param name="me">Milliseconds of Unix time.</param>
+        /// <param name="unixTimestamp">Milliseconds of Unix time.</param>
         /// <returns>Returns DateTime.</returns>
-        public static System.DateTime ToDateTime(this long me)
+        public static System.DateTime ToDateTime(this long unixTimestamp)
         {
-            return InitialTime.AddMilliseconds(me).ToLocalTime();
+            return InitialTime.AddMilliseconds(unixTimestamp).ToLocalTime();
         }
     }
 }
