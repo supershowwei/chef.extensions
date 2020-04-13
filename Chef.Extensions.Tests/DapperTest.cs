@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Chef.Extensions.Dapper;
 using Dapper;
 using FluentAssertions;
@@ -376,14 +377,14 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
-        public void Test_ToSearchCondition_for_Multiply_Update_use_Contains_will_Throw_NullReferenceException()
+        public void Test_ToSearchCondition_for_Multiply_Update_use_Contains_will_Throw_ArgumentException()
         {
             Expression<Func<Member, bool>> predicate = x =>
                 new[] { 1, 2, 3 }.Contains(x.Id) && x.FirstName == default(string) && x.LastName.Equals(default(string));
 
             predicate.Invoking(p => p.ToSearchCondition())
                 .Should()
-                .Throw<NullReferenceException>()
+                .Throw<ArgumentException>()
                 .WithMessage("'parameters' can not be null.");
         }
 
@@ -513,6 +514,28 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToColumnList_using_PropertyInfo_Array()
+        {
+            var requiredColumns = typeof(Member).GetProperties().Where(p => Attribute.IsDefined(p, typeof(RequiredAttribute))).ToArray();
+
+            var columnList = requiredColumns.ToColumnList(out var valueList);
+
+            columnList.Should().Be("[Id], [first_name], [last_name]");
+            valueList.Should().Be("{=Id}, @FirstName, @LastName");
+        }
+
+        [TestMethod]
+        public void Test_ToColumnList_using_Null_PropertyInfo_Array_will_Throw_ArgumentException()
+        {
+            PropertyInfo[] requiredColumns = null;
+
+            requiredColumns.Invoking(x => x.ToColumnList(out var valueList))
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage("'me' can not be null or empty.");
+        }
+
+        [TestMethod]
         public void Test_ToColumnList_without_Parameters()
         {
             Expression<Func<Member>> setters = () => new Member { Id = 123, FirstName = "abab", LastName = "baba" };
@@ -572,13 +595,16 @@ namespace Chef.Extensions.Tests
 
     internal class Member
     {
+        [Required]
         public int Id { get; set; }
 
         [Column("first_name", TypeName = "varchar")]
         [StringLength(20)]
+        [Required]
         public string FirstName { get; set; }
 
         [Column("last_name")]
+        [Required]
         public string LastName { get; set; }
 
         public double Seniority { get; set; }

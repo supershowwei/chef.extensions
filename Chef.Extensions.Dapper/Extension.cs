@@ -635,6 +635,32 @@ namespace Chef.Extensions.Dapper
             return sb.ToString();
         }
 
+        public static string ToColumnList(this PropertyInfo[] me, out string valueList)
+        {
+            if (me == null || me.Length == 0) throw new ArgumentException($"'{nameof(me)}' can not be null or empty.");
+
+            var columnListBuilder = new StringBuilder();
+            var valueListBuilder = new StringBuilder();
+
+            foreach (var propertyInfo in me)
+            {
+                var columnAttribute = propertyInfo.GetCustomAttribute<ColumnAttribute>();
+                var parameterName = propertyInfo.Name;
+                var columnName = columnAttribute?.Name ?? parameterName;
+                var parameterType = propertyInfo.PropertyType;
+
+                columnListBuilder.Append($"[{columnName}], ");
+                valueListBuilder.Append($"{GenerateParameterStatement(parameterName, parameterType, null)}, ");
+            }
+
+            columnListBuilder.Remove(columnListBuilder.Length - 2, 2);
+            valueListBuilder.Remove(valueListBuilder.Length - 2, 2);
+
+            valueList = valueListBuilder.ToString();
+
+            return columnListBuilder.ToString();
+        }
+
         public static string ToColumnList<T>(this Expression<Func<T>> me, out string valueList)
         {
             return ToColumnList(me, out valueList, null);
@@ -934,7 +960,7 @@ namespace Chef.Extensions.Dapper
 
                     foreach (var item in array)
                     {
-                        if (parameters == null) throw new NullReferenceException($"'{nameof(parameters)}' can not be null.");
+                        if (parameters == null) throw new ArgumentException($"'{nameof(parameters)}' can not be null.");
 
                         SetParameter(parameterExpr.Member, item, columnAttribute, parameters, out var parameterName);
 
