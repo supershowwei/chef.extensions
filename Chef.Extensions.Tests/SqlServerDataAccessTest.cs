@@ -949,8 +949,6 @@ namespace Chef.Extensions.Tests
         {
         }
 
-        protected override Expression<Func<Club, object>> DefaultSelector { get; } = x => new { x.Id, x.Name };
-
         protected override (string, DataTable) ConvertToTableValuedParameters(IEnumerable<Club> values)
         {
             var dataTable = CreateDataTable();

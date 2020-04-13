@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Data.SqlClient;
@@ -28,6 +30,7 @@ namespace Chef.Extensions.DbAccess
 
     public abstract class SqlServerDataAccess<T> : SqlServerDataAccess, IDataAccess<T>
     {
+        private static readonly ConcurrentDictionary<Type, PropertyInfo[]> RequiredColumns = new ConcurrentDictionary<Type, PropertyInfo[]>();
         private readonly string connectionString;
         private readonly string tableName;
         private readonly string alias;
@@ -41,10 +44,6 @@ namespace Chef.Extensions.DbAccess
 
             if (string.IsNullOrEmpty(this.alias)) this.alias = typeof(T).Name.Left(3);
         }
-
-        protected virtual Expression<Func<T, object>> DefaultSelector { get; } = null;
-
-        protected virtual Expression<Func<T>> RequiredColumns { get; } = null;
 
         public virtual T QueryOne(
             Expression<Func<T, bool>> predicate,
@@ -61,15 +60,25 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, object>> selector = null,
             int? top = null)
         {
-            if (selector == null && this.DefaultSelector == null)
-            {
-                throw new NullReferenceException($"If there is no '{nameof(selector)}', must override '{nameof(this.DefaultSelector)}' property to determine the default selector.");
-            }
-
             SqlBuilder sql = @"
 SELECT ";
             sql += top.HasValue ? $"TOP ({top})" : string.Empty;
-            sql += (selector ?? this.DefaultSelector).ToSelectList(this.alias);
+
+            if (selector != null)
+            {
+                sql += selector.ToSelectList(this.alias);
+            }
+            else
+            {
+                var requiredColumns = RequiredColumns.GetOrAdd(
+                    typeof(T),
+                    type => type.GetProperties().Where(p => Attribute.IsDefined(p, typeof(RequiredAttribute))).ToArray());
+
+                if (requiredColumns.Length == 0) throw new ArgumentException("There must be at least one [Required] column.");
+
+                sql += requiredColumns.ToSelectList(this.alias);
+            }
+
             sql += $@"
 FROM {this.tableName} {this.alias} WITH (NOLOCK)";
             sql += predicate.ToWhereStatement(this.alias, out var parameters);
@@ -94,15 +103,25 @@ FROM {this.tableName} {this.alias} WITH (NOLOCK)";
             Expression<Func<T, object>> selector = null,
             int? top = null)
         {
-            if (selector == null && this.DefaultSelector == null)
-            {
-                throw new NullReferenceException($"If there is no '{nameof(selector)}', must override '{nameof(this.DefaultSelector)}' property to determine the default selector.");
-            }
-
             SqlBuilder sql = @"
 SELECT ";
             sql += top.HasValue ? $"TOP ({top})" : string.Empty;
-            sql += (selector ?? this.DefaultSelector).ToSelectList(this.alias);
+
+            if (selector != null)
+            {
+                sql += selector.ToSelectList(this.alias);
+            }
+            else
+            {
+                var requiredColumns = RequiredColumns.GetOrAdd(
+                    typeof(T),
+                    type => type.GetProperties().Where(p => Attribute.IsDefined(p, typeof(RequiredAttribute))).ToArray());
+
+                if (requiredColumns.Length == 0) throw new ArgumentException("There must be at least one [Required] column.");
+
+                sql += requiredColumns.ToSelectList(this.alias);
+            }
+
             sql += $@"
 FROM {this.tableName} {this.alias} WITH (NOLOCK)";
             sql += predicate.ToWhereStatement(this.alias, out var parameters);
@@ -157,12 +176,13 @@ SELECT
 
         public virtual Task<int> InsertAsync(T value)
         {
-            if (this.RequiredColumns == null)
-            {
-                throw new NullReferenceException($"Must override '{nameof(this.RequiredColumns)}' property to determine the required columns.");
-            }
+            var requiredColumns = RequiredColumns.GetOrAdd(
+                typeof(T),
+                type => type.GetProperties().Where(p => Attribute.IsDefined(p, typeof(RequiredAttribute))).ToArray());
 
-            var columnList = this.RequiredColumns.ToColumnList(out var valueList);
+            if (requiredColumns.Length == 0) throw new ArgumentException("There must be at least one [Required] column.");
+
+            var columnList = requiredColumns.ToColumnList(out var valueList);
 
             var sql = $@"
 INSERT INTO {this.tableName}({columnList})
@@ -194,12 +214,13 @@ INSERT INTO {this.tableName}({columnList})
 
         public virtual Task<int> InsertAsync(IEnumerable<T> values)
         {
-            if (this.RequiredColumns == null)
-            {
-                throw new NullReferenceException($"Must override '{nameof(this.RequiredColumns)}' property to determine the required columns.");
-            }
+            var requiredColumns = RequiredColumns.GetOrAdd(
+                typeof(T),
+                type => type.GetProperties().Where(p => Attribute.IsDefined(p, typeof(RequiredAttribute))).ToArray());
 
-            var columnList = this.RequiredColumns.ToColumnList(out var valueList);
+            if (requiredColumns.Length == 0) throw new ArgumentException("There must be at least one [Required] column.");
+
+            var columnList = requiredColumns.ToColumnList(out var valueList);
 
             var sql = $@"
 INSERT INTO {this.tableName}({columnList})
@@ -238,7 +259,13 @@ INSERT INTO {this.tableName}({columnList})
                 throw new NullReferenceException($"If want to use Bulk- related methods, must override '{nameof(this.ConvertToTableValuedParameters)}' method to create table value for User Defined Table Types.");
             }
 
-            var columnList = this.RequiredColumns.ToColumnList(out _);
+            var requiredColumns = RequiredColumns.GetOrAdd(
+                typeof(T),
+                type => type.GetProperties().Where(p => Attribute.IsDefined(p, typeof(RequiredAttribute))).ToArray());
+
+            if (requiredColumns.Length == 0) throw new ArgumentException("There must be at least one [Required] column.");
+
+            var columnList = requiredColumns.ToColumnList(out _);
 
             SqlBuilder sql = $@"
 INSERT INTO {this.tableName}({columnList})
