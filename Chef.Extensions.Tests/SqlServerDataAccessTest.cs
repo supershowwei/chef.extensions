@@ -927,11 +927,14 @@ namespace Chef.Extensions.Tests
     internal class Club
     {
         [Column("ClubID")]
+        [Required]
         public int Id { get; set; }
 
         [StringLength(50)]
+        [Required]
         public string Name { get; set; }
 
+        [Required]
         public bool IsActive { get; set; }
 
         public string Intro { get; set; }
@@ -947,9 +950,6 @@ namespace Chef.Extensions.Tests
         }
 
         protected override Expression<Func<Club, object>> DefaultSelector { get; } = x => new { x.Id, x.Name };
-
-        protected override Expression<Func<Club>> RequiredColumns { get; } =
-            () => new Club { Id = default(int), Name = default(string), IsActive = default(bool) };
 
         protected override (string, DataTable) ConvertToTableValuedParameters(IEnumerable<Club> values)
         {

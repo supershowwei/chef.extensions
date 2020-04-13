@@ -575,6 +575,30 @@ namespace Chef.Extensions.Dapper
             return new DbString { Value = me, Length = length, IsFixedLength = true };
         }
 
+        public static string ToSelectList(this PropertyInfo[] me)
+        {
+            return ToSelectList(me, string.Empty);
+        }
+
+        public static string ToSelectList(this PropertyInfo[] me, string alias)
+        {
+            if (me == null || me.Length == 0) throw new ArgumentException($"'{nameof(me)}' can not be null or empty.");
+
+            var sb = new StringBuilder();
+
+            foreach (var propertyInfo in me)
+            {
+                var columnAttribute = propertyInfo.GetCustomAttribute<ColumnAttribute>();
+                var columnName = columnAttribute?.Name;
+
+                sb.AliasAppend(string.IsNullOrEmpty(columnName) ? $"[{propertyInfo.Name}], " : $"[{columnName}] AS [{propertyInfo.Name}], ", alias);
+            }
+
+            sb.Remove(sb.Length - 2, 2);
+
+            return sb.ToString();
+        }
+
         public static string ToSelectList<T>(this Expression<Func<T, object>> me)
         {
             return ToSelectList(me, string.Empty);

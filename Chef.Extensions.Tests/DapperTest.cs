@@ -423,6 +423,16 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToSelectList_using_PropertyInfo_Array()
+        {
+            var requiredColumns = typeof(Member).GetProperties().Where(p => Attribute.IsDefined(p, typeof(RequiredAttribute))).ToArray();
+
+            var columnList = requiredColumns.ToSelectList();
+
+            columnList.Should().Be("[Id], [first_name] AS [FirstName], [last_name] AS [LastName]");
+        }
+
+        [TestMethod]
         public void Test_ToSelectList_with_Alias()
         {
             Expression<Func<Member, object>> select = x => new { x.Id, x.FirstName, x.LastName };
