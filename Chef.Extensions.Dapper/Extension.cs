@@ -956,7 +956,7 @@ namespace Chef.Extensions.Dapper
             {
                 var methodFullName = methodCallExpr.Method.GetFullName();
 
-                if (methodFullName.EndsWith("Equals"))
+                if (methodFullName.EndsWith(".Equals"))
                 {
                     var parameterExpr = (MemberExpression)methodCallExpr.Object;
 
