@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Transactions;
 using Chef.Extensions.DbAccess;
@@ -22,7 +21,7 @@ namespace Chef.Extensions.Tests
         {
             IDataAccess<Club> clubDataAccess = new ClubDataAccess();
 
-            var club = clubDataAccess.QueryOne(x => x.Id == 25);
+            var club = clubDataAccess.QueryOne(x => x.Id == 25, null, x => new { x.Name });
 
             club.Name.Should().Be("鄧偉成");
         }
@@ -32,7 +31,7 @@ namespace Chef.Extensions.Tests
         {
             IDataAccess<Club> clubDataAccess = new ClubDataAccess();
 
-            var club = await clubDataAccess.QueryOneAsync(x => x.Id == 25);
+            var club = await clubDataAccess.QueryOneAsync(x => x.Id == 25, null, x => new { x.Name });
 
             club.Name.Should().Be("鄧偉成");
         }
@@ -60,11 +59,49 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryOneAsync_use_SelectAll()
+        {
+            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+
+            var club = await clubDataAccess.Where(x => x.Id == 35).SelectAll().QueryOneAsync();
+
+            club.Id.Should().Be(35);
+            club.Name.Should().Be("韓靜宜");
+            club.IsActive.Should().BeTrue();
+            club.Intro.Should().Be("韓");
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_use_SelectAll_with_NotMapped()
+        {
+            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+
+            var club = await clubDataAccess.Where(x => x.Id == 35).SelectAll().QueryOneAsync();
+
+            club.Id.Should().Be(35);
+            club.Name.Should().Be("韓靜宜");
+            club.IsActive.Should().BeTrue();
+            club.Intro.Should().Be("韓");
+            club.IgnoreColumn.Should().BeNullOrEmpty();
+        }
+
+        [TestMethod]
+        public void Test_QueryAsync_use_Null_Selector_will_Throw_ArgumentException()
+        {
+            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+
+            clubDataAccess.Invoking(async dataAccess => await dataAccess.Where(x => x.Id == 35).QueryOneAsync())
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage("Must be at least one column selected.");
+        }
+
+        [TestMethod]
         public async Task Test_QueryAsync_with_Null()
         {
             IDataAccess<Club> clubDataAccess = new ClubDataAccess();
 
-            var clubs = await clubDataAccess.Where(x => x.Intro == null).QueryAsync();
+            var clubs = await clubDataAccess.Where(x => x.Intro == null).SelectAll().QueryAsync();
 
             clubs.Count.Should().BeGreaterOrEqualTo(5);
         }
@@ -221,10 +258,29 @@ namespace Chef.Extensions.Tests
 
             await clubDataAccess.UpdateAsync(x => x.Id.Equals(15), () => new Club { Name = clubName });
 
-            var club = await clubDataAccess.QueryOneAsync(x => x.Id == 15);
+            var club = await clubDataAccess.QueryOneAsync(x => x.Id == 15, null, x => new { x.Id, x.Name });
 
             club.Id.Should().Be(15);
             club.Name.Should().Be("歐陽邦瑋" + suffix);
+        }
+
+        [TestMethod]
+        public void Test_UpdateAsync_use_NotMapped_Column_will_Throw_ArgumentException()
+        {
+            var suffix = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000).ToString();
+
+            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+
+            var clubName = "歐陽邦瑋" + suffix;
+
+            clubDataAccess
+                .Invoking(
+                    async dataAccess => await dataAccess.UpdateAsync(
+                                            x => x.Id.Equals(15),
+                                            () => new Club { Name = clubName, IgnoreColumn = "testabc" }))
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage("Member can not applied [NotMapped].");
         }
 
         [TestMethod]
@@ -258,7 +314,7 @@ namespace Chef.Extensions.Tests
 
             await clubDataAccess.Where(x => x.Id.Equals(15)).Set(() => new Club { Name = clubName }).UpdateAsync();
 
-            var club = await clubDataAccess.QueryOneAsync(x => x.Id == 15);
+            var club = await clubDataAccess.QueryOneAsync(x => x.Id == 15, null, x => new { x.Id, x.Name });
 
             club.Id.Should().Be(15);
             club.Name.Should().Be("歐陽邦瑋" + suffix);
@@ -370,6 +426,23 @@ namespace Chef.Extensions.Tests
             club = await clubDataAccess.Where(x => x.Id == clubId).Select(x => new { x.Id, x.Name }).QueryOneAsync();
 
             club.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void Test_InsertAsync_use_Setter_Has_NotMapped_Column_will_Throw_ArgumentException()
+        {
+            var clubId = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000);
+
+            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+
+
+            clubDataAccess
+                .Invoking(
+                    async dataAccess =>
+                        await dataAccess.InsertAsync(() => new Club { Id = clubId, Name = "TestClub", IgnoreColumn = "testabc" }))
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage("Member can not applied [NotMapped].");
         }
 
         [TestMethod]
@@ -940,6 +1013,9 @@ namespace Chef.Extensions.Tests
         public string Intro { get; set; }
 
         public DateTime? RunningTime { get; set; }
+
+        [NotMapped]
+        public string IgnoreColumn { get; set; }
     }
 
     internal class ClubDataAccess : SqlServerDataAccess<Club>

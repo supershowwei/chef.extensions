@@ -27,6 +27,17 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToSearchCondition_Has_NotMapped_Column_will_Throw_ArgumentException()
+        {
+            Expression<Func<Member, bool>> predicate = x => x.IgnoredColumn == "testabc";
+
+            predicate.Invoking(x => x.ToSearchCondition(out var parameters))
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage("Member can not applied [NotMapped].");
+        }
+
+        [TestMethod]
         public void Test_ToSearchCondition_use_DbString()
         {
             Expression<Func<Member, bool>> predicate = x => x.FirstName == "GoodJob";
@@ -423,6 +434,16 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToSelectList_Has_NotMapped_Column_will_be_not_Selected()
+        {
+            Expression<Func<Member, object>> select = x => new { x.Id, x.FirstName, x.LastName, x.IgnoredColumn };
+
+            var selectList = select.ToSelectList();
+
+            selectList.Should().Be("[Id], [first_name] AS [FirstName], [last_name] AS [LastName]");
+        }
+
+        [TestMethod]
         public void Test_ToSelectList_using_PropertyInfo_Array()
         {
             var requiredColumns = typeof(Member).GetProperties().Where(p => Attribute.IsDefined(p, typeof(RequiredAttribute))).ToArray();
@@ -462,6 +483,17 @@ namespace Chef.Extensions.Tests
             setStatements.Should().Be("[first_name] = @FirstName_0, [last_name] = @LastName_0");
             ((DbString)parameters["FirstName_0"]).Value.Should().Be("abab");
             parameters["LastName_0"].Should().Be("baba");
+        }
+
+        [TestMethod]
+        public void Test_ToSetStatements_Has_NotMapped_Column_will_Throw_ArgumentException()
+        {
+            Expression<Func<Member>> setters = () => new Member { FirstName = "abab", LastName = "baba", IgnoredColumn = "testabc" };
+
+            setters.Invoking(x => x.ToSetStatements(out var parameters))
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage("Member can not applied [NotMapped].");
         }
 
         [TestMethod]
@@ -521,6 +553,18 @@ namespace Chef.Extensions.Tests
             parameters["Id_0"].Should().Be(123);
             ((DbString)parameters["FirstName_0"]).Value.Should().Be("abab");
             parameters["LastName_0"].Should().Be("baba");
+        }
+
+        [TestMethod]
+        public void Test_ToColumnList_Has_NotMapped_Column_will_Throw_ArgumentException()
+        {
+            Expression<Func<Member>> setters = () =>
+                new Member { Id = 123, FirstName = "abab", LastName = "baba", IgnoredColumn = "testabc" };
+
+            setters.Invoking(x => x.ToColumnList(out var valueList, out var parameters))
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage("Member can not applied [NotMapped].");
         }
 
         [TestMethod]
@@ -592,6 +636,17 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToAscendingOrder_Has_NotMapped_Column_will_Throw_ArgumentException()
+        {
+            Expression<Func<Member, object>> orderBy = x => x.IgnoredColumn;
+
+            orderBy.Invoking(x => x.ToOrderAscending("m"))
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage("Member can not applied [NotMapped].");
+        }
+
+        [TestMethod]
         public void Test_ToDescendingOrder_Simple()
         {
             Expression<Func<Member, object>> orderBy = x => x.Id;
@@ -600,6 +655,17 @@ namespace Chef.Extensions.Tests
             var orderExpression = orderBy.ToOrderDescending("m") + ", " + thenBy.ToOrderDescending("m");
 
             Assert.AreEqual("m.[Id] DESC, m.[Seniority] DESC", orderExpression);
+        }
+
+        [TestMethod]
+        public void Test_ToDescendingOrder_Has_NotMapped_Column_will_Throw_ArgumentException()
+        {
+            Expression<Func<Member, object>> orderBy = x => x.IgnoredColumn;
+
+            orderBy.Invoking(x => x.ToOrderDescending("m"))
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage("Member can not applied [NotMapped].");
         }
     }
 
@@ -620,6 +686,9 @@ namespace Chef.Extensions.Tests
         public double Seniority { get; set; }
 
         public int Age { get; set; }
+
+        [NotMapped]
+        public string IgnoredColumn { get; set; }
     }
 
     internal class QueryParameter

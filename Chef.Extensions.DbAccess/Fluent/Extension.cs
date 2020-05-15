@@ -1,12 +1,19 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Threading.Tasks;
 
 namespace Chef.Extensions.DbAccess.Fluent
 {
     public static class Extension
     {
+        private static readonly ConcurrentDictionary<Type, LambdaExpression> AllSelectors = new ConcurrentDictionary<Type, LambdaExpression>();
+
         #region IDataAccessExtension
 
         public static QueryObject<T> Where<T>(this IDataAccess<T> me, Expression<Func<T, bool>> predicate)
@@ -16,6 +23,13 @@ namespace Chef.Extensions.DbAccess.Fluent
 
         public static QueryObject<T> Select<T>(this IDataAccess<T> me, Expression<Func<T, object>> selector)
         {
+            return new QueryObject<T>(me) { Selector = selector };
+        }
+
+        public static QueryObject<T> SelectAll<T>(this IDataAccess<T> me)
+        {
+            var selector = AllSelectors.GetOrAdd(typeof(T), type => CreateSelector(type)) as Expression<Func<T, object>>;
+
             return new QueryObject<T>(me) { Selector = selector };
         }
 
@@ -73,6 +87,13 @@ namespace Chef.Extensions.DbAccess.Fluent
         public static QueryObject<T> Select<T>(this QueryObject<T> me, Expression<Func<T, object>> selector)
         {
             me.Selector = selector;
+
+            return me;
+        }
+
+        public static QueryObject<T> SelectAll<T>(this QueryObject<T> me)
+        {
+            me.Selector = AllSelectors.GetOrAdd(typeof(T), type => CreateSelector(type)) as Expression<Func<T, object>>;
 
             return me;
         }
@@ -260,5 +281,77 @@ namespace Chef.Extensions.DbAccess.Fluent
         }
 
         #endregion
+
+        private static LambdaExpression CreateSelector(Type type)
+        {
+            var properties = type.GetProperties()
+                .Where(x => !Attribute.IsDefined(x, typeof(NotMappedAttribute)))
+                .ToDictionary(p => p.Name, p => p);
+
+            var assemblyName = new AssemblyName("Chef.Extensions.DbAccess.DynamicTypes");
+            var dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+            var dynamicModule = dynamicAssembly.DefineDynamicModule(assemblyName.Name);
+
+            var typeBuilder = dynamicModule.DefineType(
+                $"{type.FullName}.{string.Join("_", properties.Values.Select(x => x.Name))}",
+                TypeAttributes.Public);
+
+            foreach (var property in properties)
+            {
+                CreateProperty(typeBuilder, property.Value.Name, property.Value.PropertyType);
+            }
+
+            var anonymousType = typeBuilder.CreateTypeInfo().AsType();
+
+            var paramExpression = Expression.Parameter(type, "x");
+
+            var bindings = anonymousType.GetProperties()
+                .Select(p => Expression.Bind(p, Expression.Property(paramExpression, properties[p.Name])))
+                .OfType<MemberBinding>();
+
+            return Expression.Lambda(
+                typeof(Func<,>).MakeGenericType(type, typeof(object)),
+                Expression.MemberInit(Expression.New(anonymousType.GetConstructor(Type.EmptyTypes)), bindings),
+                paramExpression);
+        }
+
+        private static void CreateProperty(TypeBuilder typeBuilder, string propertyName, Type propertyType)
+        {
+            // private field
+            var fieldBuilder = typeBuilder.DefineField(string.Concat("m_", propertyName), propertyType, FieldAttributes.Private);
+
+            // property
+            var propertyBuilder = typeBuilder.DefineProperty(propertyName, PropertyAttributes.HasDefault, propertyType, null);
+
+            // getter
+            var getterBuild = typeBuilder.DefineMethod(
+                "get_" + propertyName,
+                MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig,
+                propertyType,
+                Type.EmptyTypes);
+
+            var getterILGenerator = getterBuild.GetILGenerator();
+
+            getterILGenerator.Emit(OpCodes.Ldarg_0);
+            getterILGenerator.Emit(OpCodes.Ldfld, fieldBuilder);
+            getterILGenerator.Emit(OpCodes.Ret);
+
+            // setter
+            var setterBuild = typeBuilder.DefineMethod(
+                "set_" + propertyName,
+                MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig,
+                null,
+                new[] { propertyType });
+
+            var setterILGenerator = setterBuild.GetILGenerator();
+
+            setterILGenerator.Emit(OpCodes.Ldarg_0);
+            setterILGenerator.Emit(OpCodes.Ldarg_1);
+            setterILGenerator.Emit(OpCodes.Stfld, fieldBuilder);
+            setterILGenerator.Emit(OpCodes.Ret);
+
+            propertyBuilder.SetGetMethod(getterBuild);
+            propertyBuilder.SetSetMethod(setterBuild);
+        }
     }
 }

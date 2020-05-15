@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Chef.Extensions.Dapper.Extensions;
 using Dapper;
+using NotMappedAttribute = System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute;
 
 namespace Chef.Extensions.Dapper
 {
@@ -612,6 +613,9 @@ namespace Chef.Extensions.Dapper
             foreach (var returnProp in PropertyCollection.GetOrAdd(me.Body.Type, type => type.GetProperties()))
             {
                 var property = targetType.GetProperty(returnProp.Name);
+
+                if (Attribute.IsDefined(property, typeof(NotMappedAttribute))) continue;
+
                 var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
                 var columnName = columnAttribute?.Name;
 
@@ -708,6 +712,11 @@ namespace Chef.Extensions.Dapper
             {
                 if (!(binding is MemberAssignment memberAssignment)) throw new ArgumentException("Must be member assignment.");
 
+                if (Attribute.IsDefined(memberAssignment.Member, typeof(NotMappedAttribute)))
+                {
+                    throw new ArgumentException("Member can not applied [NotMapped].");
+                }
+
                 var columnAttribute = memberAssignment.Member.GetCustomAttribute<ColumnAttribute>();
                 var parameterName = memberAssignment.Member.Name;
                 var columnName = columnAttribute?.Name ?? parameterName;
@@ -769,6 +778,11 @@ namespace Chef.Extensions.Dapper
             {
                 if (!(binding is MemberAssignment memberAssignment)) throw new ArgumentException("Must be member assignment.");
 
+                if (Attribute.IsDefined(memberAssignment.Member, typeof(NotMappedAttribute)))
+                {
+                    throw new ArgumentException("Member can not applied [NotMapped].");
+                }
+
                 var columnAttribute = memberAssignment.Member.GetCustomAttribute<ColumnAttribute>();
                 var parameterName = memberAssignment.Member.Name;
                 var columnName = columnAttribute?.Name ?? parameterName;
@@ -796,6 +810,11 @@ namespace Chef.Extensions.Dapper
         {
             var memberExpr = ExtractMember(me.Body);
 
+            if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
+            {
+                throw new ArgumentException("Member can not applied [NotMapped].");
+            }
+
             var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
             var columnName = columnAttribute?.Name ?? memberExpr.Member.Name;
 
@@ -810,6 +829,11 @@ namespace Chef.Extensions.Dapper
         public static string ToOrderDescending<T>(this Expression<Func<T, object>> me, string alias)
         {
             var memberExpr = ExtractMember(me.Body);
+
+            if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
+            {
+                throw new ArgumentException("Member can not applied [NotMapped].");
+            }
 
             var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
             var columnName = columnAttribute?.Name ?? memberExpr.Member.Name;
@@ -921,6 +945,11 @@ namespace Chef.Extensions.Dapper
                         throw new ArgumentException("Parameter expression must be placed left.");
                     }
 
+                    if (Attribute.IsDefined(left.Member, typeof(NotMappedAttribute)))
+                    {
+                        throw new ArgumentException("Member can not applied [NotMapped].");
+                    }
+
                     var columnAttribute = left.Member.GetCustomAttribute<ColumnAttribute>();
                     var parameterName = left.Member.Name;
                     var columnName = columnAttribute?.Name ?? parameterName;
@@ -960,6 +989,11 @@ namespace Chef.Extensions.Dapper
                 {
                     var parameterExpr = (MemberExpression)methodCallExpr.Object;
 
+                    if (Attribute.IsDefined(parameterExpr.Member, typeof(NotMappedAttribute)))
+                    {
+                        throw new ArgumentException("Member can not applied [NotMapped].");
+                    }
+
                     var columnAttribute = parameterExpr.Member.GetCustomAttribute<ColumnAttribute>();
                     var parameterName = parameterExpr.Member.Name;
                     var columnName = columnAttribute?.Name ?? parameterName;
@@ -975,6 +1009,11 @@ namespace Chef.Extensions.Dapper
                 else if (methodFullName.Equals("System.Linq.Enumerable.Contains"))
                 {
                     var parameterExpr = (MemberExpression)methodCallExpr.Arguments[1];
+
+                    if (Attribute.IsDefined(parameterExpr.Member, typeof(NotMappedAttribute)))
+                    {
+                        throw new ArgumentException("Member can not applied [NotMapped].");
+                    }
 
                     var columnAttribute = parameterExpr.Member.GetCustomAttribute<ColumnAttribute>();
                     var columnName = columnAttribute?.Name ?? parameterExpr.Member.Name;
@@ -996,6 +1035,11 @@ namespace Chef.Extensions.Dapper
                 else if (methodFullName.IsLikeOperator())
                 {
                     var parameterExpr = (MemberExpression)methodCallExpr.Object;
+
+                    if (Attribute.IsDefined(parameterExpr.Member, typeof(NotMappedAttribute)))
+                    {
+                        throw new ArgumentException("Member can not applied [NotMapped].");
+                    }
 
                     var columnAttribute = parameterExpr.Member.GetCustomAttribute<ColumnAttribute>();
                     var parameterName = parameterExpr.Member.Name;

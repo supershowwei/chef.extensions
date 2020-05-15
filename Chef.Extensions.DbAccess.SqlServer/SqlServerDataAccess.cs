@@ -70,13 +70,7 @@ SELECT ";
             }
             else
             {
-                var requiredColumns = RequiredColumns.GetOrAdd(
-                    typeof(T),
-                    type => type.GetProperties().Where(p => Attribute.IsDefined(p, typeof(RequiredAttribute))).ToArray());
-
-                if (requiredColumns.Length == 0) throw new ArgumentException("There must be at least one [Required] column.");
-
-                sql += requiredColumns.ToSelectList(this.alias);
+                throw new ArgumentException("Must be at least one column selected.");
             }
 
             sql += $@"
@@ -113,13 +107,7 @@ SELECT ";
             }
             else
             {
-                var requiredColumns = RequiredColumns.GetOrAdd(
-                    typeof(T),
-                    type => type.GetProperties().Where(p => Attribute.IsDefined(p, typeof(RequiredAttribute))).ToArray());
-
-                if (requiredColumns.Length == 0) throw new ArgumentException("There must be at least one [Required] column.");
-
-                sql += requiredColumns.ToSelectList(this.alias);
+                throw new ArgumentException("Must be at least one column selected.");
             }
 
             sql += $@"
