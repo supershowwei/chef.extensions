@@ -14,6 +14,10 @@ namespace Chef.Extensions.DbAccess.Fluent
     {
         private static readonly ConcurrentDictionary<Type, LambdaExpression> AllSelectors = new ConcurrentDictionary<Type, LambdaExpression>();
 
+        private static readonly ModuleBuilder DynamicModule = AssemblyBuilder
+            .DefineDynamicAssembly(new AssemblyName("Chef.Extensions.DbAccess.DynamicTypes"), AssemblyBuilderAccess.Run)
+            .DefineDynamicModule("Chef.Extensions.DbAccess.DynamicTypes");
+
         #region IDataAccessExtension
 
         public static QueryObject<T> Where<T>(this IDataAccess<T> me, Expression<Func<T, bool>> predicate)
@@ -288,13 +292,7 @@ namespace Chef.Extensions.DbAccess.Fluent
                 .Where(x => !Attribute.IsDefined(x, typeof(NotMappedAttribute)))
                 .ToDictionary(p => p.Name, p => p);
 
-            var assemblyName = new AssemblyName("Chef.Extensions.DbAccess.DynamicTypes");
-            var dynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
-            var dynamicModule = dynamicAssembly.DefineDynamicModule(assemblyName.Name);
-
-            var typeBuilder = dynamicModule.DefineType(
-                $"{type.FullName}.{string.Join("_", properties.Values.Select(x => x.Name))}",
-                TypeAttributes.Public);
+            var typeBuilder = DynamicModule.DefineType($"{type.FullName}.{string.Join("_", properties.Keys)}", TypeAttributes.Public);
 
             foreach (var property in properties)
             {
@@ -318,7 +316,7 @@ namespace Chef.Extensions.DbAccess.Fluent
         private static void CreateProperty(TypeBuilder typeBuilder, string propertyName, Type propertyType)
         {
             // private field
-            var fieldBuilder = typeBuilder.DefineField(string.Concat("m_", propertyName), propertyType, FieldAttributes.Private);
+            var fieldBuilder = typeBuilder.DefineField(string.Concat("_", propertyName), propertyType, FieldAttributes.Private);
 
             // property
             var propertyBuilder = typeBuilder.DefineProperty(propertyName, PropertyAttributes.HasDefault, propertyType, null);
