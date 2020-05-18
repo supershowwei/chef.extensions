@@ -149,3 +149,161 @@ VALUES
 (38, N'谅霍', CONVERT(bit, 'True'), N'谅', NULL, NULL),
 (39, N'痷', CONVERT(bit, 'True'), N'', '2020-01-01 00:00:00.000', NULL)
 GO
+
+/****** Object:  Database [Advertisement]    Script Date: 2020/05/18 11:06:57 ******/
+CREATE DATABASE [Advertisement]
+GO
+
+ALTER DATABASE [Advertisement] SET COMPATIBILITY_LEVEL = 130
+GO
+
+ALTER DATABASE [Advertisement] SET ANSI_NULL_DEFAULT OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET ANSI_NULLS OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET ANSI_PADDING OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET ANSI_WARNINGS OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET ARITHABORT OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET AUTO_CLOSE OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET AUTO_SHRINK OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET AUTO_UPDATE_STATISTICS ON 
+GO
+
+ALTER DATABASE [Advertisement] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET CURSOR_DEFAULT  GLOBAL 
+GO
+
+ALTER DATABASE [Advertisement] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET NUMERIC_ROUNDABORT OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET QUOTED_IDENTIFIER OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET RECURSIVE_TRIGGERS OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET  DISABLE_BROKER 
+GO
+
+ALTER DATABASE [Advertisement] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET TRUSTWORTHY OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET PARAMETERIZATION SIMPLE 
+GO
+
+ALTER DATABASE [Advertisement] SET READ_COMMITTED_SNAPSHOT OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET HONOR_BROKER_PRIORITY OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET RECOVERY SIMPLE 
+GO
+
+ALTER DATABASE [Advertisement] SET  MULTI_USER 
+GO
+
+ALTER DATABASE [Advertisement] SET PAGE_VERIFY CHECKSUM  
+GO
+
+ALTER DATABASE [Advertisement] SET DB_CHAINING OFF 
+GO
+
+ALTER DATABASE [Advertisement] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+
+ALTER DATABASE [Advertisement] SET TARGET_RECOVERY_TIME = 60 SECONDS 
+GO
+
+ALTER DATABASE [Advertisement] SET DELAYED_DURABILITY = DISABLED 
+GO
+
+ALTER DATABASE [Advertisement] SET QUERY_STORE = OFF
+GO
+
+USE [Advertisement]
+GO
+
+ALTER DATABASE SCOPED CONFIGURATION SET LEGACY_CARDINALITY_ESTIMATION = OFF;
+GO
+
+ALTER DATABASE SCOPED CONFIGURATION SET MAXDOP = 0;
+GO
+
+ALTER DATABASE SCOPED CONFIGURATION SET PARAMETER_SNIFFING = ON;
+GO
+
+ALTER DATABASE SCOPED CONFIGURATION SET QUERY_OPTIMIZER_HOTFIXES = OFF;
+GO
+
+ALTER DATABASE [Advertisement] SET  READ_WRITE 
+GO
+
+USE [Advertisement]
+GO
+
+/****** Object:  Table [dbo].[AdvertisementSetting]    Script Date: 2020/05/18 11:08:02 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[AdvertisementSetting](
+	[id] [uniqueidentifier] NOT NULL,
+	[typeId] [int] NULL,
+	[type] [nvarchar](256) NULL,
+	[titleId] [int] NULL,
+	[title] [nvarchar](512) NULL,
+	[imageName] [nvarchar](256) NULL,
+	[imageId] [int] NULL,
+	[image] [nvarchar](max) NULL,
+	[linkId] [int] NULL,
+	[linkName] [nvarchar](256) NULL,
+	[link] [nvarchar](max) NULL,
+	[weightId] [int] NULL,
+	[weight] [int] NULL,
+	[state] [int] NULL,
+	[stateName] [nvarchar](256) NULL,
+	[scheduleId] [int] NULL,
+	[scheduleName] [nvarchar](256) NULL,
+	[StartTime] [datetime] NULL,
+	[EndTime] [datetime] NULL,
+	[description] [nvarchar](256) NULL,
+	[CreateTime] [datetime] NULL,
+	[platformId] [int] NULL,
+	[platformName] [nvarchar](50) NULL,
+	[LastUpdateTime] [datetime] NULL,
+	[AdCode] [nvarchar](max) NULL
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+INSERT INTO [AdvertisementSetting] (id, typeId, type, titleId, title, imageName, imageId, image, linkId, linkName, link, weightId, weight, state, stateName, scheduleId, scheduleName, StartTime, EndTime, description, CreateTime, platformId, platformName, LastUpdateTime, AdCode) VALUES
+('df31efe5-b78f-4b4b-954a-0078328e34d2', 6, N'1000x90', 54, N'场約', N'场約', 92, N' ', 41, N'场約', N' ', 10, 100, 4, N'场約', 0, NULL, NULL, NULL, N'', CONVERT(DATETIME, '2016-02-15 12:10:38.247', 121), 1, N'PC', CONVERT(DATETIME, '2016-02-15 12:10:38.247', 121), NULL)
+GO

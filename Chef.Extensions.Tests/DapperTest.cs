@@ -29,7 +29,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public void Test_ToSearchCondition_Square_Brackets_around_Alias()
         {
-            Expression<Func<AdvertisementSetting, bool>> predicate = x => x.Id == "abc";
+            Expression<Func<AbcStu, bool>> predicate = x => x.Id == "abc";
 
             var searchCondition = predicate.ToSearchCondition("as", out var parameters);
 
@@ -740,18 +740,8 @@ namespace Chef.Extensions.Tests
         public int? PackageId { get; set; }
     }
 
-    internal class AdvertisementSetting
+    internal class AbcStu
     {
-        public string Type { get; set; }
-
         public string Id { get; set; }
-
-        public string Image { get; set; }
-
-        public string Link { get; set; }
-
-        public int Weight { get; set; }
-
-        public string AdCode { get; set; }
     }
 }

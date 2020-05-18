@@ -74,7 +74,7 @@ SELECT ";
             }
 
             sql += $@"
-FROM {this.tableName} {this.alias} WITH (NOLOCK)";
+FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
             sql += predicate.ToWhereStatement(this.alias, out var parameters);
             sql += orderings.ToOrderByStatement(this.alias);
             sql += ";";
@@ -111,7 +111,7 @@ SELECT ";
             }
 
             sql += $@"
-FROM {this.tableName} {this.alias} WITH (NOLOCK)";
+FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
             sql += predicate.ToWhereStatement(this.alias, out var parameters);
             sql += orderings.ToOrderByStatement(this.alias);
             sql += ";";
@@ -128,7 +128,7 @@ FROM {this.tableName} {this.alias} WITH (NOLOCK)";
         {
             SqlBuilder sql = $@"
 SELECT COUNT(*)
-FROM {this.tableName} {this.alias} WITH (NOLOCK)";
+FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
             sql += predicate.ToWhereStatement(this.alias, out var parameters);
             sql += ";";
 
@@ -148,7 +148,7 @@ SELECT
         WHEN
             EXISTS (SELECT
                     1
-                FROM {this.tableName} {this.alias} WITH (NOLOCK)";
+                FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
             sql += predicate.ToWhereStatement(this.alias, out var parameters);
             sql += @") THEN 1
         ELSE 0

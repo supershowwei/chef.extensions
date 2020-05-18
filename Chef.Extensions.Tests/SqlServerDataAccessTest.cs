@@ -86,6 +86,16 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryOneAsync_with_AS_Keyword_Alias()
+        {
+            var advertisementSettingDataAccess = new AdvertisementSettingDataAccess();
+
+            var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").SelectAll().QueryOneAsync();
+
+            result.Id.Should().Be(Guid.Parse("df31efe5-b78f-4b4b-954a-0078328e34d2"));
+        }
+
+        [TestMethod]
         public void Test_QueryAsync_use_Null_Selector_will_Throw_ArgumentException()
         {
             IDataAccess<Club> clubDataAccess = new ClubDataAccess();
@@ -434,7 +444,6 @@ namespace Chef.Extensions.Tests
             var clubId = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000);
 
             IDataAccess<Club> clubDataAccess = new ClubDataAccess();
-
 
             clubDataAccess
                 .Invoking(
@@ -1018,6 +1027,21 @@ namespace Chef.Extensions.Tests
         public string IgnoreColumn { get; set; }
     }
 
+    internal class AdvertisementSetting
+    {
+        public string Type { get; set; }
+
+        public Guid Id { get; set; }
+
+        public string Image { get; set; }
+
+        public string Link { get; set; }
+
+        public int Weight { get; set; }
+
+        public string AdCode { get; set; }
+    }
+
     internal class ClubDataAccess : SqlServerDataAccess<Club>
     {
         public ClubDataAccess()
@@ -1057,6 +1081,14 @@ namespace Chef.Extensions.Tests
             dataRow["IsActive"] = value.IsActive;
 
             return dataRow;
+        }
+    }
+
+    internal class AdvertisementSettingDataAccess : SqlServerDataAccess<AdvertisementSetting>
+    {
+        public AdvertisementSettingDataAccess()
+            : base(@"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Advertisement;Integrated Security=True")
+        {
         }
     }
 }
