@@ -27,6 +27,17 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToSearchCondition_Square_Brackets_around_Alias()
+        {
+            Expression<Func<AdvertisementSetting, bool>> predicate = x => x.Id == "abc";
+
+            var searchCondition = predicate.ToSearchCondition("as", out var parameters);
+
+            searchCondition.Should().Be("[as].[Id] = @Id_0");
+            parameters["Id_0"].Should().Be("abc");
+        }
+
+        [TestMethod]
         public void Test_ToSearchCondition_Has_NotMapped_Column_will_Throw_ArgumentException()
         {
             Expression<Func<Member, bool>> predicate = x => x.IgnoredColumn == "testabc";
@@ -184,7 +195,7 @@ namespace Chef.Extensions.Tests
 
             var searchCondition = predicate.ToSearchCondition("abc", out var parameters);
 
-            searchCondition.Should().Be("(abc.[last_name] = @LastName_0) OR ((abc.[Id] > {=Id_0}) AND (abc.[first_name] = @FirstName_0))");
+            searchCondition.Should().Be("([abc].[last_name] = @LastName_0) OR (([abc].[Id] > {=Id_0}) AND ([abc].[first_name] = @FirstName_0))");
             parameters["Id_0"].Should().Be(1);
             ((DbString)parameters["FirstName_0"]).Value.Should().Be("GoodJob");
             parameters["LastName_0"].Should().Be("JobGood");
@@ -460,7 +471,7 @@ namespace Chef.Extensions.Tests
 
             var selectList = select.ToSelectList("att");
 
-            selectList.Should().Be("att.[Id], att.[first_name] AS [FirstName], att.[last_name] AS [LastName]");
+            selectList.Should().Be("[att].[Id], [att].[first_name] AS [FirstName], [att].[last_name] AS [LastName]");
         }
 
         [TestMethod]
@@ -503,7 +514,7 @@ namespace Chef.Extensions.Tests
 
             var setStatements = setters.ToSetStatements("kkk", out var parameters);
 
-            setStatements.Should().Be("kkk.[first_name] = @FirstName_0, kkk.[last_name] = @LastName_0");
+            setStatements.Should().Be("[kkk].[first_name] = @FirstName_0, [kkk].[last_name] = @LastName_0");
             ((DbString)parameters["FirstName_0"]).Value.Should().Be("abab");
             parameters["LastName_0"].Should().Be("baba");
         }
@@ -516,7 +527,7 @@ namespace Chef.Extensions.Tests
 
             var setStatements = setters.ToSetStatements("kkk");
 
-            setStatements.Should().Be("kkk.[Id] = {=Id}, kkk.[first_name] = @FirstName, kkk.[last_name] = @LastName, kkk.[Age] = {=Age}");
+            setStatements.Should().Be("[kkk].[Id] = {=Id}, [kkk].[first_name] = @FirstName, [kkk].[last_name] = @LastName, [kkk].[Age] = {=Age}");
         }
 
         [TestMethod]
@@ -632,7 +643,7 @@ namespace Chef.Extensions.Tests
 
             var orderExpression = orderBy.ToOrderAscending("m") + ", " + thenBy.ToOrderAscending("m");
 
-            Assert.AreEqual("m.[Id] ASC, m.[first_name] ASC", orderExpression);
+            Assert.AreEqual("[m].[Id] ASC, [m].[first_name] ASC", orderExpression);
         }
 
         [TestMethod]
@@ -654,7 +665,7 @@ namespace Chef.Extensions.Tests
 
             var orderExpression = orderBy.ToOrderDescending("m") + ", " + thenBy.ToOrderDescending("m");
 
-            Assert.AreEqual("m.[Id] DESC, m.[Seniority] DESC", orderExpression);
+            Assert.AreEqual("[m].[Id] DESC, [m].[Seniority] DESC", orderExpression);
         }
 
         [TestMethod]
@@ -727,5 +738,20 @@ namespace Chef.Extensions.Tests
     internal class OrderViewItem
     {
         public int? PackageId { get; set; }
+    }
+
+    internal class AdvertisementSetting
+    {
+        public string Type { get; set; }
+
+        public string Id { get; set; }
+
+        public string Image { get; set; }
+
+        public string Link { get; set; }
+
+        public int Weight { get; set; }
+
+        public string AdCode { get; set; }
     }
 }

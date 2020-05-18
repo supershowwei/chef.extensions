@@ -585,10 +585,14 @@ namespace Chef.Extensions.Dapper
         {
             if (me == null || me.Length == 0) throw new ArgumentException($"'{nameof(me)}' can not be null or empty.");
 
+            alias = string.IsNullOrEmpty(alias) ? alias : string.Concat("[", alias, "]");
+
             var sb = new StringBuilder();
 
             foreach (var propertyInfo in me)
             {
+                if (Attribute.IsDefined(propertyInfo, typeof(NotMappedAttribute))) continue;
+
                 var columnAttribute = propertyInfo.GetCustomAttribute<ColumnAttribute>();
                 var columnName = columnAttribute?.Name;
 
@@ -607,6 +611,8 @@ namespace Chef.Extensions.Dapper
 
         public static string ToSelectList<T>(this Expression<Func<T, object>> me, string alias)
         {
+            alias = string.IsNullOrEmpty(alias) ? alias : string.Concat("[", alias, "]");
+
             var sb = new StringBuilder();
             var targetType = typeof(T);
 
@@ -656,6 +662,8 @@ namespace Chef.Extensions.Dapper
 
         public static string ToSearchCondition<T>(this Expression<Func<T, bool>> me, string alias, IDictionary<string, object> parameters)
         {
+            alias = string.IsNullOrEmpty(alias) ? alias : string.Concat("[", alias, "]");
+
             var sb = new StringBuilder();
 
             ParseCondition(me.Body, alias, sb, parameters);
@@ -672,6 +680,11 @@ namespace Chef.Extensions.Dapper
 
             foreach (var propertyInfo in me)
             {
+                if (Attribute.IsDefined(propertyInfo, typeof(NotMappedAttribute)))
+                {
+                    throw new ArgumentException("Member can not applied [NotMapped].");
+                }
+
                 var columnAttribute = propertyInfo.GetCustomAttribute<ColumnAttribute>();
                 var parameterName = propertyInfo.Name;
                 var columnName = columnAttribute?.Name ?? parameterName;
@@ -772,6 +785,8 @@ namespace Chef.Extensions.Dapper
         {
             if (!(me.Body is MemberInitExpression memberInitExpr)) throw new ArgumentException("Must be member initializer.");
 
+            alias = string.IsNullOrEmpty(alias) ? alias : string.Concat("[", alias, "]");
+
             var sb = new StringBuilder();
 
             foreach (var binding in memberInitExpr.Bindings)
@@ -808,6 +823,8 @@ namespace Chef.Extensions.Dapper
 
         public static string ToOrderAscending<T>(this Expression<Func<T, object>> me, string alias)
         {
+            alias = string.IsNullOrEmpty(alias) ? alias : string.Concat("[", alias, "]");
+
             var memberExpr = ExtractMember(me.Body);
 
             if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
@@ -828,6 +845,8 @@ namespace Chef.Extensions.Dapper
 
         public static string ToOrderDescending<T>(this Expression<Func<T, object>> me, string alias)
         {
+            alias = string.IsNullOrEmpty(alias) ? alias : string.Concat("[", alias, "]");
+
             var memberExpr = ExtractMember(me.Body);
 
             if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
