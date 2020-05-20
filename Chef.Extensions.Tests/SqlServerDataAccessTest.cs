@@ -25,6 +25,7 @@ namespace Chef.Extensions.Tests
         {
             SqlServerDataAccessFactory.Instance.AddConnectionString("Advertisement", @"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Advertisement;Integrated Security=True");
             SqlServerDataAccessFactory.Instance.AddConnectionString("Advertisement2", @"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Advertisement;Integrated Security=True");
+            SqlServerDataAccessFactory.Instance.AddConnectionString("Advertisement3", @"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Advertisement;Integrated Security=True");
 
             SqlServerDataAccessFactory.Instance.AddUserDefinedTable<Club>(
                 "ClubType",
@@ -124,6 +125,16 @@ namespace Chef.Extensions.Tests
         public async Task Test_QueryOneAsync_with_Multiple_ConnectionStringAttributes()
         {
             var advertisementSettingDataAccess = DataAccessFactory.Create<DerivedAdvertisementSetting>("Advertisement");
+
+            var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").SelectAll().QueryOneAsync();
+
+            result.Id.Should().Be(Guid.Parse("df31efe5-b78f-4b4b-954a-0078328e34d2"));
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_with_assign_ConnectionString_Name_from_DerivedClass()
+        {
+            var advertisementSettingDataAccess = DataAccessFactory.Create<DerivedAdvertisementSetting>("Advertisement3");
 
             var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").SelectAll().QueryOneAsync();
 
@@ -1127,6 +1138,7 @@ namespace Chef.Extensions.Tests
         public string Address { get; set; }
     }
 
+    [ConnectionString("Advertisement3")]
     [Table("AdvertisementSetting")]
     internal class DerivedAdvertisementSetting : AdvertisementSetting
     {
