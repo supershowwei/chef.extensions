@@ -153,7 +153,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public void Test_QueryOneAsync_without_ConnectionString_will_Throw_ArgumentException()
         {
-            DataAccessFactory.Invoking(factory => factory.Create<Member2>())
+            DataAccessFactory.Invoking(factory => factory.Create<AnotherMember>())
                 .Should()
                 .Throw<ArgumentException>()
                 .WithMessage("Must add connection string.");
@@ -1125,7 +1125,7 @@ namespace Chef.Extensions.Tests
     }
 
     [Table("Member")]
-    internal class Member2
+    internal class AnotherMember
     {
         public int Id { get; set; }
 
