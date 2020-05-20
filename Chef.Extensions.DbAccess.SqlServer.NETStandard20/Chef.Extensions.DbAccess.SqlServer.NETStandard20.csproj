@@ -11,6 +11,7 @@
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\Extensions\StringExtension.cs" Link="Extensions\StringExtension.cs" />
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\SqlBuilder.cs" Link="SqlBuilder.cs" />
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\SqlServerDataAccess.cs" Link="SqlServerDataAccess.cs" />
+    <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\SqlServerDataAccessFactory.cs" Link="SqlServerDataAccessFactory.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,8 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Chef.Extensions.Dapper" Version="2.1.11" />
-    <PackageReference Include="Chef.Extensions.DbAccess" Version="1.0.15" />
+    <PackageReference Include="Chef.Extensions.Dapper" Version="2.1.12" />
+    <PackageReference Include="Chef.Extensions.DbAccess" Version="1.0.21" />
     <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
   </ItemGroup>

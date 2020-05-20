@@ -45,11 +45,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Chef.Extensions.DbAccess\ConnectionStringAttribute.cs">
+      <Link>ConnectionStringAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.DbAccess\Fluent\Extension.cs">
       <Link>Fluent\Extension.cs</Link>
     </Compile>
     <Compile Include="..\Chef.Extensions.DbAccess\IDataAccess.cs">
       <Link>IDataAccess.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.DbAccess\IDataAccessFactory.cs">
+      <Link>IDataAccessFactory.cs</Link>
     </Compile>
     <Compile Include="..\Chef.Extensions.DbAccess\QueryObject.cs">
       <Link>QueryObject.cs</Link>

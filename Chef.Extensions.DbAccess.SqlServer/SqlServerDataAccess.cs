@@ -28,14 +28,14 @@ namespace Chef.Extensions.DbAccess
         }
     }
 
-    public abstract class SqlServerDataAccess<T> : SqlServerDataAccess, IDataAccess<T>
+    public class SqlServerDataAccess<T> : SqlServerDataAccess, IDataAccess<T>
     {
         private static readonly ConcurrentDictionary<Type, PropertyInfo[]> RequiredColumns = new ConcurrentDictionary<Type, PropertyInfo[]>();
         private readonly string connectionString;
         private readonly string tableName;
         private readonly string alias;
 
-        protected SqlServerDataAccess(string connectionString)
+        public SqlServerDataAccess(string connectionString)
         {
             this.connectionString = connectionString;
 
@@ -242,11 +242,6 @@ INSERT INTO {this.tableName}({columnList})
         {
             var (tableType, tableVariable) = this.ConvertToTableValuedParameters(values);
 
-            if (tableType == null || tableVariable == null)
-            {
-                throw new NullReferenceException($"If want to use Bulk- related methods, must override '{nameof(this.ConvertToTableValuedParameters)}' method to create table value for User Defined Table Types.");
-            }
-
             var requiredColumns = RequiredColumns.GetOrAdd(
                 typeof(T),
                 type => type.GetProperties().Where(p => Attribute.IsDefined(p, typeof(RequiredAttribute))).ToArray());
@@ -271,11 +266,6 @@ INSERT INTO {this.tableName}({columnList})
         public virtual Task<int> BulkInsertAsync(Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
             var (tableType, tableVariable) = this.ConvertToTableValuedParameters(values);
-
-            if (tableType == null || tableVariable == null)
-            {
-                throw new NullReferenceException($"If want to use Bulk- related methods, must override '{nameof(this.ConvertToTableValuedParameters)}' method to create table value for User Defined Table Types.");
-            }
 
             var columnList = setterTemplate.ToColumnList(out _);
 
@@ -335,11 +325,6 @@ WHERE ";
         public virtual Task<int> BulkUpdateAsync(Expression<Func<T, bool>> predicateTemplate, Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
             var (tableType, tableVariable) = this.ConvertToTableValuedParameters(values);
-
-            if (tableType == null || tableVariable == null)
-            {
-                throw new NullReferenceException($"If want to use Bulk- related methods, must override '{nameof(this.ConvertToTableValuedParameters)}' method to create table value for User Defined Table Types.");
-            }
 
             var columnList = setterTemplate.ToColumnList(out _);
             var searchCondition = predicateTemplate.ToSearchCondition();
@@ -420,11 +405,6 @@ IF @@rowcount = 0
         public virtual Task<int> BulkUpsertAsync(Expression<Func<T, bool>> predicateTemplate, Expression<Func<T>> setterTemplate, IEnumerable<T> values)
         {
             var (tableType, tableVariable) = this.ConvertToTableValuedParameters(values);
-
-            if (tableType == null || tableVariable == null)
-            {
-                throw new NullReferenceException($"If want to use Bulk- related methods, must override '{nameof(this.ConvertToTableValuedParameters)}' method to create table value for User Defined Table Types.");
-            }
 
             var columnList = setterTemplate.ToColumnList(out _);
             var searchCondition = predicateTemplate.ToSearchCondition();
@@ -524,11 +504,6 @@ WHERE ";
             return result;
         }
 
-        protected virtual (string, DataTable) ConvertToTableValuedParameters(IEnumerable<T> values)
-        {
-            return (null, null);
-        }
-
         private static (string, string) ResolveColumnList(string sql)
         {
             var columnList = new Dictionary<string, string>();
@@ -541,6 +516,48 @@ WHERE ";
             }
 
             return (string.Join(", ", columnList.Keys), string.Join(", ", columnList.Values));
+        }
+
+        private (string, DataTable) ConvertToTableValuedParameters(IEnumerable<T> values)
+        {
+            var (tableType, columns) = SqlServerDataAccessFactory.Instance.GetUserDefinedTable<T>();
+
+            if (string.IsNullOrEmpty(tableType) || columns == null)
+            {
+                throw new ArgumentException("Must add UserDefinedTableType.");
+            }
+
+            var dataTable = new DataTable();
+
+            dataTable.Columns.AddRange(columns.ToArray());
+
+            var properties = columns.ToDictionary(
+                x => x.ColumnName,
+                x =>
+                    {
+                        var property = typeof(T).GetProperty(x.ColumnName);
+
+                        if (property == null)
+                        {
+                            property = typeof(T).GetProperties().Single(p => p.GetCustomAttribute<ColumnAttribute>()?.Name == x.ColumnName);
+                        }
+
+                        return property;
+                    });
+
+            foreach (var value in values)
+            {
+                var dataRow = dataTable.NewRow();
+
+                foreach (var dataColumn in columns)
+                {
+                    dataRow[dataColumn.ColumnName] = properties[dataColumn.ColumnName].GetValue(value);
+                }
+
+                dataTable.Rows.Add(dataRow);
+            }
+
+            return (tableType, dataTable);
         }
     }
 }

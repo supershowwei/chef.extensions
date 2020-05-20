@@ -7,8 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\Chef.Extensions.DbAccess\ConnectionStringAttribute.cs" Link="ConnectionStringAttribute.cs" />
     <Compile Include="..\Chef.Extensions.DbAccess\Fluent\Extension.cs" Link="Fluent\Extension.cs" />
     <Compile Include="..\Chef.Extensions.DbAccess\IDataAccess.cs" Link="IDataAccess.cs" />
+    <Compile Include="..\Chef.Extensions.DbAccess\IDataAccessFactory.cs" Link="IDataAccessFactory.cs" />
     <Compile Include="..\Chef.Extensions.DbAccess\QueryObject.cs" Link="QueryObject.cs" />
   </ItemGroup>
 

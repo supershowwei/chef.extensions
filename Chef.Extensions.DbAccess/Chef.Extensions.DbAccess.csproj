@@ -45,8 +45,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConnectionStringAttribute.cs" />
     <Compile Include="Fluent\Extension.cs" />
     <Compile Include="IDataAccess.cs" />
+    <Compile Include="IDataAccessFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryObject.cs" />
   </ItemGroup>

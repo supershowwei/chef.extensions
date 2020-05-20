@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Chef.Extensions.DbAccess;
 using Chef.Extensions.DbAccess.Fluent;
+using Chef.Extensions.DbAccess.SqlServer;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -16,10 +17,23 @@ namespace Chef.Extensions.Tests
     [TestClass]
     public class SqlServerDataAccessTest
     {
+        private static readonly IDataAccessFactory DataAccessFactory = SqlServerDataAccessFactory.Instance;
+
+        [TestInitialize]
+        public void Startup()
+        {
+            SqlServerDataAccessFactory.Instance.AddConnectionString("Advertisement", @"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Advertisement;Integrated Security=True");
+            SqlServerDataAccessFactory.Instance.AddConnectionString("Advertisement2", @"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Advertisement;Integrated Security=True");
+
+            SqlServerDataAccessFactory.Instance.AddUserDefinedTable<Club>(
+                "ClubType",
+                new Dictionary<string, System.Type> { ["ClubID"] = typeof(int), ["Name"] = typeof(string), ["IsActive"] = typeof(bool) });
+        }
+
         [TestMethod]
         public void Test_QueryOne()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var club = clubDataAccess.QueryOne(x => x.Id == 25, null, x => new { x.Name });
 
@@ -29,7 +43,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryOneAsync()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var club = await clubDataAccess.QueryOneAsync(x => x.Id == 25, null, x => new { x.Name });
 
@@ -39,7 +53,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryOneAsync_with_Selector()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var club = await clubDataAccess.QueryOneAsync(x => x.Id == 25, selector: x => new { x.Name });
 
@@ -50,7 +64,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryOneAsync_with_Selector_use_QueryObject()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var club = await clubDataAccess.Where(x => x.Id == 25).Select(x => new { x.Name }).QueryOneAsync();
 
@@ -61,7 +75,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryOneAsync_use_SelectAll()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var club = await clubDataAccess.Where(x => x.Id == 35).SelectAll().QueryOneAsync();
 
@@ -74,7 +88,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryOneAsync_use_SelectAll_with_NotMapped()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var club = await clubDataAccess.Where(x => x.Id == 35).SelectAll().QueryOneAsync();
 
@@ -88,7 +102,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryOneAsync_with_AS_Keyword_Alias()
         {
-            var advertisementSettingDataAccess = new AdvertisementSettingDataAccess();
+            var advertisementSettingDataAccess = DataAccessFactory.Create<AdvertisementSetting>("Advertisement");
 
             var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").SelectAll().QueryOneAsync();
 
@@ -96,9 +110,37 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryOneAsync_assign_ConnectionString_Name()
+        {
+            var advertisementSettingDataAccess = DataAccessFactory.Create<AdvertisementSetting>("Advertisement2");
+
+            var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").SelectAll().QueryOneAsync();
+
+            result.Id.Should().Be(Guid.Parse("df31efe5-b78f-4b4b-954a-0078328e34d2"));
+        }
+
+        [TestMethod]
+        public void Test_QueryOneAsync_without_ConnectionString_Name_in_Multiple_ConnectionStringAttribute_will_Throw_ArgumentException()
+        {
+            DataAccessFactory.Invoking(factory => factory.Create<AdvertisementSetting>())
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage("Must indicate named connection string.");
+        }
+
+        [TestMethod]
+        public void Test_QueryOneAsync_without_ConnectionString_will_Throw_ArgumentException()
+        {
+            DataAccessFactory.Invoking(factory => factory.Create<Member2>())
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage("Must add connection string.");
+        }
+
+        [TestMethod]
         public void Test_QueryAsync_use_Null_Selector_will_Throw_ArgumentException()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             clubDataAccess.Invoking(async dataAccess => await dataAccess.Where(x => x.Id == 35).QueryOneAsync())
                 .Should()
@@ -109,7 +151,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryAsync_with_Null()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubs = await clubDataAccess.Where(x => x.Intro == null).SelectAll().QueryAsync();
 
@@ -119,7 +161,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryAsync_with_Selector()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubs = await clubDataAccess.QueryAsync(x => new[] { 17, 25 }.Contains(x.Id), selector: x => new { x.Name });
 
@@ -133,7 +175,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryAsync_with_Selector_use_QueryObject()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubs = await clubDataAccess.Where(x => new[] { 17, 25 }.Contains(x.Id)).Select(x => new { x.Name }).QueryAsync();
 
@@ -147,7 +189,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryAsync_with_Selector_use_QueryObject_has_DateTime_Now()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubs = await clubDataAccess.Where(x => x.RunningTime < DateTime.Now).Select(x => new { x.Id, x.Name }).QueryAsync();
 
@@ -159,7 +201,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryAsync_with_Selector_use_QueryObject_and_And()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubs = await clubDataAccess.Where(x => x.RunningTime < DateTime.Now)
                             .And(y => y.IsActive == false)
@@ -172,7 +214,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryAsync_with_Selector_use_QueryObject_and_Or()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubs = await clubDataAccess.Where(x => x.RunningTime > DateTime.Now)
                             .Or(y => y.Name == "王真希")
@@ -187,7 +229,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryAsync_with_Selector_use_QueryObject_and_OrderByDescending()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubs = await clubDataAccess.Where(x => new[] { 17, 25 }.Contains(x.Id))
                             .OrderByDescending(x => x.Id)
@@ -204,7 +246,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryAsync_with_Selector_use_QueryObject_and_OrderByDescending_and_Top()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubs = await clubDataAccess.Where(x => new[] { 17, 25 }.Contains(x.Id))
                             .OrderByDescending(x => x.Id)
@@ -220,7 +262,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_QueryAllAsync_with_Selector_use_QueryObject_and_OrderByDescending_and_ThenBy_Top()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubs = await clubDataAccess.OrderByDescending(x => x.IsActive)
                             .ThenBy(x => x.Id)
@@ -236,7 +278,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_CountAsync()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubCount = await clubDataAccess.Where(x => x.Intro == "陳").CountAsync();
 
@@ -246,7 +288,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_ExistsAsync()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var isExists = await clubDataAccess.Where(x => x.Id > 0).ExistsAsync();
 
@@ -262,7 +304,7 @@ namespace Chef.Extensions.Tests
         {
             var suffix = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000).ToString();
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubName = "歐陽邦瑋" + suffix;
 
@@ -279,7 +321,7 @@ namespace Chef.Extensions.Tests
         {
             var suffix = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000).ToString();
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubName = "歐陽邦瑋" + suffix;
 
@@ -296,7 +338,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_UpdateAsync_set_Null()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var club = await clubDataAccess.QueryOneAsync(x => x.Id == 36, selector: x => new { x.Id, x.Intro });
 
@@ -318,7 +360,7 @@ namespace Chef.Extensions.Tests
         {
             var suffix = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000).ToString();
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubName = "歐陽邦瑋" + suffix;
 
@@ -333,7 +375,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public async Task Test_UpdateAsync_use_QueryObject_set_Null()
         {
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var club = await clubDataAccess.QueryOneAsync(x => x.Id == 36, selector: x => new { x.Id, x.Intro });
 
@@ -362,7 +404,7 @@ namespace Chef.Extensions.Tests
                             new Club { Id = 19, Name = "楊翊貴" + suffix }
                         };
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.UpdateAsync(x => x.Id == default(int), () => new Club { Name = default(string) }, clubs);
 
@@ -385,7 +427,7 @@ namespace Chef.Extensions.Tests
                             new Club { Id = 19, Name = "楊翊貴" + suffix }
                         };
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.Where(x => x.Id == default(int)).Set(() => new Club { Name = default(string) }).UpdateAsync(clubs);
 
@@ -401,7 +443,7 @@ namespace Chef.Extensions.Tests
         {
             var clubId = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000);
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.InsertAsync(new Club { Id = clubId, Name = "TestClub" });
 
@@ -422,7 +464,7 @@ namespace Chef.Extensions.Tests
         {
             var clubId = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000);
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.InsertAsync(() => new Club { Id = clubId, Name = "TestClub" });
 
@@ -443,7 +485,7 @@ namespace Chef.Extensions.Tests
         {
             var clubId = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000);
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             clubDataAccess
                 .Invoking(
@@ -459,7 +501,7 @@ namespace Chef.Extensions.Tests
         {
             var clubId = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000);
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.Set(() => new Club { Id = clubId, Name = "TestClub" }).InsertAsync();
 
@@ -484,7 +526,7 @@ namespace Chef.Extensions.Tests
                               new Random(Guid.NewGuid().GetHashCode()).Next(500, 1000)
                           };
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.InsertAsync(
                 new List<Club>
@@ -519,7 +561,7 @@ namespace Chef.Extensions.Tests
                               new Random(Guid.NewGuid().GetHashCode()).Next(500, 1000)
                           };
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.InsertAsync(
                 () => new Club { Id = default(int), Name = default(string) },
@@ -550,7 +592,7 @@ namespace Chef.Extensions.Tests
                               new Random(Guid.NewGuid().GetHashCode()).Next(500, 1000)
                           };
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.Set(() => new Club { Id = default(int), Name = default(string) })
                 .InsertAsync(new List<Club> { new Club { Id = clubIds[1], Name = "TestClub999" }, new Club { Id = clubIds[0], Name = "TestClub998" } });
@@ -576,7 +618,7 @@ namespace Chef.Extensions.Tests
         {
             var clubId = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000);
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.UpsertAsync(x => x.Id == clubId, () => new Club { Name = "TestClub" });
 
@@ -614,7 +656,7 @@ namespace Chef.Extensions.Tests
         {
             var clubId = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000);
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.Where(x => x.Id == clubId).Set(() => new Club { Name = "TestClub" }).UpsertAsync();
 
@@ -656,7 +698,7 @@ namespace Chef.Extensions.Tests
                               new Random(Guid.NewGuid().GetHashCode()).Next(500, 1000)
                           };
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.UpsertAsync(
                 x => x.Id == default(int),
@@ -698,7 +740,7 @@ namespace Chef.Extensions.Tests
                               new Random(Guid.NewGuid().GetHashCode()).Next(500, 1000)
                           };
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.Where(x => x.Id == default(int))
                 .Set(() => new Club { Name = default(string) })
@@ -740,7 +782,7 @@ namespace Chef.Extensions.Tests
                               new Random(Guid.NewGuid().GetHashCode()).Next(500, 1000)
                           };
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.BulkInsertAsync(
                 () => new Club { Id = default(int), Name = default(string) },
@@ -759,6 +801,21 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_BulkInsert_without_UserDefinedTable_will_Throw_ArgumentException()
+        {
+            var advertisementSettingDataAccess = DataAccessFactory.Create<AdvertisementSetting>("Advertisement");
+
+            advertisementSettingDataAccess
+                .Invoking(
+                    async dataAccess => await advertisementSettingDataAccess.BulkInsertAsync(
+                                            () => new AdvertisementSetting { Id = default(Guid) },
+                                            new List<AdvertisementSetting>()))
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage("Must add UserDefinedTableType.");
+        }
+
+        [TestMethod]
         public async Task Test_BulkInsert_use_QueryObject()
         {
             var clubIds = new[]
@@ -767,7 +824,7 @@ namespace Chef.Extensions.Tests
                               new Random(Guid.NewGuid().GetHashCode()).Next(500, 1000)
                           };
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.Set(() => new Club { Id = default(int), Name = default(string) })
                 .BulkInsertAsync(
@@ -794,7 +851,7 @@ namespace Chef.Extensions.Tests
                               new Random(Guid.NewGuid().GetHashCode()).Next(500, 1000)
                           };
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.BulkInsertAsync(
                 new List<Club>
@@ -829,7 +886,7 @@ namespace Chef.Extensions.Tests
                             new Club { Id = 19, Name = "楊翊貴" + suffix }
                         };
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.BulkUpdateAsync(x => x.Id == default(int), () => new Club { Name = default(string) }, clubs);
 
@@ -852,7 +909,7 @@ namespace Chef.Extensions.Tests
                             new Club { Id = 19, Name = "楊翊貴" + suffix }
                         };
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.Where(x => x.Id == default(int)).Set(() => new Club { Name = default(string) }).BulkUpdateAsync(clubs);
 
@@ -872,7 +929,7 @@ namespace Chef.Extensions.Tests
                               new Random(Guid.NewGuid().GetHashCode()).Next(500, 1000)
                           };
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.BulkUpsertAsync(
                 x => x.Id >= 0 && x.Id <= 0,
@@ -914,7 +971,7 @@ namespace Chef.Extensions.Tests
                               new Random(Guid.NewGuid().GetHashCode()).Next(500, 1000)
                           };
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.Where(x => x.Id >= default(int) && x.Id <= default(int))
                 .Set(() => new Club { Name = default(string) })
@@ -952,7 +1009,7 @@ namespace Chef.Extensions.Tests
         {
             var clubId = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000);
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.InsertAsync(() => new Club { Id = clubId, Name = "TestClub" });
 
@@ -980,7 +1037,7 @@ namespace Chef.Extensions.Tests
         {
             var clubId = new Random(Guid.NewGuid().GetHashCode()).Next(100, 1000);
 
-            IDataAccess<Club> clubDataAccess = new ClubDataAccess();
+            var clubDataAccess = DataAccessFactory.Create<Club>();
 
             await clubDataAccess.InsertAsync(() => new Club { Id = clubId, Name = "TestClub" });
 
@@ -1006,6 +1063,7 @@ namespace Chef.Extensions.Tests
         }
     }
 
+    [ConnectionString(@"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Club;Integrated Security=True")]
     internal class Club
     {
         [Column("ClubID")]
@@ -1027,6 +1085,8 @@ namespace Chef.Extensions.Tests
         public string IgnoreColumn { get; set; }
     }
 
+    [ConnectionString("Advertisement")]
+    [ConnectionString("Advertisement2")]
     internal class AdvertisementSetting
     {
         public string Type { get; set; }
@@ -1042,53 +1102,17 @@ namespace Chef.Extensions.Tests
         public string AdCode { get; set; }
     }
 
-    internal class ClubDataAccess : SqlServerDataAccess<Club>
+    [Table("Member")]
+    internal class Member2
     {
-        public ClubDataAccess()
-            : base(@"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Club;Integrated Security=True")
-        {
-        }
+        public int Id { get; set; }
 
-        protected override (string, DataTable) ConvertToTableValuedParameters(IEnumerable<Club> values)
-        {
-            var dataTable = CreateDataTable();
+        public string Name { get; set; }
 
-            foreach (var value in values)
-            {
-                dataTable.Rows.Add(CreateDataRow(dataTable, value));
-            }
+        public int Age { get; set; }
 
-            return ("ClubType", dataTable);
-        }
+        public string Phone { get; set; }
 
-        private static DataTable CreateDataTable()
-        {
-            var dataTable = new DataTable();
-
-            dataTable.Columns.Add("ClubID", typeof(int));
-            dataTable.Columns.Add("Name", typeof(string));
-            dataTable.Columns.Add("IsActive", typeof(bool));
-
-            return dataTable;
-        }
-
-        private static DataRow CreateDataRow(DataTable dataTable, Club value)
-        {
-            var dataRow = dataTable.NewRow();
-
-            dataRow["ClubID"] = value.Id;
-            dataRow["Name"] = value.Name;
-            dataRow["IsActive"] = value.IsActive;
-
-            return dataRow;
-        }
-    }
-
-    internal class AdvertisementSettingDataAccess : SqlServerDataAccess<AdvertisementSetting>
-    {
-        public AdvertisementSettingDataAccess()
-            : base(@"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Advertisement;Integrated Security=True")
-        {
-        }
+        public string Address { get; set; }
     }
 }
