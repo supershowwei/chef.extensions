@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Transactions;
 using Chef.Extensions.DbAccess;
@@ -113,6 +114,16 @@ namespace Chef.Extensions.Tests
         public async Task Test_QueryOneAsync_assign_ConnectionString_Name()
         {
             var advertisementSettingDataAccess = DataAccessFactory.Create<AdvertisementSetting>("Advertisement2");
+
+            var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").SelectAll().QueryOneAsync();
+
+            result.Id.Should().Be(Guid.Parse("df31efe5-b78f-4b4b-954a-0078328e34d2"));
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_with_Multiple_ConnectionStringAttributes()
+        {
+            var advertisementSettingDataAccess = DataAccessFactory.Create<DerivedAdvertisementSetting>("Advertisement");
 
             var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").SelectAll().QueryOneAsync();
 
@@ -1114,5 +1125,10 @@ namespace Chef.Extensions.Tests
         public string Phone { get; set; }
 
         public string Address { get; set; }
+    }
+
+    [Table("AdvertisementSetting")]
+    internal class DerivedAdvertisementSetting : AdvertisementSetting
+    {
     }
 }

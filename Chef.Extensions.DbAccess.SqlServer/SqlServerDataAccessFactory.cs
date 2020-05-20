@@ -23,7 +23,7 @@ namespace Chef.Extensions.DbAccess.SqlServer
 
         public IDataAccess<T> Create<T>()
         {
-            var connectionStringAttributes = typeof(T).GetCustomAttributes<ConnectionStringAttribute>();
+            var connectionStringAttributes = typeof(T).GetCustomAttributes<ConnectionStringAttribute>(true);
 
             if (connectionStringAttributes.Any() && connectionStringAttributes.Count() > 1)
             {
@@ -46,7 +46,7 @@ namespace Chef.Extensions.DbAccess.SqlServer
 
         public IDataAccess<T> Create<T>(string nameOrConnectionString)
         {
-            var connectionStringAttributes = typeof(T).GetCustomAttributes<ConnectionStringAttribute>();
+            var connectionStringAttributes = typeof(T).GetCustomAttributes<ConnectionStringAttribute>(true);
 
             var connectionStringAttribute = connectionStringAttributes.SingleOrDefault(x => x.ConnectionString == nameOrConnectionString);
 
