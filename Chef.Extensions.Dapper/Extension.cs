@@ -1128,7 +1128,7 @@ namespace Chef.Extensions.Dapper
 
                 if (memberExpr.Member.MemberType == MemberTypes.Property)
                 {
-                    return ((PropertyInfo)memberExpr.Member).GetValue(ExtractConstant((MemberExpression)memberExpr.Expression));
+                    return ((PropertyInfo)memberExpr.Member).GetValue(ExtractConstant(memberExpr.Expression));
                 }
             }
 

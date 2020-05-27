@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Chef.Extensions.Dapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Chef.Extensions.Dapper.2.1.12\lib\net451\Chef.Extensions.Dapper.dll</HintPath>
+      <HintPath>..\packages\Chef.Extensions.Dapper.2.1.13\lib\net451\Chef.Extensions.Dapper.dll</HintPath>
     </Reference>
     <Reference Include="Chef.Extensions.DbAccess, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Chef.Extensions.DbAccess.1.0.22\lib\net451\Chef.Extensions.DbAccess.dll</HintPath>

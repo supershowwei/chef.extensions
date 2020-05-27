@@ -20,6 +20,8 @@ namespace Chef.Extensions.Tests
     {
         private static readonly IDataAccessFactory DataAccessFactory = SqlServerDataAccessFactory.Instance;
 
+        internal Club Club => new Club { Id = 25 };
+
         [TestInitialize]
         public void Startup()
         {
@@ -139,6 +141,17 @@ namespace Chef.Extensions.Tests
             var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").SelectAll().QueryOneAsync();
 
             result.Id.Should().Be(Guid.Parse("df31efe5-b78f-4b4b-954a-0078328e34d2"));
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_use_this_Keyword()
+        {
+            var clubDataAccess = DataAccessFactory.Create<Club>();
+
+            var club = await clubDataAccess.Where(x => x.Id == this.Club.Id).Select(x => new { x.Name }).QueryOneAsync();
+
+            club.Id.Should().Be(0);
+            club.Name.Should().Be("鄧偉成");
         }
 
         [TestMethod]
