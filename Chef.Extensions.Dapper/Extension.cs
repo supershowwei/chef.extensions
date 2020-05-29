@@ -38,7 +38,7 @@ namespace Chef.Extensions.Dapper
                                                                  typeof(decimal),
                                                              };
 
-        private static readonly ConcurrentDictionary<Type, PropertyInfo[]> PropertyCollection = new ConcurrentDictionary<Type, PropertyInfo[]>();
+        private static readonly ConcurrentDictionary<string, IEnumerable<MemberExpression>> MemberExpressionCollection = new ConcurrentDictionary<string, IEnumerable<MemberExpression>>();
 
         private static IRowParserProvider userDefinedRowParserProvider;
 
@@ -611,26 +611,93 @@ namespace Chef.Extensions.Dapper
 
         public static string ToSelectList<T>(this Expression<Func<T, object>> me, string alias)
         {
+            var key = string.Concat(typeof(T).FullName, "_", me.Body.Type.FullName);
+
+            var memberExprs = MemberExpressionCollection.GetOrAdd(
+                key,
+                type =>
+                    {
+                        if (me.Body is NewExpression newExpr) return newExpr.Arguments.OfType<MemberExpression>();
+
+                        if (me.Body is MemberInitExpression memberInitExpr)
+                        {
+                            return memberInitExpr.Bindings.Select(x => (MemberExpression)((MemberAssignment)x).Expression);
+                        }
+
+                        throw new ArgumentException("Selector must be a NewExpression or MemberInitExpression.");
+                    });
+
             alias = string.IsNullOrEmpty(alias) ? alias : string.Concat("[", alias, "]");
 
             var sb = new StringBuilder();
-            var targetType = typeof(T);
 
-            foreach (var returnProp in PropertyCollection.GetOrAdd(me.Body.Type, type => type.GetProperties()))
+            foreach (var memberExpr in memberExprs)
             {
-                var property = targetType.GetProperty(returnProp.Name);
+                if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute))) continue;
 
-                if (Attribute.IsDefined(property, typeof(NotMappedAttribute))) continue;
-
-                var columnAttribute = property.GetCustomAttribute<ColumnAttribute>();
+                var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
                 var columnName = columnAttribute?.Name;
 
-                sb.AliasAppend(string.IsNullOrEmpty(columnName) ? $"[{property.Name}], " : $"[{columnName}] AS [{property.Name}], ", alias);
+                sb.AliasAppend(string.IsNullOrEmpty(columnName) ? $"[{memberExpr.Member.Name}], " : $"[{columnName}] AS [{memberExpr.Member.Name}], ", alias);
             }
 
             sb.Remove(sb.Length - 2, 2);
 
             return sb.ToString();
+        }
+
+        public static string ToSelectList<T, TSecond>(this Expression<Func<T, TSecond, object>> me, out string splitOn)
+        {
+            return ToSelectList(me, new string[] { }, out splitOn);
+        }
+
+        public static string ToSelectList<T, TSecond>(this Expression<Func<T, TSecond, object>> me, string[] aliases, out string splitOn)
+        {
+            var key = string.Concat(typeof(T).FullName, "_", typeof(TSecond).FullName, "_", me.Body.Type.FullName);
+
+            var memberExprs = MemberExpressionCollection.GetOrAdd(
+                key,
+                type =>
+                    {
+                        if (me.Body is NewExpression newExpr) return newExpr.Arguments.OfType<MemberExpression>();
+
+                        if (me.Body is MemberInitExpression memberInitExpr)
+                        {
+                            return memberInitExpr.Bindings.Select(x => (MemberExpression)((MemberAssignment)x).Expression);
+                        }
+
+                        throw new ArgumentException("Selector must be a NewExpression or MemberInitExpression.");
+                    });
+
+            var splitOnList = new List<string>();
+            var aliasMap = GenerateAliasMap(me.Parameters, aliases);
+            var selectorContainers = me.Parameters.ToDictionary(x => x.Name, x => new List<string>());
+
+            foreach (var memberExpr in memberExprs)
+            {
+                if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute))) continue;
+
+                var parameterExpr = (ParameterExpression)memberExpr.Expression;
+
+                var alias = aliasMap[parameterExpr.Name];
+                var selectorContainer = selectorContainers[parameterExpr.Name];
+                var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
+                var columnName = columnAttribute?.Name;
+
+                var statement = string.IsNullOrEmpty(columnName)
+                                    ? $"[{memberExpr.Member.Name}]"
+                                    : $"[{columnName}] AS [{memberExpr.Member.Name}]";
+
+                if (!string.IsNullOrEmpty(alias)) statement = string.Concat($"{alias}.", statement);
+
+                if (!selectorContainer.Any()) splitOnList.Add(memberExpr.Member.Name);
+
+                selectorContainer.Add(statement);
+            }
+
+            splitOn = string.Join(",", splitOnList.Skip(1));
+
+            return string.Join(", ", selectorContainers.SelectMany(x => x.Value));
         }
 
         public static string ToSearchCondition<T>(this Expression<Func<T, bool>> me)
@@ -662,11 +729,91 @@ namespace Chef.Extensions.Dapper
 
         public static string ToSearchCondition<T>(this Expression<Func<T, bool>> me, string alias, IDictionary<string, object> parameters)
         {
-            alias = string.IsNullOrEmpty(alias) ? alias : string.Concat("[", alias, "]");
+            var aliasMap = GenerateAliasMap(me.Parameters, new[] { alias });
 
             var sb = new StringBuilder();
 
-            ParseCondition(me.Body, alias, sb, parameters);
+            ParseCondition(me.Body, aliasMap, sb, parameters);
+
+            return sb.ToString();
+        }
+
+        public static string ToSearchCondition<T, TSecond>(this Expression<Func<T, TSecond, bool>> me, out IDictionary<string, object> parameters)
+        {
+            parameters = new Dictionary<string, object>();
+
+            return ToSearchCondition(me, new string[] { }, parameters);
+        }
+
+        public static string ToSearchCondition<T, TSecond>(this Expression<Func<T, TSecond, bool>> me, string[] aliases, out IDictionary<string, object> parameters)
+        {
+            parameters = new Dictionary<string, object>();
+
+            return ToSearchCondition(me, aliases, parameters);
+        }
+
+        public static string ToSearchCondition<T, TSecond>(this Expression<Func<T, TSecond, bool>> me, IDictionary<string, object> parameters)
+        {
+            return ToSearchCondition(me, new string[] { }, parameters);
+        }
+
+        public static string ToSearchCondition<T, TSecond>(this Expression<Func<T, TSecond, bool>> me, string[] aliases, IDictionary<string, object> parameters)
+        {
+            var aliasMap = GenerateAliasMap(me.Parameters, aliases);
+
+            var sb = new StringBuilder();
+
+            ParseCondition(me.Body, aliasMap, sb, parameters);
+
+            return sb.ToString();
+        }
+
+        public static string ToInnerJoin<TLeft, TRight>(this Expression<Func<TLeft, TRight, bool>> me)
+        {
+            return ToInnerJoin(me, new string[] { });
+        }
+
+        public static string ToInnerJoin<TLeft, TRight>(this Expression<Func<TLeft, TRight, bool>> me, string[] aliases)
+        {
+            var aliasMap = GenerateAliasMap(me.Parameters, aliases);
+
+            var rightTable = typeof(TRight).GetCustomAttribute<TableAttribute>()?.Name ?? typeof(TRight).Name;
+            var rightTableAlias = aliasMap[me.Parameters[1].Name];
+
+            var sb = new StringBuilder();
+
+            sb.Append($"INNER JOIN {rightTable}");
+
+            if (!string.IsNullOrEmpty(rightTableAlias)) sb.Append($" {rightTableAlias}");
+
+            sb.Append(" WITH (NOLOCK) ON ");
+
+            ParseJoinCodition(me.Body, aliasMap, sb);
+
+            return sb.ToString();
+        }
+
+        public static string ToLeftJoin<TLeft, TRight>(this Expression<Func<TLeft, TRight, bool>> me)
+        {
+            return ToLeftJoin(me, new string[] { });
+        }
+
+        public static string ToLeftJoin<TLeft, TRight>(this Expression<Func<TLeft, TRight, bool>> me, string[] aliases)
+        {
+            var aliasMap = GenerateAliasMap(me.Parameters, aliases);
+
+            var rightTable = typeof(TRight).GetCustomAttribute<TableAttribute>()?.Name ?? typeof(TRight).Name;
+            var rightTableAlias = aliasMap[me.Parameters[1].Name];
+
+            var sb = new StringBuilder();
+
+            sb.Append($"LEFT JOIN {rightTable}");
+
+            if (!string.IsNullOrEmpty(rightTableAlias)) sb.Append($" {rightTableAlias}");
+
+            sb.Append(" WITH (NOLOCK) ON ");
+
+            ParseJoinCodition(me.Body, aliasMap, sb);
 
             return sb.ToString();
         }
@@ -823,19 +970,21 @@ namespace Chef.Extensions.Dapper
 
         public static string ToOrderAscending<T>(this Expression<Func<T, object>> me, string alias)
         {
-            alias = string.IsNullOrEmpty(alias) ? alias : string.Concat("[", alias, "]");
-
             var memberExpr = ExtractMember(me.Body);
 
-            if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
-            {
-                throw new ArgumentException("Member can not applied [NotMapped].");
-            }
+            return ToOrderAscending(memberExpr, GenerateAliasMap(me.Parameters, new[] { alias }));
+        }
 
-            var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
-            var columnName = columnAttribute?.Name ?? memberExpr.Member.Name;
+        public static string ToOrderAscending<T, TSecond>(this Expression<Func<T, TSecond, object>> me)
+        {
+            return ToOrderAscending(me, new string[] { });
+        }
 
-            return string.IsNullOrEmpty(alias) ? $"[{columnName}] ASC" : $"{alias}.[{columnName}] ASC";
+        public static string ToOrderAscending<T, TSecond>(this Expression<Func<T, TSecond, object>> me, string[] aliases)
+        {
+            var memberExpr = ExtractMember(me.Body);
+
+            return ToOrderAscending(memberExpr, GenerateAliasMap(me.Parameters, aliases));
         }
 
         public static string ToOrderDescending<T>(this Expression<Func<T, object>> me)
@@ -845,19 +994,21 @@ namespace Chef.Extensions.Dapper
 
         public static string ToOrderDescending<T>(this Expression<Func<T, object>> me, string alias)
         {
-            alias = string.IsNullOrEmpty(alias) ? alias : string.Concat("[", alias, "]");
-
             var memberExpr = ExtractMember(me.Body);
 
-            if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
-            {
-                throw new ArgumentException("Member can not applied [NotMapped].");
-            }
+            return ToOrderDescending(memberExpr, GenerateAliasMap(me.Parameters, new[] { alias }));
+        }
 
-            var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
-            var columnName = columnAttribute?.Name ?? memberExpr.Member.Name;
+        public static string ToOrderDescending<T, TSecond>(this Expression<Func<T, TSecond, object>> me)
+        {
+            return ToOrderDescending(me, new string[] { });
+        }
 
-            return string.IsNullOrEmpty(alias) ? $"[{columnName}] DESC" : $"{alias}.[{columnName}] DESC";
+        public static string ToOrderDescending<T, TSecond>(this Expression<Func<T, TSecond, object>> me, string[] aliases)
+        {
+            var memberExpr = ExtractMember(me.Body);
+
+            return ToOrderDescending(memberExpr, GenerateAliasMap(me.Parameters, aliases));
         }
 
         private static IEnumerable<T> PolymorphicExecuteReaderSync<T>(this IDataReader me, string sql, string discriminator)
@@ -919,7 +1070,30 @@ namespace Chef.Extensions.Dapper
             }
         }
 
-        private static void ParseCondition(Expression expr, string alias, StringBuilder sb, IDictionary<string, object> parameters)
+        private static IDictionary<string, string> GenerateAliasMap(IList<ParameterExpression> parameterExprs, string[] aliases)
+        {
+            var aliasMap = new Dictionary<string, string>();
+
+            for (var i = 0; i < parameterExprs.Count; i++)
+            {
+                if ((i + 1) > aliases.Length)
+                {
+                    aliasMap.Add(parameterExprs[i].Name, string.Empty);
+                }
+                else
+                {
+                    var alias = aliases[i];
+
+                    alias = string.IsNullOrEmpty(alias) ? alias : string.Concat("[", alias, "]");
+
+                    aliasMap.Add(parameterExprs[i].Name, alias);
+                }
+            }
+
+            return aliasMap;
+        }
+
+        private static void ParseCondition(Expression expr, IDictionary<string, string> aliasMap, StringBuilder sb, IDictionary<string, object> parameters)
         {
             if (expr is BinaryExpression binaryExpr)
             {
@@ -927,7 +1101,7 @@ namespace Chef.Extensions.Dapper
                 {
                     sb.Append("(");
 
-                    ParseCondition(binaryExpr.Left, alias, sb, parameters);
+                    ParseCondition(binaryExpr.Left, aliasMap, sb, parameters);
 
                     switch (binaryExpr.NodeType)
                     {
@@ -940,7 +1114,7 @@ namespace Chef.Extensions.Dapper
                             break;
                     }
 
-                    ParseCondition(binaryExpr.Right, alias, sb, parameters);
+                    ParseCondition(binaryExpr.Right, aliasMap, sb, parameters);
 
                     sb.Append(")");
                 }
@@ -959,7 +1133,7 @@ namespace Chef.Extensions.Dapper
                         }
                     }
 
-                    if (left.Expression.NodeType != ExpressionType.Parameter)
+                    if (!(left.Expression is ParameterExpression parameterExpr))
                     {
                         throw new ArgumentException("Parameter expression must be placed left.");
                     }
@@ -969,6 +1143,7 @@ namespace Chef.Extensions.Dapper
                         throw new ArgumentException("Member can not applied [NotMapped].");
                     }
 
+                    var alias = aliasMap[parameterExpr.Name];
                     var columnAttribute = left.Member.GetCustomAttribute<ColumnAttribute>();
                     var parameterName = left.Member.Name;
                     var columnName = columnAttribute?.Name ?? parameterName;
@@ -1006,37 +1181,43 @@ namespace Chef.Extensions.Dapper
 
                 if (methodFullName.EndsWith(".Equals"))
                 {
-                    var parameterExpr = (MemberExpression)methodCallExpr.Object;
+                    var argumentExpr = (MemberExpression)methodCallExpr.Object;
 
-                    if (Attribute.IsDefined(parameterExpr.Member, typeof(NotMappedAttribute)))
+                    if (Attribute.IsDefined(argumentExpr.Member, typeof(NotMappedAttribute)))
                     {
                         throw new ArgumentException("Member can not applied [NotMapped].");
                     }
 
-                    var columnAttribute = parameterExpr.Member.GetCustomAttribute<ColumnAttribute>();
-                    var parameterName = parameterExpr.Member.Name;
-                    var columnName = columnAttribute?.Name ?? parameterName;
-                    var parameterType = (parameterExpr.Member as PropertyInfo)?.PropertyType ?? parameterExpr.Member.DeclaringType;
+                    var parameterExpr = (ParameterExpression)argumentExpr.Expression;
 
+                    var alias = aliasMap[parameterExpr.Name];
+                    var columnAttribute = argumentExpr.Member.GetCustomAttribute<ColumnAttribute>();
+                    var parameterName = argumentExpr.Member.Name;
+                    var columnName = columnAttribute?.Name ?? parameterName;
+                    var parameterType = (argumentExpr.Member as PropertyInfo)?.PropertyType ?? argumentExpr.Member.DeclaringType;
+                    
                     if (parameters != null)
                     {
-                        SetParameter(parameterExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out parameterName);
+                        SetParameter(argumentExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out parameterName);
                     }
 
                     sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, parameterType, parameters)}", alias);
                 }
                 else if (methodFullName.Equals("System.Linq.Enumerable.Contains"))
                 {
-                    var parameterExpr = (MemberExpression)methodCallExpr.Arguments[1];
+                    var argumentExpr = (MemberExpression)methodCallExpr.Arguments[1];
 
-                    if (Attribute.IsDefined(parameterExpr.Member, typeof(NotMappedAttribute)))
+                    if (Attribute.IsDefined(argumentExpr.Member, typeof(NotMappedAttribute)))
                     {
                         throw new ArgumentException("Member can not applied [NotMapped].");
                     }
 
-                    var columnAttribute = parameterExpr.Member.GetCustomAttribute<ColumnAttribute>();
-                    var columnName = columnAttribute?.Name ?? parameterExpr.Member.Name;
-                    var parameterType = (parameterExpr.Member as PropertyInfo)?.PropertyType ?? parameterExpr.Member.DeclaringType;
+                    var parameterExpr = (ParameterExpression)argumentExpr.Expression;
+
+                    var alias = aliasMap[parameterExpr.Name];
+                    var columnAttribute = argumentExpr.Member.GetCustomAttribute<ColumnAttribute>();
+                    var columnName = columnAttribute?.Name ?? argumentExpr.Member.Name;
+                    var parameterType = (argumentExpr.Member as PropertyInfo)?.PropertyType ?? argumentExpr.Member.DeclaringType;
 
                     var array = ExtractArray(methodCallExpr);
 
@@ -1044,7 +1225,7 @@ namespace Chef.Extensions.Dapper
                     {
                         if (parameters == null) throw new ArgumentException($"'{nameof(parameters)}' can not be null.");
 
-                        SetParameter(parameterExpr.Member, item, columnAttribute, parameters, out var parameterName);
+                        SetParameter(argumentExpr.Member, item, columnAttribute, parameters, out var parameterName);
 
                         sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, parameterType, parameters)} OR ", alias);
                     }
@@ -1053,21 +1234,24 @@ namespace Chef.Extensions.Dapper
                 }
                 else if (methodFullName.IsLikeOperator())
                 {
-                    var parameterExpr = (MemberExpression)methodCallExpr.Object;
+                    var argumentExpr = (MemberExpression)methodCallExpr.Object;
 
-                    if (Attribute.IsDefined(parameterExpr.Member, typeof(NotMappedAttribute)))
+                    if (Attribute.IsDefined(argumentExpr.Member, typeof(NotMappedAttribute)))
                     {
                         throw new ArgumentException("Member can not applied [NotMapped].");
                     }
 
-                    var columnAttribute = parameterExpr.Member.GetCustomAttribute<ColumnAttribute>();
-                    var parameterName = parameterExpr.Member.Name;
+                    var parameterExpr = (ParameterExpression)argumentExpr.Expression;
+
+                    var alias = aliasMap[parameterExpr.Name];
+                    var columnAttribute = argumentExpr.Member.GetCustomAttribute<ColumnAttribute>();
+                    var parameterName = argumentExpr.Member.Name;
                     var columnName = columnAttribute?.Name ?? parameterName;
-                    var parameterType = (parameterExpr.Member as PropertyInfo)?.PropertyType ?? parameterExpr.Member.DeclaringType;
+                    var parameterType = (argumentExpr.Member as PropertyInfo)?.PropertyType ?? argumentExpr.Member.DeclaringType;
 
                     if (parameters != null)
                     {
-                        SetParameter(parameterExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out parameterName);
+                        SetParameter(argumentExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out parameterName);
                     }
 
                     if (methodFullName.Equals("System.String.Contains"))
@@ -1083,6 +1267,62 @@ namespace Chef.Extensions.Dapper
                         sb.AliasAppend($"[{columnName}] LIKE '%' + {GenerateParameterStatement(parameterName, parameterType, parameters)}", alias);
                     }
                 }
+            }
+        }
+
+        private static void ParseJoinCodition(Expression expr, IDictionary<string, string> aliasMap, StringBuilder sb)
+        {
+            if (expr is BinaryExpression binaryExpr)
+            {
+                if (binaryExpr.NodeType == ExpressionType.AndAlso || binaryExpr.NodeType == ExpressionType.OrElse)
+                {
+                    sb.Append("(");
+
+                    ParseJoinCodition(binaryExpr.Left, aliasMap, sb);
+
+                    switch (binaryExpr.NodeType)
+                    {
+                        case ExpressionType.AndAlso:
+                            sb.Append(") AND (");
+                            break;
+
+                        case ExpressionType.OrElse:
+                            sb.Append(") OR (");
+                            break;
+                    }
+
+                    ParseJoinCodition(binaryExpr.Right, aliasMap, sb);
+
+                    sb.Append(")");
+                }
+                else
+                {
+                    ParseJoinCodition(binaryExpr.Left, aliasMap, sb);
+
+                    sb.Append($" {MapOperator(binaryExpr.NodeType)} ");
+
+                    ParseJoinCodition(binaryExpr.Right, aliasMap, sb);
+                }
+            }
+            else
+            {
+                if (!(expr is MemberExpression memberExpr))
+                {
+                    throw new ArgumentException("Expression must be MemberExpression.");
+                }
+
+                if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
+                {
+                    throw new ArgumentException("Member can not applied [NotMapped].");
+                }
+
+                var parameterExpr = (ParameterExpression)memberExpr.Expression;
+
+                var alias = aliasMap[parameterExpr.Name];
+                var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
+                var columnName = columnAttribute?.Name ?? memberExpr.Member.Name;
+
+                sb.AliasAppend($"[{columnName}]", alias);
             }
         }
 
@@ -1201,6 +1441,38 @@ namespace Chef.Extensions.Dapper
                 case MemberExpression memberExpr: return memberExpr;
                 default: throw new ArgumentException("Body expression must be MemberExpression.");
             }
+        }
+
+        private static string ToOrderAscending(MemberExpression memberExpr, IDictionary<string, string> aliasMap)
+        {
+            if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
+            {
+                throw new ArgumentException("Member can not applied [NotMapped].");
+            }
+
+            var parameterExpr = (ParameterExpression)memberExpr.Expression;
+
+            var alias = aliasMap[parameterExpr.Name];
+            var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
+            var columnName = columnAttribute?.Name ?? memberExpr.Member.Name;
+
+            return string.IsNullOrEmpty(alias) ? $"[{columnName}] ASC" : $"{alias}.[{columnName}] ASC";
+        }
+
+        private static string ToOrderDescending(MemberExpression memberExpr, IDictionary<string, string> aliasMap)
+        {
+            if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
+            {
+                throw new ArgumentException("Member can not applied [NotMapped].");
+            }
+
+            var parameterExpr = (ParameterExpression)memberExpr.Expression;
+
+            var alias = aliasMap[parameterExpr.Name];
+            var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
+            var columnName = columnAttribute?.Name ?? memberExpr.Member.Name;
+
+            return string.IsNullOrEmpty(alias) ? $"[{columnName}] DESC" : $"{alias}.[{columnName}] DESC";
         }
     }
 }

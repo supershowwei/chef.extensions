@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -32,6 +33,68 @@ namespace Chef.Extensions.Tests
             SqlServerDataAccessFactory.Instance.AddUserDefinedTable<Club>(
                 "ClubType",
                 new Dictionary<string, System.Type> { ["ClubID"] = typeof(int), ["Name"] = typeof(string), ["IsActive"] = typeof(bool) });
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_with_InnerJoin_Two_Tables()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            Expression<Func<User, Department, bool>> join = (x, y) => x.DepartmentId == y.DepId;
+            Expression<Func<User, Department>> propertyPath = x => x.Department;
+            Expression<Func<User, Department, bool>> condition = (x, y) => x.Id == 1;
+            Expression<Func<User, Department, object>> selector = (x, y) => new { x.Id, y.DepId, x.Name, DepartmentName = y.Name };
+
+            var result = await memberDataAccess.QueryOneAsync<Department>((propertyPath, join, JoinType.Inner), condition, selector: selector);
+
+            result.Name.Should().Be("Johnny");
+            result.Department.DepId.Should().Be(3);
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_with_InnerJoin_Two_Tables_use_QueryObjet()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.InnerJoin(x => x.Department, (x, y) => x.DepartmentId == y.DepId)
+                             .Where((x, y) => x.Id == 1)
+                             .Select((x, y) => new { x.Id, y.DepId, x.Name, DepartmentName = y.Name })
+                             .QueryOneAsync();
+
+            result.Name.Should().Be("Johnny");
+            result.Department.DepId.Should().Be(3);
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_with_InnerJoin_Self_Two_Tables_use_QueryObjet()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.InnerJoin(x => x.Self, (x, y) => x.Id == y.Id)
+                             .Where((x, y) => x.Id == 1)
+                             .Select((x, y) => new { x.Id, SelfId = y.Id, x.Name, SelfName = y.Name })
+                             .QueryOneAsync();
+
+            result.Id.Should().Be(1);
+            result.Name.Should().Be("Johnny");
+            result.Self.Id.Should().Be(1);
+            result.Self.Name.Should().Be("Johnny");
+        }
+
+        [TestMethod]
+        public void Test_QueryOneAsync_with_InnerJoin_Two_Tables_only_Left_will_Throw_ArgumentException()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            memberDataAccess
+                .Invoking(
+                    async dataAccess => await dataAccess.InnerJoin(x => x.Department, (x, y) => x.DepartmentId == y.DepId)
+                                            .Where((x, y) => x.Id == 1)
+                                            .Select((x, y) => new { x.Id, x.Name })
+                                            .QueryOneAsync())
+                .Should()
+                .Throw<ArgumentException>()
+                .WithMessage("When using the multi-mapping APIs ensure you set the splitOn param if you have keys other than Id*");
         }
 
         [TestMethod]
@@ -181,6 +244,89 @@ namespace Chef.Extensions.Tests
                 .Should()
                 .Throw<ArgumentException>()
                 .WithMessage("Must be at least one column selected.");
+        }
+
+        [TestMethod]
+        public async Task Test_QueryAsync_with_InnerJoin_Two_Tables_use_QueryObjet()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.InnerJoin(x => x.Department, (x, y) => x.DepartmentId == y.DepId)
+                             .Where((x, y) => new[] { 1, 2 }.Contains(x.Id))
+                             .Select((x, y) => new { x.Id, y.DepId, x.Name, DepartmentName = y.Name })
+                             .QueryAsync();
+
+            result.Count.Should().Be(2);
+            result[0].Name.Should().Be("Johnny");
+            result[0].Department.DepId.Should().Be(3);
+            result[1].Name.Should().Be("Amy");
+            result[1].Department.DepId.Should().Be(2);
+        }
+
+        [TestMethod]
+        public async Task Test_QueryAsync_use_OrderBy_with_InnerJoin_Two_Tables_use_QueryObjet()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.InnerJoin(x => x.Department, (x, y) => x.DepartmentId == y.DepId)
+                             .Where((x, y) => new[] { 1, 2 }.Contains(x.Id))
+                             .Select((x, y) => new { x.Id, y.DepId, x.Name, DepartmentName = y.Name })
+                             .OrderBy((x, y) => y.DepId)
+                             .QueryAsync();
+
+            result.Count.Should().Be(2);
+            result[0].Name.Should().Be("Amy");
+            result[0].Department.DepId.Should().Be(2);
+            result[1].Name.Should().Be("Johnny");
+            result[1].Department.DepId.Should().Be(3);
+        }
+
+        [TestMethod]
+        public async Task Test_QueryAsync_use_And_with_InnerJoin_Two_Tables()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.InnerJoin(x => x.Department, (x, y) => x.DepartmentId == y.DepId)
+                             .Where((x, y) => new[] { 1, 2 }.Contains(x.Id))
+                             .And((x, y) => y.DepId == 3)
+                             .Select((x, y) => new { x.Id, y.DepId, x.Name, DepartmentName = y.Name })
+                             .QueryAsync();
+
+            result.Count.Should().Be(1);
+            result[0].Name.Should().Be("Johnny");
+            result[0].Department.DepId.Should().Be(3);
+        }
+
+        [TestMethod]
+        public async Task Test_QueryAsync_with_InnerJoin_Two_Tables_and_No_Right_use_QueryObjet()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.InnerJoin(x => x.Department, (x, y) => x.DepartmentId == y.DepId)
+                             .Where((x, y) => new[] { 1, 4 }.Contains(x.Id))
+                             .Select((x, y) => new { x.Id, y.DepId, x.Name, DepartmentName = y.Name })
+                             .QueryAsync();
+
+            result.Count.Should().Be(1);
+            result[0].Name.Should().Be("Johnny");
+            result[0].Department.DepId.Should().Be(3);
+        }
+
+        [TestMethod]
+        public async Task Test_QueryAsync_with_LeftJoin_Two_Tables_use_QueryObjet()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.LeftJoin(x => x.Department, (x, y) => x.DepartmentId == y.DepId)
+                             .Where((x, y) => new[] { 1, 4 }.Contains(x.Id))
+                             .Select((x, y) => new { x.Id, y.DepId, x.Name, DepartmentName = y.Name })
+                             .QueryAsync();
+
+            result.Count.Should().Be(2);
+            result[0].Name.Should().Be("Johnny");
+            result[0].Department.DepId.Should().Be(3);
+            result[1].Name.Should().Be("Flosser");
+            result[1].Department.Should().BeNull();
         }
 
         [TestMethod]
@@ -1149,6 +1295,35 @@ namespace Chef.Extensions.Tests
         public string Phone { get; set; }
 
         public string Address { get; set; }
+    }
+
+    [ConnectionString(@"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Member;Integrated Security=True")]
+    [Table("Member")]
+    internal class User
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+
+        public int Age { get; set; }
+
+        public string Phone { get; set; }
+
+        public string Address { get; set; }
+
+        public int DepartmentId { get; set; }
+
+        public Department Department { get; set; }
+
+        public User Self { get; set; }
+    }
+
+    internal class Department
+    {
+        [Column("Id")]
+        public int DepId { get; set; }
+
+        public string Name { get; set; }
     }
 
     [ConnectionString("Advertisement3")]

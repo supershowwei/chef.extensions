@@ -423,9 +423,60 @@ GO
 ALTER DATABASE [Member] SET  READ_WRITE 
 GO
 
-INSERT INTO [Member] (Id, Name, Age, Phone, Address) VALUES
-(1, N'Johnny', 18, NULL, NULL),
-(2, N'Amy', 17, '0912345678', NULL),
-(3, N'ThreeM', 55, NULL, N'aaabbbcccTEST'),
-(4, N'Flosser', 37, '0987654321', N'XXXYYYZZZtest')
+USE [Member]
+GO
+
+/****** Object:  Table [dbo].[Member]    Script Date: 2020/05/28 18:26:53 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Member](
+	[Id] [int] NOT NULL,
+	[Name] [nvarchar](50) NOT NULL,
+	[Age] [int] NOT NULL,
+	[Phone] [varchar](50) NULL,
+	[Address] [nvarchar](200) NULL,
+	[DepartmentId] [int] NOT NULL,
+ CONSTRAINT [PK_Member] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+INSERT INTO [Member] (Id, Name, Age, Phone, Address, DepartmentId) VALUES
+(1, N'Johnny', 18, NULL, NULL, 3),
+(2, N'Amy', 17, '0912345678', NULL, 2),
+(3, N'ThreeM', 55, NULL, N'aaabbbcccTEST', 1),
+(4, N'Flosser', 37, '0987654321', N'XXXYYYZZZtest', -1)
+GO
+
+USE [Member]
+GO
+
+/****** Object:  Table [dbo].[Department]    Script Date: 2020/05/28 18:27:40 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Department](
+	[Id] [int] NOT NULL,
+	[Name] [nvarchar](20) NULL,
+ CONSTRAINT [PK_Department] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+INSERT INTO [Department] (Id, Name) VALUES
+(1, N'行銷部'),
+(2, N'業務部'),
+(3, N'董事長室')
 GO

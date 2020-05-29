@@ -11,6 +11,12 @@ namespace Chef.Extensions.DbAccess
         Descending
     }
 
+    public enum JoinType
+    {
+        Inner,
+        Left
+    }
+
     public interface IDataAccess<T>
     {
         T QueryOne(
@@ -25,6 +31,20 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, object>> selector = null,
             int? top = null);
 
+        T QueryOne<TSecond>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            Expression<Func<T, TSecond, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, object>> selector = null,
+            int? top = null);
+
+        Task<T> QueryOneAsync<TSecond>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            Expression<Func<T, TSecond, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, object>> selector = null,
+            int? top = null);
+
         List<T> Query(
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
@@ -35,6 +55,20 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
             Expression<Func<T, object>> selector = null,
+            int? top = null);
+
+        List<T> Query<TSecond>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            Expression<Func<T, TSecond, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, object>> selector = null,
+            int? top = null);
+
+        Task<List<T>> QueryAsync<TSecond>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            Expression<Func<T, TSecond, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, object>> selector = null,
             int? top = null);
 
         int Count(Expression<Func<T, bool>> predicate);

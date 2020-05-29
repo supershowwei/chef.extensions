@@ -31,6 +31,7 @@ namespace Chef.Extensions.DbAccess
     public class SqlServerDataAccess<T> : SqlServerDataAccess, IDataAccess<T>
     {
         private static readonly ConcurrentDictionary<Type, PropertyInfo[]> RequiredColumns = new ConcurrentDictionary<Type, PropertyInfo[]>();
+        private static readonly ConcurrentDictionary<string, Delegate> Setters = new ConcurrentDictionary<string, Delegate>();
         private readonly string connectionString;
         private readonly string tableName;
         private readonly string alias;
@@ -40,9 +41,7 @@ namespace Chef.Extensions.DbAccess
             this.connectionString = connectionString;
 
             this.tableName = typeof(T).GetCustomAttribute<TableAttribute>()?.Name ?? typeof(T).Name;
-            this.alias = Regex.Replace(typeof(T).Name, "[^A-Z]", string.Empty).ToLower();
-
-            if (string.IsNullOrEmpty(this.alias)) this.alias = typeof(T).Name.Left(3);
+            this.alias = GenerateAlias(typeof(T), 1);
         }
 
         public virtual T QueryOne(
@@ -60,26 +59,52 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, object>> selector = null,
             int? top = null)
         {
-            SqlBuilder sql = @"
-SELECT ";
-            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
-
-            if (selector != null)
-            {
-                sql += selector.ToSelectList(this.alias);
-            }
-            else
-            {
-                throw new ArgumentException("Must be at least one column selected.");
-            }
-
-            sql += $@"
-FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
-            sql += predicate.ToWhereStatement(this.alias, out var parameters);
-            sql += orderings.ToOrderByStatement(this.alias);
-            sql += ";";
+            var (sql, parameters) = GenerateQueryStatement(this.tableName, this.alias, predicate, orderings, selector, top);
 
             return this.ExecuteQueryOneAsync<T>(sql, parameters);
+        }
+
+        public virtual T QueryOne<TSecond>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            Expression<Func<T, TSecond, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, object>> selector = null,
+            int? top = null)
+        {
+            return this.QueryOneAsync(secondJoin, predicate, orderings, selector, top).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual async Task<T> QueryOneAsync<TSecond>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            Expression<Func<T, TSecond, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, object>> selector = null,
+            int? top = null)
+        {
+            var (sql, parameters, splitOn, secondSetter) = GenerateQueryStatement(
+                this.tableName,
+                this.alias,
+                secondJoin,
+                predicate,
+                orderings,
+                selector,
+                top);
+
+            using (var db = new SqlConnection(this.connectionString))
+            {
+                var result = await db.QueryAsync<T, TSecond, T>(
+                                 sql,
+                                 (first, second) =>
+                                     {
+                                         secondSetter(first, second);
+
+                                         return first;
+                                     },
+                                 parameters,
+                                 splitOn: splitOn);
+
+                return result.SingleOrDefault();
+            }
         }
 
         public virtual List<T> Query(
@@ -97,26 +122,52 @@ FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
             Expression<Func<T, object>> selector = null,
             int? top = null)
         {
-            SqlBuilder sql = @"
-SELECT ";
-            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
-
-            if (selector != null)
-            {
-                sql += selector.ToSelectList(this.alias);
-            }
-            else
-            {
-                throw new ArgumentException("Must be at least one column selected.");
-            }
-
-            sql += $@"
-FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
-            sql += predicate.ToWhereStatement(this.alias, out var parameters);
-            sql += orderings.ToOrderByStatement(this.alias);
-            sql += ";";
+            var (sql, parameters) = GenerateQueryStatement(this.tableName, this.alias, predicate, orderings, selector, top);
 
             return this.ExecuteQueryAsync<T>(sql, parameters);
+        }
+
+        public virtual List<T> Query<TSecond>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            Expression<Func<T, TSecond, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, object>> selector = null,
+            int? top = null)
+        {
+            return this.QueryAsync(secondJoin, predicate, orderings, selector, top).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual async Task<List<T>> QueryAsync<TSecond>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            Expression<Func<T, TSecond, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, object>> selector = null,
+            int? top = null)
+        {
+            var (sql, parameters, splitOn, secondSetter) = GenerateQueryStatement(
+                this.tableName,
+                this.alias,
+                secondJoin,
+                predicate,
+                orderings,
+                selector,
+                top);
+
+            using (var db = new SqlConnection(this.connectionString))
+            {
+                var result = await db.QueryAsync<T, TSecond, T>(
+                                 sql,
+                                 (first, second) =>
+                                     {
+                                         secondSetter(first, second);
+
+                                         return first;
+                                     },
+                                 parameters,
+                                 splitOn: splitOn);
+
+                return result.ToList();
+            }
         }
 
         public virtual int Count(Expression<Func<T, bool>> predicate)
@@ -129,7 +180,18 @@ FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
             SqlBuilder sql = $@"
 SELECT COUNT(*)
 FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
-            sql += predicate.ToWhereStatement(this.alias, out var parameters);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(this.alias, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
             sql += ";";
 
             return this.ExecuteQueryOneAsync<int>(sql, parameters);
@@ -149,7 +211,18 @@ SELECT
             EXISTS (SELECT
                     1
                 FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
-            sql += predicate.ToWhereStatement(this.alias, out var parameters);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(this.alias, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
             sql += @") THEN 1
         ELSE 0
     END AS BIT);";
@@ -502,6 +575,164 @@ WHERE ";
             }
 
             return result;
+        }
+
+        private static string GenerateAlias(Type type, int suffixNo)
+        {
+            var alias = Regex.Replace(type.Name, "[^A-Z]", string.Empty).ToLower();
+
+            if (string.IsNullOrEmpty(alias) || alias.Length < 2) alias = type.Name.Left(3).ToLower();
+
+            alias = string.Concat(alias, "_", suffixNo.ToString());
+
+            return alias;
+        }
+
+        private static Delegate CreateSetter<TInstance, TArgument>()
+        {
+            var propertyInfo = typeof(TInstance).GetProperties()
+                .Single(p => !Attribute.IsDefined(p, typeof(NotMappedAttribute)) && p.PropertyType == typeof(TArgument));
+
+            var instanceParam = Expression.Parameter(typeof(TInstance));
+            var argumentParam = Expression.Parameter(typeof(TArgument));
+
+            return Expression.Lambda<Action<TInstance, TArgument>>(
+                    Expression.Call(
+                        instanceParam,
+                        propertyInfo.GetSetMethod(),
+                        Expression.Convert(argumentParam, propertyInfo.PropertyType)),
+                    instanceParam,
+                    argumentParam)
+                .Compile();
+        }
+
+        private static (string, IDictionary<string, object>) GenerateQueryStatement(
+            string tableName,
+            string alias,
+            Expression<Func<T, bool>> predicate,
+            IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
+            Expression<Func<T, object>> selector = null,
+            int? top = null)
+        {
+            SqlBuilder sql = @"
+SELECT ";
+            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
+
+            if (selector != null)
+            {
+                sql += selector.ToSelectList(alias);
+            }
+            else
+            {
+                throw new ArgumentException("Must be at least one column selected.");
+            }
+
+            sql += $@"
+FROM {tableName} [{alias}] WITH (NOLOCK)";
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(alias, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(alias);
+
+            if (!string.IsNullOrEmpty(orderExpressions))
+            {
+                sql += @"
+ORDER BY ";
+                sql += orderExpressions;
+            }
+
+            sql += ";";
+
+            return (sql, parameters);
+        }
+
+        private static (string, IDictionary<string, object>, string, Action<T, TSecond>) GenerateQueryStatement<TSecond>(
+            string tableName,
+            string alias,
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            Expression<Func<T, TSecond, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, object>> selector = null,
+            int? top = null)
+        {
+            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2) };
+
+            SqlBuilder sql = @"
+SELECT ";
+            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
+
+            string splitOn;
+
+            if (selector != null)
+            {
+                sql += selector.ToSelectList(aliases, out splitOn);
+            }
+            else
+            {
+                throw new ArgumentException("Must be at least one column selected.");
+            }
+
+            sql += $@"
+FROM {tableName} [{alias}] WITH (NOLOCK)";
+
+            sql += GenerateJoinStatement(secondJoin, aliases, out var secondSetter);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(aliases);
+
+            if (!string.IsNullOrEmpty(orderExpressions))
+            {
+                sql += @"
+ORDER BY ";
+                sql += orderExpressions;
+            }
+
+            sql += ";";
+
+            return (sql, parameters, splitOn, secondSetter);
+        }
+
+        private static string GenerateJoinStatement<TLeft, TRight>(
+            (Expression<Func<TLeft, TRight>>, Expression<Func<TLeft, TRight, bool>>, JoinType) join,
+            string[] aliases,
+            out Action<TLeft, TRight> setter)
+        {
+            var (propertyPath, condition, joinType) = join;
+
+            if (propertyPath == null || condition == null)
+            {
+                throw new ArgumentException("Must be a complete joint.");
+            }
+
+            var setterKey = string.Concat(typeof(TLeft).FullName, "->", ((MemberExpression)propertyPath.Body).Member.Name);
+
+            setter = (Action<TLeft, TRight>)Setters.GetOrAdd(setterKey, key => CreateSetter<TLeft, TRight>());
+
+            switch (joinType)
+            {
+                case JoinType.Inner: return string.Concat("\r\n", condition.ToInnerJoin(aliases));
+                case JoinType.Left: return string.Concat("\r\n", condition.ToLeftJoin(aliases));
+                default: throw new ArgumentOutOfRangeException(nameof(joinType), "Unsupported join type.");
+            }
         }
 
         private static (string, string) ResolveColumnList(string sql)

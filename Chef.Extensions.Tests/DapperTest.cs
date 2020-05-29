@@ -12,9 +12,43 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Chef.Extensions.Tests
 {
+    public class ExpressionReplacer : ExpressionVisitor
+    {
+        private readonly IDictionary<string, ParameterExpression> parameterMap = new Dictionary<string, ParameterExpression>();
+
+        public T Replace<T>(T oldExpr, T newExpr)
+            where T : LambdaExpression
+        {
+            for (var i = 0; i < oldExpr.Parameters.Count; i++)
+            {
+                this.parameterMap.Add(oldExpr.Parameters[i].Name, newExpr.Parameters[i]);
+            }
+
+            return this.Visit(oldExpr) as T;
+        }
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            return this.parameterMap[node.Name];
+        }
+    }
+
     [TestClass]
     public class DapperTest
     {
+        [TestMethod]
+        public void Test_ToSearchCondition_in_Join_Two_Tables()
+        {
+            Expression<Func<Member, Video, bool>> predicate = (x, y) => x.Id < 1 && y.Id == 2 && y.PackageId == 1;
+
+            var searchCondition = predicate.ToSearchCondition(new[] { "m", "v" }, out var parameters);
+
+            searchCondition.Should().Be("(([m].[Id] < {=Id_0}) AND ([v].[ID] = {=Id_1})) AND ([v].[PackageID] = {=PackageId_0})");
+            parameters["Id_0"].Should().Be(1);
+            parameters["Id_1"].Should().Be(2);
+            parameters["PackageId_0"].Should().Be(1);
+        }
+
         [TestMethod]
         public void Test_ToSearchCondition_Simple()
         {
@@ -123,6 +157,10 @@ namespace Chef.Extensions.Tests
         {
             Expression<Func<Member, bool>> predicate1 = x => x.Id == 1;
             Expression<Func<Member, bool>> predicate2 = y => y.FirstName == "GoodJob";
+            
+            var replacer = new ExpressionReplacer();
+
+            predicate2 = replacer.Replace(predicate2, predicate1);
 
             var predicate = predicate1.Update(Expression.AndAlso(predicate1.Body, predicate2.Body), predicate1.Parameters);
 
@@ -435,6 +473,57 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToInnerJoin_Simple()
+        {
+            Expression<Func<Member, Video, bool>> innerJoinPredicate = (x, y) => x.Id == y.Id;
+
+            var innerJoinSearchCodition = innerJoinPredicate.ToInnerJoin(new[] { "m", "v" });
+
+            innerJoinSearchCodition.Should().Be("INNER JOIN Video [v] WITH (NOLOCK) ON [m].[Id] = [v].[ID]");
+        }
+
+        [TestMethod]
+        public void Test_ToInnerJoin_with_Multiple_Coditions()
+        {
+            Expression<Func<Member, Video, bool>> innerJoinPredicate = (x, y) => x.Id == y.Id && x.Id == y.PackageId;
+
+            var innerJoinSearchCodition = innerJoinPredicate.ToInnerJoin(new[] { "m", "v" });
+
+            innerJoinSearchCodition.Should().Be("INNER JOIN Video [v] WITH (NOLOCK) ON ([m].[Id] = [v].[ID]) AND ([m].[Id] = [v].[PackageID])");
+        }
+
+        [TestMethod]
+        public void Test_ToLeftJoin_Simple()
+        {
+            Expression<Func<Member, Video, bool>> leftJoinPredicate = (x, y) => x.Id == y.Id;
+
+            var leftJoinSearchCodition = leftJoinPredicate.ToLeftJoin(new[] { "m", "v" });
+
+            leftJoinSearchCodition.Should().Be("LEFT JOIN Video [v] WITH (NOLOCK) ON [m].[Id] = [v].[ID]");
+        }
+
+        [TestMethod]
+        public void Test_ToLeftJoin_with_Multiple_Coditions()
+        {
+            Expression<Func<Member, Video, bool>> leftJoinPredicate = (x, y) => x.Id == y.Id && x.Id == y.PackageId;
+
+            var leftJoinSearchCodition = leftJoinPredicate.ToLeftJoin(new[] { "m", "v" });
+
+            leftJoinSearchCodition.Should().Be("LEFT JOIN Video [v] WITH (NOLOCK) ON ([m].[Id] = [v].[ID]) AND ([m].[Id] = [v].[PackageID])");
+        }
+
+        [TestMethod]
+        public void Test_ToSelectList_in_Join_Two_Tables()
+        {
+            Expression<Func<Member, Video, object>> selector = (x, y) => new { x.Id, VideoId = y.Id, x.FirstName, y.PackageId };
+
+            var selectList = selector.ToSelectList(new[] { "m", "v" }, out var splitOn);
+
+            selectList.Should().Be("[m].[Id], [m].[first_name] AS [FirstName], [v].[ID] AS [Id], [v].[PackageID] AS [PackageId]");
+            splitOn.Should().Be("Id");
+        }
+
+        [TestMethod]
         public void Test_ToSelectList_Simple()
         {
             Expression<Func<Member, object>> select = x => new { x.Id, x.FirstName, x.LastName };
@@ -636,6 +725,17 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToAscendingOrder_in_Join_Two_Tables()
+        {
+            Expression<Func<Member, Video, object>> orderBy = (x, y) => x.Id;
+            Expression<Func<Member, Video, object>> thenBy = (x, y) => y.Id;
+
+            var orderExpression = orderBy.ToOrderAscending(new[] { "m", "v" }) + ", " + thenBy.ToOrderAscending(new[] { "m", "v" });
+
+            orderExpression.Should().Be("[m].[Id] ASC, [v].[ID] ASC");
+        }
+
+        [TestMethod]
         public void Test_ToAscendingOrder_Simple()
         {
             Expression<Func<Member, object>> orderBy = x => x.Id;
@@ -643,7 +743,7 @@ namespace Chef.Extensions.Tests
 
             var orderExpression = orderBy.ToOrderAscending("m") + ", " + thenBy.ToOrderAscending("m");
 
-            Assert.AreEqual("[m].[Id] ASC, [m].[first_name] ASC", orderExpression);
+            orderExpression.Should().Be("[m].[Id] ASC, [m].[first_name] ASC");
         }
 
         [TestMethod]
@@ -658,6 +758,17 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToDescendingOrder_in_Join_Two_Tables()
+        {
+            Expression<Func<Member, Video, object>> orderBy = (x, y) => x.Id;
+            Expression<Func<Member, Video, object>> thenBy = (x, y) => y.Id;
+
+            var orderExpression = orderBy.ToOrderDescending(new[] { "m", "v" }) + ", " + thenBy.ToOrderDescending(new[] { "m", "v" });
+
+            orderExpression.Should().Be("[m].[Id] DESC, [v].[ID] DESC");
+        }
+
+        [TestMethod]
         public void Test_ToDescendingOrder_Simple()
         {
             Expression<Func<Member, object>> orderBy = x => x.Id;
@@ -665,7 +776,7 @@ namespace Chef.Extensions.Tests
 
             var orderExpression = orderBy.ToOrderDescending("m") + ", " + thenBy.ToOrderDescending("m");
 
-            Assert.AreEqual("[m].[Id] DESC, [m].[Seniority] DESC", orderExpression);
+            orderExpression.Should().Be("[m].[Id] DESC, [m].[Seniority] DESC");
         }
 
         [TestMethod]

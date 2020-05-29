@@ -18,7 +18,7 @@ namespace Chef.Extensions.DbAccess.Fluent
             .DefineDynamicAssembly(new AssemblyName("Chef.Extensions.DbAccess.DynamicTypes"), AssemblyBuilderAccess.Run)
             .DefineDynamicModule("Chef.Extensions.DbAccess.DynamicTypes");
 
-        #region IDataAccessExtension
+        #region IDataAccess<T>Extension
 
         public static QueryObject<T> Where<T>(this IDataAccess<T> me, Expression<Func<T, bool>> predicate)
         {
@@ -63,9 +63,25 @@ namespace Chef.Extensions.DbAccess.Fluent
             return new QueryObject<T>(me) { Top = n };
         }
 
+        public static QueryObject<T, TSecond> InnerJoin<T, TSecond>(
+            this IDataAccess<T> me,
+            Expression<Func<T, TSecond>> propertyPath,
+            Expression<Func<T, TSecond, bool>> condition)
+        {
+            return new QueryObject<T, TSecond>(me, (propertyPath, condition, JoinType.Inner));
+        }
+
+        public static QueryObject<T, TSecond> LeftJoin<T, TSecond>(
+            this IDataAccess<T> me,
+            Expression<Func<T, TSecond>> propertyPath,
+            Expression<Func<T, TSecond, bool>> condition)
+        {
+            return new QueryObject<T, TSecond>(me, (propertyPath, condition, JoinType.Left));
+        }
+
         #endregion
 
-        #region QueryObjectExtension
+        #region QueryObject<T>Extension
 
         public static QueryObject<T> Where<T>(this QueryObject<T> me, Expression<Func<T, bool>> predicate)
         {
@@ -76,6 +92,10 @@ namespace Chef.Extensions.DbAccess.Fluent
 
         public static QueryObject<T> And<T>(this QueryObject<T> me, Expression<Func<T, bool>> predicate)
         {
+            var replacer = new ExpressionReplacer();
+
+            predicate = replacer.Replace(predicate, me.Predicate);
+
             me.Predicate = Expression.Lambda<Func<T, bool>>(Expression.AndAlso(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
             return me;
@@ -83,6 +103,10 @@ namespace Chef.Extensions.DbAccess.Fluent
 
         public static QueryObject<T> Or<T>(this QueryObject<T> me, Expression<Func<T, bool>> predicate)
         {
+            var replacer = new ExpressionReplacer();
+
+            predicate = replacer.Replace(predicate, me.Predicate);
+
             me.Predicate = Expression.Lambda<Func<T, bool>>(Expression.OrElse(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
             return me;
@@ -286,6 +310,101 @@ namespace Chef.Extensions.DbAccess.Fluent
 
         #endregion
 
+        #region QueryObject<T, TSecond>Extension
+
+        public static QueryObject<T, TSecond> Where<T, TSecond>(this QueryObject<T, TSecond> me, Expression<Func<T, TSecond, bool>> predicate)
+        {
+            me.Predicate = predicate;
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond> And<T, TSecond>(this QueryObject<T, TSecond> me, Expression<Func<T, TSecond, bool>> predicate)
+        {
+            var replacer = new ExpressionReplacer();
+
+            predicate = replacer.Replace(predicate, me.Predicate);
+
+            me.Predicate = Expression.Lambda<Func<T, TSecond, bool>>(Expression.AndAlso(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond> Or<T, TSecond>(this QueryObject<T, TSecond> me, Expression<Func<T, TSecond, bool>> predicate)
+        {
+            var replacer = new ExpressionReplacer();
+
+            predicate = replacer.Replace(predicate, me.Predicate);
+
+            me.Predicate = Expression.Lambda<Func<T, TSecond, bool>>(Expression.OrElse(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond> Select<T, TSecond>(this QueryObject<T, TSecond> me, Expression<Func<T, TSecond, object>> selector)
+        {
+            me.Selector = selector;
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond> OrderBy<T, TSecond>(this QueryObject<T, TSecond> me, Expression<Func<T, TSecond, object>> ordering)
+        {
+            me.OrderExpressions = new List<(Expression<Func<T, TSecond, object>>, Sortord)> { (ordering, Sortord.Ascending) };
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond> ThenBy<T, TSecond>(this QueryObject<T, TSecond> me, Expression<Func<T, TSecond, object>> ordering)
+        {
+            me.OrderExpressions.Add((ordering, Sortord.Ascending));
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond> OrderByDescending<T, TSecond>(this QueryObject<T, TSecond> me, Expression<Func<T, TSecond, object>> ordering)
+        {
+            me.OrderExpressions = new List<(Expression<Func<T, TSecond, object>>, Sortord)> { (ordering, Sortord.Descending) };
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond> ThenByDescending<T, TSecond>(this QueryObject<T, TSecond> me, Expression<Func<T, TSecond, object>> ordering)
+        {
+            me.OrderExpressions.Add((ordering, Sortord.Descending));
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond> Top<T, TSecond>(this QueryObject<T, TSecond> me, int n)
+        {
+            me.Top = n;
+
+            return me;
+        }
+
+        public static T QueryOne<T, TSecond>(this QueryObject<T, TSecond> me)
+        {
+            return me.DataAccess.QueryOne(me.SecondJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+        }
+
+        public static Task<T> QueryOneAsync<T, TSecond>(this QueryObject<T, TSecond> me)
+        {
+            return me.DataAccess.QueryOneAsync(me.SecondJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+        }
+
+        public static List<T> Query<T, TSecond>(this QueryObject<T, TSecond> me)
+        {
+            return me.DataAccess.Query(me.SecondJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+        }
+
+        public static Task<List<T>> QueryAsync<T, TSecond>(this QueryObject<T, TSecond> me)
+        {
+            return me.DataAccess.QueryAsync(me.SecondJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+        }
+
+        #endregion
+
         private static LambdaExpression CreateSelector(Type type)
         {
             var properties = type.GetProperties()
@@ -350,6 +469,26 @@ namespace Chef.Extensions.DbAccess.Fluent
 
             propertyBuilder.SetGetMethod(getterBuild);
             propertyBuilder.SetSetMethod(setterBuild);
+        }
+    }
+
+    internal class ExpressionReplacer : ExpressionVisitor
+    {
+        private readonly IDictionary<string, ParameterExpression> parameterMap = new Dictionary<string, ParameterExpression>();
+
+        public T Replace<T>(T oldExpr, T newExpr) where T : LambdaExpression
+        {
+            for (var i = 0; i < oldExpr.Parameters.Count; i++)
+            {
+                this.parameterMap.Add(oldExpr.Parameters[i].Name, newExpr.Parameters[i]);
+            }
+
+            return this.Visit(oldExpr) as T;
+        }
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            return this.parameterMap[node.Name];
         }
     }
 }
