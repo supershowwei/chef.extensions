@@ -40,15 +40,117 @@ namespace Chef.Extensions.Tests
         {
             var memberDataAccess = DataAccessFactory.Create<User>();
 
-            Expression<Func<User, Department, bool>> join = (x, y) => x.DepartmentId == y.DepId;
             Expression<Func<User, Department>> propertyPath = x => x.Department;
-            Expression<Func<User, Department, bool>> condition = (x, y) => x.Id == 1;
+            Expression<Func<User, Department, bool>> condition = (x, y) => x.DepartmentId == y.DepId;
+
+            Expression<Func<User, Department, bool>> predicate = (x, y) => x.Id == 1;
             Expression<Func<User, Department, object>> selector = (x, y) => new { x.Id, y.DepId, x.Name, DepartmentName = y.Name };
 
-            var result = await memberDataAccess.QueryOneAsync<Department>((propertyPath, join, JoinType.Inner), condition, selector: selector);
+            var result = await memberDataAccess.QueryOneAsync<Department>((propertyPath, condition, JoinType.Inner), predicate, selector: selector);
 
             result.Name.Should().Be("Johnny");
             result.Department.DepId.Should().Be(3);
+            result.Department.Name.Should().Be("董事長室");
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_with_InnerJoin_Three_Tables()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            Expression<Func<User, Department>> secondPropertyPath = x => x.Department;
+            Expression<Func<User, Department, bool>> secondCondition = (x, y) => x.DepartmentId == y.DepId;
+
+            Expression<Func<User, Department, User>> thirdPropertyPath = (x, y) => x.Manager;
+            Expression<Func<User, Department, User, bool>> thirdCondition = (x, y, z) => x.ManagerId == z.Id;
+
+            Expression<Func<User, Department, User, bool>> predicate = (x, y, z) => x.Id == 1;
+            Expression<Func<User, Department, User, object>> selector = (x, y, z) => new { x.Id, y.DepId, x.Name, ManagerId = z.Id, DepartmentName = y.Name, ManagerName = z.Name };
+
+            var result = await memberDataAccess.QueryOneAsync<Department, User>((secondPropertyPath, secondCondition, JoinType.Inner), (thirdPropertyPath, thirdCondition, JoinType.Inner), predicate, selector: selector);
+
+            result.Name.Should().Be("Johnny");
+            result.Department.DepId.Should().Be(3);
+            result.Department.Name.Should().Be("董事長室");
+            result.Manager.Id.Should().Be(2);
+            result.Manager.Name.Should().Be("Amy");
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_with_InnerJoin_Three_Tables_use_QueryObject()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.InnerJoin(x => x.Department, (x, y) => x.DepartmentId == y.DepId)
+                             .InnerJoin((x, y) => x.Manager, (x, y, z) => x.ManagerId == z.Id)
+                             .Where((x, y, z) => x.Id == 1)
+                             .Select(
+                                 (x, y, z) => new
+                                              {
+                                                  x.Id,
+                                                  y.DepId,
+                                                  x.Name,
+                                                  ManagerId = z.Id,
+                                                  DepartmentName = y.Name,
+                                                  ManagerName = z.Name
+                                              })
+                             .QueryOneAsync();
+
+            result.Name.Should().Be("Johnny");
+            result.Department.DepId.Should().Be(3);
+            result.Department.Name.Should().Be("董事長室");
+            result.Manager.Id.Should().Be(2);
+            result.Manager.Name.Should().Be("Amy");
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_with_Nested_InnerJoin_Three_Tables_and_Different_Lambda_ParameterNames()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            Expression<Func<User, User>> secondPropertyPath = a => a.Manager;
+            Expression<Func<User, User, bool>> secondCondition = (x, y) => x.ManagerId == y.Id;
+
+            Expression<Func<User, User, Department>> thirdPropertyPath = (c, d) => d.Department;
+            Expression<Func<User, User, Department, bool>> thirdCondition = (m, n, o) => n.DepartmentId == o.DepId;
+
+            Expression<Func<User, User, Department, bool>> predicate = (o, n, m) => o.Id == 1;
+            Expression<Func<User, User, Department, object>> selector = (c, b, a) => new { c.Id, ManagerId = b.Id, c.Name, a.DepId, ManagerName = b.Name, DepartmentName = a.Name };
+
+            var result = await memberDataAccess.QueryOneAsync<User, Department>((secondPropertyPath, secondCondition, JoinType.Inner), (thirdPropertyPath, thirdCondition, JoinType.Inner), predicate, selector: selector);
+
+            result.Name.Should().Be("Johnny");
+            result.Manager.Id.Should().Be(2);
+            result.Manager.Name.Should().Be("Amy");
+            result.Manager.Department.DepId.Should().Be(2);
+            result.Manager.Department.Name.Should().Be("業務部");
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_with_Nested_InnerJoin_Three_Tables_and_Different_Lambda_ParameterNames_use_QueryObject()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.InnerJoin(a => a.Manager, (x, y) => x.ManagerId == y.Id)
+                             .InnerJoin((c, d) => d.Department, (m, n, o) => n.DepartmentId == o.DepId)
+                             .Where((o, n, m) => o.Id == 1)
+                             .Select(
+                                 (c, b, a) => new
+                                              {
+                                                  c.Id,
+                                                  ManagerId = b.Id,
+                                                  c.Name,
+                                                  a.DepId,
+                                                  ManagerName = b.Name,
+                                                  DepartmentName = a.Name
+                                              })
+                             .QueryOneAsync();
+
+            result.Name.Should().Be("Johnny");
+            result.Manager.Id.Should().Be(2);
+            result.Manager.Name.Should().Be("Amy");
+            result.Manager.Department.DepId.Should().Be(2);
+            result.Manager.Department.Name.Should().Be("業務部");
         }
 
         [TestMethod]
@@ -298,18 +400,36 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
-        public async Task Test_QueryAsync_with_InnerJoin_Two_Tables_and_No_Right_use_QueryObjet()
+        public async Task Test_QueryAsync_with_Nested_InnerJoin_Three_Tables()
         {
             var memberDataAccess = DataAccessFactory.Create<User>();
 
-            var result = await memberDataAccess.InnerJoin(x => x.Department, (x, y) => x.DepartmentId == y.DepId)
-                             .Where((x, y) => new[] { 1, 4 }.Contains(x.Id))
-                             .Select((x, y) => new { x.Id, y.DepId, x.Name, DepartmentName = y.Name })
+            var result = await memberDataAccess.InnerJoin(x => x.Manager, (x, y) => x.ManagerId == y.Id)
+                             .InnerJoin((x, y) => y.Department, (x, y, z) => y.DepartmentId == z.DepId)
+                             .Where((x, y, z) => new[] { 1, 3 }.Contains(x.Id))
+                             .Select(
+                                 (x, y, z) => new
+                                              {
+                                                  x.Id,
+                                                  ManagerId = y.Id,
+                                                  x.Name,
+                                                  z.DepId,
+                                                  ManagerName = y.Name,
+                                                  DepartmentName = z.Name
+                                              })
                              .QueryAsync();
 
-            result.Count.Should().Be(1);
+            result.Count.Should().Be(2);
             result[0].Name.Should().Be("Johnny");
-            result[0].Department.DepId.Should().Be(3);
+            result[0].Manager.Id.Should().Be(2);
+            result[0].Manager.Name.Should().Be("Amy");
+            result[0].Manager.Department.DepId.Should().Be(2);
+            result[0].Manager.Department.Name.Should().Be("業務部");
+            result[1].Name.Should().Be("ThreeM");
+            result[1].Manager.Id.Should().Be(1);
+            result[1].Manager.Name.Should().Be("Johnny");
+            result[1].Manager.Department.DepId.Should().Be(3);
+            result[1].Manager.Department.Name.Should().Be("董事長室");
         }
 
         [TestMethod]
@@ -1313,9 +1433,13 @@ namespace Chef.Extensions.Tests
 
         public int DepartmentId { get; set; }
 
-        public Department Department { get; set; }
+        public int ManagerId { get; set; }
 
         public User Self { get; set; }
+
+        public Department Department { get; set; }
+
+        public User Manager { get; set; }
     }
 
     internal class Department

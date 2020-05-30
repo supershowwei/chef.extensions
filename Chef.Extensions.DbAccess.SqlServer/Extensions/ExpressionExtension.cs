@@ -39,5 +39,21 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
 
             return string.Join(", ", orderExpression);
         }
+
+        public static string ToOrderExpressions<T, TSecond, TThird>(this IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> me, string[] aliases)
+        {
+            if (me == null) return string.Empty;
+            if (!me.Any()) return string.Empty;
+
+            var orderExpression = me.Select(
+                o =>
+                    {
+                        var (expr, sortord) = o;
+
+                        return sortord == Sortord.Descending ? expr.ToOrderDescending(aliases) : expr.ToOrderAscending(aliases);
+                    });
+
+            return string.Join(", ", orderExpression);
+        }
     }
 }

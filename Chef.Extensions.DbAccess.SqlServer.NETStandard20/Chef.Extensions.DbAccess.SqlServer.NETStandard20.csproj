@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\Extensions\ExpressionExtension.cs" Link="Extensions\ExpressionExtension.cs" />
+    <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\Extensions\IEnumerableExtension.cs" Link="Extensions\IEnumerableExtension.cs" />
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\Extensions\StringExtension.cs" Link="Extensions\StringExtension.cs" />
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\SqlBuilder.cs" Link="SqlBuilder.cs" />
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\SqlServerDataAccess.cs" Link="SqlServerDataAccess.cs" />
@@ -19,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Chef.Extensions.Dapper" Version="2.2.0" />
-    <PackageReference Include="Chef.Extensions.DbAccess" Version="1.1.0" />
+    <PackageReference Include="Chef.Extensions.Dapper" Version="2.2.2" />
+    <PackageReference Include="Chef.Extensions.DbAccess" Version="1.1.1" />
     <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
   </ItemGroup>

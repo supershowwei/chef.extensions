@@ -440,6 +440,7 @@ CREATE TABLE [dbo].[Member](
 	[Phone] [varchar](50) NULL,
 	[Address] [nvarchar](200) NULL,
 	[DepartmentId] [int] NOT NULL,
+	[ManagerId] [int] NOT NULL,,
  CONSTRAINT [PK_Member] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
@@ -447,11 +448,11 @@ CREATE TABLE [dbo].[Member](
 ) ON [PRIMARY]
 GO
 
-INSERT INTO [Member] (Id, Name, Age, Phone, Address, DepartmentId) VALUES
-(1, N'Johnny', 18, NULL, NULL, 3),
-(2, N'Amy', 17, '0912345678', NULL, 2),
-(3, N'ThreeM', 55, NULL, N'aaabbbcccTEST', 1),
-(4, N'Flosser', 37, '0987654321', N'XXXYYYZZZtest', -1)
+INSERT INTO [Member] (Id, Name, Age, Phone, Address, DepartmentId, ManagerId) VALUES
+(1, N'Johnny', 18, NULL, NULL, 3, 2),
+(2, N'Amy', 17, '0912345678', NULL, 2, 1),
+(3, N'ThreeM', 55, NULL, N'aaabbbcccTEST', 1, 1),
+(4, N'Flosser', 37, '0987654321', N'XXXYYYZZZtest', -1, 1)
 GO
 
 USE [Member]

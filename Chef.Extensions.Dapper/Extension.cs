@@ -653,51 +653,17 @@ namespace Chef.Extensions.Dapper
 
         public static string ToSelectList<T, TSecond>(this Expression<Func<T, TSecond, object>> me, string[] aliases, out string splitOn)
         {
-            var key = string.Concat(typeof(T).FullName, "_", typeof(TSecond).FullName, "_", me.Body.Type.FullName);
+            return GenerateJoinSelectList(me.Body, me.Parameters, aliases, out splitOn);
+        }
 
-            var memberExprs = MemberExpressionCollection.GetOrAdd(
-                key,
-                type =>
-                    {
-                        if (me.Body is NewExpression newExpr) return newExpr.Arguments.OfType<MemberExpression>();
+        public static string ToSelectList<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, object>> me, out string splitOn)
+        {
+            return ToSelectList(me, new string[] { }, out splitOn);
+        }
 
-                        if (me.Body is MemberInitExpression memberInitExpr)
-                        {
-                            return memberInitExpr.Bindings.Select(x => (MemberExpression)((MemberAssignment)x).Expression);
-                        }
-
-                        throw new ArgumentException("Selector must be a NewExpression or MemberInitExpression.");
-                    });
-
-            var splitOnList = new List<string>();
-            var aliasMap = GenerateAliasMap(me.Parameters, aliases);
-            var selectorContainers = me.Parameters.ToDictionary(x => x.Name, x => new List<string>());
-
-            foreach (var memberExpr in memberExprs)
-            {
-                if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute))) continue;
-
-                var parameterExpr = (ParameterExpression)memberExpr.Expression;
-
-                var alias = aliasMap[parameterExpr.Name];
-                var selectorContainer = selectorContainers[parameterExpr.Name];
-                var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
-                var columnName = columnAttribute?.Name;
-
-                var statement = string.IsNullOrEmpty(columnName)
-                                    ? $"[{memberExpr.Member.Name}]"
-                                    : $"[{columnName}] AS [{memberExpr.Member.Name}]";
-
-                if (!string.IsNullOrEmpty(alias)) statement = string.Concat($"{alias}.", statement);
-
-                if (!selectorContainer.Any()) splitOnList.Add(memberExpr.Member.Name);
-
-                selectorContainer.Add(statement);
-            }
-
-            splitOn = string.Join(",", splitOnList.Skip(1));
-
-            return string.Join(", ", selectorContainers.SelectMany(x => x.Value));
+        public static string ToSelectList<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, object>> me, string[] aliases, out string splitOn)
+        {
+            return GenerateJoinSelectList(me.Body, me.Parameters, aliases, out splitOn);
         }
 
         public static string ToSearchCondition<T>(this Expression<Func<T, bool>> me)
@@ -768,17 +734,47 @@ namespace Chef.Extensions.Dapper
             return sb.ToString();
         }
 
-        public static string ToInnerJoin<TLeft, TRight>(this Expression<Func<TLeft, TRight, bool>> me)
+        public static string ToSearchCondition<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, bool>> me, out IDictionary<string, object> parameters)
         {
-            return ToInnerJoin(me, new string[] { });
+            parameters = new Dictionary<string, object>();
+
+            return ToSearchCondition(me, new string[] { }, parameters);
         }
 
-        public static string ToInnerJoin<TLeft, TRight>(this Expression<Func<TLeft, TRight, bool>> me, string[] aliases)
+        public static string ToSearchCondition<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, bool>> me, string[] aliases, out IDictionary<string, object> parameters)
+        {
+            parameters = new Dictionary<string, object>();
+
+            return ToSearchCondition(me, aliases, parameters);
+        }
+
+        public static string ToSearchCondition<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, bool>> me, IDictionary<string, object> parameters)
+        {
+            return ToSearchCondition(me, new string[] { }, parameters);
+        }
+
+        public static string ToSearchCondition<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, bool>> me, string[] aliases, IDictionary<string, object> parameters)
+        {
+            var aliasMap = GenerateAliasMap(me.Parameters, aliases);
+
+            var sb = new StringBuilder();
+
+            ParseCondition(me.Body, aliasMap, sb, parameters);
+
+            return sb.ToString();
+        }
+
+        public static string ToInnerJoin<TRight>(this LambdaExpression me)
+        {
+            return ToInnerJoin<TRight>(me, new string[] { });
+        }
+
+        public static string ToInnerJoin<TRight>(this LambdaExpression me, string[] aliases)
         {
             var aliasMap = GenerateAliasMap(me.Parameters, aliases);
 
             var rightTable = typeof(TRight).GetCustomAttribute<TableAttribute>()?.Name ?? typeof(TRight).Name;
-            var rightTableAlias = aliasMap[me.Parameters[1].Name];
+            var rightTableAlias = aliasMap[me.Parameters.Last().Name];
 
             var sb = new StringBuilder();
 
@@ -793,17 +789,17 @@ namespace Chef.Extensions.Dapper
             return sb.ToString();
         }
 
-        public static string ToLeftJoin<TLeft, TRight>(this Expression<Func<TLeft, TRight, bool>> me)
+        public static string ToLeftJoin<TRight>(this LambdaExpression me)
         {
-            return ToLeftJoin(me, new string[] { });
+            return ToLeftJoin<TRight>(me, new string[] { });
         }
 
-        public static string ToLeftJoin<TLeft, TRight>(this Expression<Func<TLeft, TRight, bool>> me, string[] aliases)
+        public static string ToLeftJoin<TRight>(this LambdaExpression me, string[] aliases)
         {
             var aliasMap = GenerateAliasMap(me.Parameters, aliases);
 
             var rightTable = typeof(TRight).GetCustomAttribute<TableAttribute>()?.Name ?? typeof(TRight).Name;
-            var rightTableAlias = aliasMap[me.Parameters[1].Name];
+            var rightTableAlias = aliasMap[me.Parameters.Last().Name];
 
             var sb = new StringBuilder();
 
@@ -975,18 +971,6 @@ namespace Chef.Extensions.Dapper
             return ToOrderAscending(memberExpr, GenerateAliasMap(me.Parameters, new[] { alias }));
         }
 
-        public static string ToOrderAscending<T, TSecond>(this Expression<Func<T, TSecond, object>> me)
-        {
-            return ToOrderAscending(me, new string[] { });
-        }
-
-        public static string ToOrderAscending<T, TSecond>(this Expression<Func<T, TSecond, object>> me, string[] aliases)
-        {
-            var memberExpr = ExtractMember(me.Body);
-
-            return ToOrderAscending(memberExpr, GenerateAliasMap(me.Parameters, aliases));
-        }
-
         public static string ToOrderDescending<T>(this Expression<Func<T, object>> me)
         {
             return ToOrderDescending(me, string.Empty);
@@ -999,12 +983,48 @@ namespace Chef.Extensions.Dapper
             return ToOrderDescending(memberExpr, GenerateAliasMap(me.Parameters, new[] { alias }));
         }
 
+        public static string ToOrderAscending<T, TSecond>(this Expression<Func<T, TSecond, object>> me)
+        {
+            return ToOrderAscending(me, new string[] { });
+        }
+
+        public static string ToOrderAscending<T, TSecond>(this Expression<Func<T, TSecond, object>> me, string[] aliases)
+        {
+            var memberExpr = ExtractMember(me.Body);
+
+            return ToOrderAscending(memberExpr, GenerateAliasMap(me.Parameters, aliases));
+        }
+
         public static string ToOrderDescending<T, TSecond>(this Expression<Func<T, TSecond, object>> me)
         {
             return ToOrderDescending(me, new string[] { });
         }
 
         public static string ToOrderDescending<T, TSecond>(this Expression<Func<T, TSecond, object>> me, string[] aliases)
+        {
+            var memberExpr = ExtractMember(me.Body);
+
+            return ToOrderDescending(memberExpr, GenerateAliasMap(me.Parameters, aliases));
+        }
+
+        public static string ToOrderAscending<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, object>> me)
+        {
+            return ToOrderAscending(me, new string[] { });
+        }
+
+        public static string ToOrderAscending<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, object>> me, string[] aliases)
+        {
+            var memberExpr = ExtractMember(me.Body);
+
+            return ToOrderAscending(memberExpr, GenerateAliasMap(me.Parameters, aliases));
+        }
+
+        public static string ToOrderDescending<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, object>> me)
+        {
+            return ToOrderDescending(me, new string[] { });
+        }
+
+        public static string ToOrderDescending<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, object>> me, string[] aliases)
         {
             var memberExpr = ExtractMember(me.Body);
 
@@ -1419,6 +1439,55 @@ namespace Chef.Extensions.Dapper
                 case ExpressionType.LessThanOrEqual: return "<=";
                 default: throw new ArgumentException("Invalid NodeType.");
             }
+        }
+
+        private static string GenerateJoinSelectList(Expression body, IList<ParameterExpression> parameters, string[] aliases, out string splitOn)
+        {
+            var key = string.Concat(string.Join("_", parameters.Select(p => string.Concat(p.Name, ":", p.Type.FullName))), "_", body.Type.FullName);
+
+            var memberExprs = MemberExpressionCollection.GetOrAdd(
+                key,
+                type =>
+                {
+                    if (body is NewExpression newExpr) return newExpr.Arguments.OfType<MemberExpression>();
+
+                    if (body is MemberInitExpression memberInitExpr)
+                    {
+                        return memberInitExpr.Bindings.Select(x => (MemberExpression)((MemberAssignment)x).Expression);
+                    }
+
+                    throw new ArgumentException("Selector must be a NewExpression or MemberInitExpression.");
+                });
+
+            var splitOnList = new List<string>();
+            var aliasMap = GenerateAliasMap(parameters, aliases);
+            var selectorContainers = parameters.ToDictionary(x => x.Name, x => new List<string>());
+
+            foreach (var memberExpr in memberExprs)
+            {
+                if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute))) continue;
+
+                var parameterExpr = (ParameterExpression)memberExpr.Expression;
+
+                var alias = aliasMap[parameterExpr.Name];
+                var selectorContainer = selectorContainers[parameterExpr.Name];
+                var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
+                var columnName = columnAttribute?.Name;
+
+                var statement = string.IsNullOrEmpty(columnName)
+                                    ? $"[{memberExpr.Member.Name}]"
+                                    : $"[{columnName}] AS [{memberExpr.Member.Name}]";
+
+                if (!string.IsNullOrEmpty(alias)) statement = string.Concat($"{alias}.", statement);
+
+                if (!selectorContainer.Any()) splitOnList.Add(memberExpr.Member.Name);
+
+                selectorContainer.Add(statement);
+            }
+
+            splitOn = string.Join(",", splitOnList.Skip(1));
+
+            return string.Join(", ", selectorContainers.SelectMany(x => x.Value));
         }
 
         private static string GenerateParameterStatement(string parameterName, Type parameterType, IDictionary<string, object> parameters)

@@ -46,4 +46,31 @@ namespace Chef.Extensions.DbAccess
 
         public (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) SecondJoin { get; }
     }
+
+    public class QueryObject<T, TSecond, TThird>
+    {
+        public QueryObject(
+            IDataAccess<T> dataAccess,
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin)
+        {
+            this.DataAccess = dataAccess;
+            this.SecondJoin = secondJoin;
+            this.ThirdJoin = thirdJoin;
+        }
+
+        public IDataAccess<T> DataAccess { get; }
+
+        public Expression<Func<T, TSecond, TThird, bool>> Predicate { get; set; }
+
+        public List<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> OrderExpressions { get; set; }
+
+        public Expression<Func<T, TSecond, TThird, object>> Selector { get; set; }
+
+        public int? Top { get; set; }
+
+        public (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) SecondJoin { get; }
+
+        public (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) ThirdJoin { get; }
+    }
 }

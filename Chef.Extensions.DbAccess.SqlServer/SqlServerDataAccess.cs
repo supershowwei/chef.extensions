@@ -107,6 +107,53 @@ namespace Chef.Extensions.DbAccess
             }
         }
 
+        public virtual T QueryOne<TSecond, TThird>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            Expression<Func<T, TSecond, TThird, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, object>> selector = null,
+            int? top = null)
+        {
+            return this.QueryOneAsync(secondJoin, thirdJoin, predicate, orderings, selector, top).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual async Task<T> QueryOneAsync<TSecond, TThird>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            Expression<Func<T, TSecond, TThird, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, object>> selector = null,
+            int? top = null)
+        {
+            var (sql, parameters, splitOn, secondSetter, thirdSetter) = GenerateQueryStatement(
+                this.tableName,
+                this.alias,
+                secondJoin,
+                thirdJoin,
+                predicate,
+                orderings,
+                selector,
+                top);
+
+            using (var db = new SqlConnection(this.connectionString))
+            {
+                var result = await db.QueryAsync<T, TSecond, TThird, T>(
+                                 sql,
+                                 (first, second, third) =>
+                                     {
+                                         secondSetter(first, second);
+                                         thirdSetter(first, second, third);
+
+                                         return first;
+                                     },
+                                 parameters,
+                                 splitOn: splitOn);
+
+                return result.SingleOrDefault();
+            }
+        }
+
         public virtual List<T> Query(
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
@@ -160,6 +207,53 @@ namespace Chef.Extensions.DbAccess
                                  (first, second) =>
                                      {
                                          secondSetter(first, second);
+
+                                         return first;
+                                     },
+                                 parameters,
+                                 splitOn: splitOn);
+
+                return result.ToList();
+            }
+        }
+
+        public virtual List<T> Query<TSecond, TThird>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            Expression<Func<T, TSecond, TThird, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, object>> selector = null,
+            int? top = null)
+        {
+            return this.QueryAsync(secondJoin, thirdJoin, predicate, orderings, selector, top).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual async Task<List<T>> QueryAsync<TSecond, TThird>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            Expression<Func<T, TSecond, TThird, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, object>> selector = null,
+            int? top = null)
+        {
+            var (sql, parameters, splitOn, secondSetter, thirdSetter) = GenerateQueryStatement(
+                this.tableName,
+                this.alias,
+                secondJoin,
+                thirdJoin,
+                predicate,
+                orderings,
+                selector,
+                top);
+
+            using (var db = new SqlConnection(this.connectionString))
+            {
+                var result = await db.QueryAsync<T, TSecond, TThird, T>(
+                                 sql,
+                                 (first, second, third) =>
+                                     {
+                                         secondSetter(first, second);
+                                         thirdSetter(first, second, third);
 
                                          return first;
                                      },
@@ -588,24 +682,6 @@ WHERE ";
             return alias;
         }
 
-        private static Delegate CreateSetter<TInstance, TArgument>()
-        {
-            var propertyInfo = typeof(TInstance).GetProperties()
-                .Single(p => !Attribute.IsDefined(p, typeof(NotMappedAttribute)) && p.PropertyType == typeof(TArgument));
-
-            var instanceParam = Expression.Parameter(typeof(TInstance));
-            var argumentParam = Expression.Parameter(typeof(TArgument));
-
-            return Expression.Lambda<Action<TInstance, TArgument>>(
-                    Expression.Call(
-                        instanceParam,
-                        propertyInfo.GetSetMethod(),
-                        Expression.Convert(argumentParam, propertyInfo.PropertyType)),
-                    instanceParam,
-                    argumentParam)
-                .Compile();
-        }
-
         private static (string, IDictionary<string, object>) GenerateQueryStatement(
             string tableName,
             string alias,
@@ -684,7 +760,7 @@ SELECT ";
             sql += $@"
 FROM {tableName} [{alias}] WITH (NOLOCK)";
 
-            sql += GenerateJoinStatement(secondJoin, aliases, out var secondSetter);
+            sql += GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
 
             var parameters = new Dictionary<string, object>();
 
@@ -708,29 +784,160 @@ ORDER BY ";
 
             sql += ";";
 
+            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
+
             return (sql, parameters, splitOn, secondSetter);
         }
 
-        private static string GenerateJoinStatement<TLeft, TRight>(
-            (Expression<Func<TLeft, TRight>>, Expression<Func<TLeft, TRight, bool>>, JoinType) join,
-            string[] aliases,
-            out Action<TLeft, TRight> setter)
+        private static (string, IDictionary<string, object>, string, Action<T, TSecond>, Action<T, TSecond, TThird>) GenerateQueryStatement<TSecond, TThird>(
+            string tableName,
+            string alias,
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            Expression<Func<T, TSecond, TThird, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, object>> selector = null,
+            int? top = null)
         {
-            var (propertyPath, condition, joinType) = join;
+            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3) };
 
-            if (propertyPath == null || condition == null)
+            SqlBuilder sql = @"
+SELECT ";
+            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
+
+            string splitOn;
+
+            if (selector != null)
             {
-                throw new ArgumentException("Must be a complete joint.");
+                sql += selector.ToSelectList(aliases, out splitOn);
+            }
+            else
+            {
+                throw new ArgumentException("Must be at least one column selected.");
             }
 
-            var setterKey = string.Concat(typeof(TLeft).FullName, "->", ((MemberExpression)propertyPath.Body).Member.Name);
+            sql += $@"
+FROM {tableName} [{alias}] WITH (NOLOCK)";
 
-            setter = (Action<TLeft, TRight>)Setters.GetOrAdd(setterKey, key => CreateSetter<TLeft, TRight>());
+            sql += GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
+            sql += GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(aliases);
+
+            if (!string.IsNullOrEmpty(orderExpressions))
+            {
+                sql += @"
+ORDER BY ";
+                sql += orderExpressions;
+            }
+
+            sql += ";";
+
+            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
+            var thirdSetter = GetOrCreateSetter(thirdJoin.Item1);
+
+            return (sql, parameters, splitOn, secondSetter, thirdSetter);
+        }
+
+        private static Action<T, TSecond> GetOrCreateSetter<TSecond>(Expression<Func<T, TSecond>> lambdaExpr)
+        {
+            var memberExpr = (MemberExpression)lambdaExpr.Body;
+
+            if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
+            {
+                throw new ArgumentException("Member can not applied [NotMapped].");
+            }
+
+            var propertyInfo = (PropertyInfo)memberExpr.Member;
+
+            var setterKey = string.Concat("(", typeof(T).FullName, ", ", typeof(TSecond).FullName, ") -> [0]:", propertyInfo.DeclaringType.FullName, ".", propertyInfo.Name);
+
+            var setter = (Action<T, TSecond>)Setters.GetOrAdd(
+                setterKey,
+                key =>
+                    {
+                        var instanceParam = Expression.Parameter(propertyInfo.DeclaringType);
+                        var argumentParam = Expression.Parameter(propertyInfo.PropertyType);
+
+                        var parameters = new[] { instanceParam, argumentParam };
+
+                        return Expression.Lambda<Action<T, TSecond>>(
+                                Expression.Call(
+                                    instanceParam,
+                                    propertyInfo.GetSetMethod(),
+                                    Expression.Convert(argumentParam, propertyInfo.PropertyType)),
+                                parameters)
+                            .Compile();
+                    });
+
+            return setter;
+        }
+
+        private static Action<T, TSecond, TThird> GetOrCreateSetter<TSecond, TThird>(Expression<Func<T, TSecond, TThird>> lambdaExpr)
+        {
+            var memberExpr = (MemberExpression)lambdaExpr.Body;
+
+            if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
+            {
+                throw new ArgumentException("Member can not applied [NotMapped].");
+            }
+
+            var parameterExpr = (ParameterExpression)memberExpr.Expression;
+
+            var argumentIndex = lambdaExpr.Parameters.FindIndex(x => x.Name == parameterExpr.Name);
+
+            var propertyInfo = (PropertyInfo)memberExpr.Member;
+
+            var setterKey = string.Concat("(", typeof(T).FullName, ", ", typeof(TSecond).FullName, ", ", typeof(TThird).FullName, ") -> [", argumentIndex, "]:", propertyInfo.DeclaringType.FullName, ".", propertyInfo.Name);
+
+            var setter = (Action<T, TSecond, TThird>)Setters.GetOrAdd(
+                setterKey,
+                key =>
+                    {
+                        var instanceParam = Expression.Parameter(propertyInfo.DeclaringType);
+                        var argumentParam = Expression.Parameter(propertyInfo.PropertyType);
+
+                        var parameters = new[]
+                                         {
+                                             argumentIndex == 0 ? instanceParam : Expression.Parameter(typeof(T)),
+                                             argumentIndex == 1 ? instanceParam : Expression.Parameter(typeof(TSecond)),
+                                             argumentParam
+                                         };
+
+                        return Expression.Lambda<Action<T, TSecond, TThird>>(
+                                Expression.Call(
+                                    instanceParam,
+                                    propertyInfo.GetSetMethod(),
+                                    Expression.Convert(argumentParam, propertyInfo.PropertyType)),
+                                parameters)
+                            .Compile();
+                    });
+
+            return setter;
+        }
+
+        private static string GenerateJoinStatement<TRight>(LambdaExpression condition, JoinType joinType, string[] aliases)
+        {
+            if (condition == null)
+            {
+                throw new ArgumentException("Must have join condition.");
+            }
 
             switch (joinType)
             {
-                case JoinType.Inner: return string.Concat("\r\n", condition.ToInnerJoin(aliases));
-                case JoinType.Left: return string.Concat("\r\n", condition.ToLeftJoin(aliases));
+                case JoinType.Inner: return string.Concat("\r\n", condition.ToInnerJoin<TRight>(aliases));
+                case JoinType.Left: return string.Concat("\r\n", condition.ToLeftJoin<TRight>(aliases));
                 default: throw new ArgumentOutOfRangeException(nameof(joinType), "Unsupported join type.");
             }
         }

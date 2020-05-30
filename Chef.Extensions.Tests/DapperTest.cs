@@ -50,6 +50,20 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToSearchCondition_in_Join_Three_Tables()
+        {
+            Expression<Func<Member, Video, Member, bool>> predicate = (x, y, z) => x.Id < 1 && y.Id == 2 && y.PackageId == 1 && z.Id == 2;
+
+            var searchCondition = predicate.ToSearchCondition(new[] { "m1", "v", "m2" }, out var parameters);
+
+            searchCondition.Should().Be("((([m1].[Id] < {=Id_0}) AND ([v].[ID] = {=Id_1})) AND ([v].[PackageID] = {=PackageId_0})) AND ([m2].[Id] = {=Id_2})");
+            parameters["Id_0"].Should().Be(1);
+            parameters["Id_1"].Should().Be(2);
+            parameters["PackageId_0"].Should().Be(1);
+            parameters["Id_1"].Should().Be(2);
+        }
+
+        [TestMethod]
         public void Test_ToSearchCondition_Simple()
         {
             Expression<Func<Member, bool>> predicate = x => x.Id < 1;
@@ -477,7 +491,7 @@ namespace Chef.Extensions.Tests
         {
             Expression<Func<Member, Video, bool>> innerJoinPredicate = (x, y) => x.Id == y.Id;
 
-            var innerJoinSearchCodition = innerJoinPredicate.ToInnerJoin(new[] { "m", "v" });
+            var innerJoinSearchCodition = innerJoinPredicate.ToInnerJoin<Video>(new[] { "m", "v" });
 
             innerJoinSearchCodition.Should().Be("INNER JOIN Video [v] WITH (NOLOCK) ON [m].[Id] = [v].[ID]");
         }
@@ -487,7 +501,7 @@ namespace Chef.Extensions.Tests
         {
             Expression<Func<Member, Video, bool>> innerJoinPredicate = (x, y) => x.Id == y.Id && x.Id == y.PackageId;
 
-            var innerJoinSearchCodition = innerJoinPredicate.ToInnerJoin(new[] { "m", "v" });
+            var innerJoinSearchCodition = innerJoinPredicate.ToInnerJoin<Video>(new[] { "m", "v" });
 
             innerJoinSearchCodition.Should().Be("INNER JOIN Video [v] WITH (NOLOCK) ON ([m].[Id] = [v].[ID]) AND ([m].[Id] = [v].[PackageID])");
         }
@@ -497,7 +511,7 @@ namespace Chef.Extensions.Tests
         {
             Expression<Func<Member, Video, bool>> leftJoinPredicate = (x, y) => x.Id == y.Id;
 
-            var leftJoinSearchCodition = leftJoinPredicate.ToLeftJoin(new[] { "m", "v" });
+            var leftJoinSearchCodition = leftJoinPredicate.ToLeftJoin<Video>(new[] { "m", "v" });
 
             leftJoinSearchCodition.Should().Be("LEFT JOIN Video [v] WITH (NOLOCK) ON [m].[Id] = [v].[ID]");
         }
@@ -507,7 +521,7 @@ namespace Chef.Extensions.Tests
         {
             Expression<Func<Member, Video, bool>> leftJoinPredicate = (x, y) => x.Id == y.Id && x.Id == y.PackageId;
 
-            var leftJoinSearchCodition = leftJoinPredicate.ToLeftJoin(new[] { "m", "v" });
+            var leftJoinSearchCodition = leftJoinPredicate.ToLeftJoin<Video>(new[] { "m", "v" });
 
             leftJoinSearchCodition.Should().Be("LEFT JOIN Video [v] WITH (NOLOCK) ON ([m].[Id] = [v].[ID]) AND ([m].[Id] = [v].[PackageID])");
         }
@@ -521,6 +535,17 @@ namespace Chef.Extensions.Tests
 
             selectList.Should().Be("[m].[Id], [m].[first_name] AS [FirstName], [v].[ID] AS [Id], [v].[PackageID] AS [PackageId]");
             splitOn.Should().Be("Id");
+        }
+
+        [TestMethod]
+        public void Test_ToSelectList_in_Join_Three_Tables()
+        {
+            Expression<Func<Member, Video, Member, object>> selector = (x, y, z) => new { x.Id, VideoId = y.Id, x.FirstName, y.PackageId, ZId = z.Id, ZFirstName = z.FirstName };
+
+            var selectList = selector.ToSelectList(new[] { "m1", "v", "m2" }, out var splitOn);
+
+            selectList.Should().Be("[m1].[Id], [m1].[first_name] AS [FirstName], [v].[ID] AS [Id], [v].[PackageID] AS [PackageId], [m2].[Id], [m2].[first_name] AS [FirstName]");
+            splitOn.Should().Be("Id,Id");
         }
 
         [TestMethod]
@@ -766,6 +791,20 @@ namespace Chef.Extensions.Tests
             var orderExpression = orderBy.ToOrderDescending(new[] { "m", "v" }) + ", " + thenBy.ToOrderDescending(new[] { "m", "v" });
 
             orderExpression.Should().Be("[m].[Id] DESC, [v].[ID] DESC");
+        }
+
+        [TestMethod]
+        public void Test_ToDescendingOrder_in_Join_Three_Tables()
+        {
+            Expression<Func<Member, Video, Member, object>> orderBy = (x, y, z) => x.Id;
+            Expression<Func<Member, Video, Member, object>> thenBy = (x, y, z) => y.Id;
+            Expression<Func<Member, Video, Member, object>> thenThenBy = (x, y, z) => z.Id;
+
+            var orderExpression = orderBy.ToOrderDescending(new[] { "m1", "v", "m2" }) + ", "
+                                  + thenBy.ToOrderDescending(new[] { "m1", "v", "m2" }) + ", "
+                                  + thenThenBy.ToOrderDescending(new[] { "m1", "v", "m2" });
+
+            orderExpression.Should().Be("[m1].[Id] DESC, [v].[ID] DESC, [m2].[Id] DESC");
         }
 
         [TestMethod]
