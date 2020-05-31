@@ -38,8 +38,6 @@ namespace Chef.Extensions.Dapper
                                                                  typeof(decimal),
                                                              };
 
-        private static readonly ConcurrentDictionary<string, IEnumerable<MemberExpression>> MemberExpressionCollection = new ConcurrentDictionary<string, IEnumerable<MemberExpression>>();
-
         private static IRowParserProvider userDefinedRowParserProvider;
 
         public static IRowParserProvider RowParserProvider
@@ -611,21 +609,7 @@ namespace Chef.Extensions.Dapper
 
         public static string ToSelectList<T>(this Expression<Func<T, object>> me, string alias)
         {
-            var key = string.Concat(typeof(T).FullName, "_", me.Body.Type.FullName);
-
-            var memberExprs = MemberExpressionCollection.GetOrAdd(
-                key,
-                type =>
-                    {
-                        if (me.Body is NewExpression newExpr) return newExpr.Arguments.OfType<MemberExpression>();
-
-                        if (me.Body is MemberInitExpression memberInitExpr)
-                        {
-                            return memberInitExpr.Bindings.Select(x => (MemberExpression)((MemberAssignment)x).Expression);
-                        }
-
-                        throw new ArgumentException("Selector must be a NewExpression or MemberInitExpression.");
-                    });
+            var memberExprs = GetMemberExpressions(me.Body);
 
             alias = string.IsNullOrEmpty(alias) ? alias : string.Concat("[", alias, "]");
 
@@ -662,6 +646,16 @@ namespace Chef.Extensions.Dapper
         }
 
         public static string ToSelectList<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, object>> me, string[] aliases, out string splitOn)
+        {
+            return GenerateJoinSelectList(me.Body, me.Parameters, aliases, out splitOn);
+        }
+
+        public static string ToSelectList<T, TSecond, TThird, TFourth>(this Expression<Func<T, TSecond, TThird, TFourth, object>> me, out string splitOn)
+        {
+            return ToSelectList(me, new string[] { }, out splitOn);
+        }
+
+        public static string ToSelectList<T, TSecond, TThird, TFourth>(this Expression<Func<T, TSecond, TThird, TFourth, object>> me, string[] aliases, out string splitOn)
         {
             return GenerateJoinSelectList(me.Body, me.Parameters, aliases, out splitOn);
         }
@@ -754,6 +748,36 @@ namespace Chef.Extensions.Dapper
         }
 
         public static string ToSearchCondition<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, bool>> me, string[] aliases, IDictionary<string, object> parameters)
+        {
+            var aliasMap = GenerateAliasMap(me.Parameters, aliases);
+
+            var sb = new StringBuilder();
+
+            ParseCondition(me.Body, aliasMap, sb, parameters);
+
+            return sb.ToString();
+        }
+
+        public static string ToSearchCondition<T, TSecond, TThird, TFourth>(this Expression<Func<T, TSecond, TThird, TFourth, bool>> me, out IDictionary<string, object> parameters)
+        {
+            parameters = new Dictionary<string, object>();
+
+            return ToSearchCondition(me, new string[] { }, parameters);
+        }
+
+        public static string ToSearchCondition<T, TSecond, TThird, TFourth>(this Expression<Func<T, TSecond, TThird, TFourth, bool>> me, string[] aliases, out IDictionary<string, object> parameters)
+        {
+            parameters = new Dictionary<string, object>();
+
+            return ToSearchCondition(me, aliases, parameters);
+        }
+
+        public static string ToSearchCondition<T, TSecond, TThird, TFourth>(this Expression<Func<T, TSecond, TThird, TFourth, bool>> me, IDictionary<string, object> parameters)
+        {
+            return ToSearchCondition(me, new string[] { }, parameters);
+        }
+
+        public static string ToSearchCondition<T, TSecond, TThird, TFourth>(this Expression<Func<T, TSecond, TThird, TFourth, bool>> me, string[] aliases, IDictionary<string, object> parameters)
         {
             var aliasMap = GenerateAliasMap(me.Parameters, aliases);
 
@@ -1025,6 +1049,30 @@ namespace Chef.Extensions.Dapper
         }
 
         public static string ToOrderDescending<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, object>> me, string[] aliases)
+        {
+            var memberExpr = ExtractMember(me.Body);
+
+            return ToOrderDescending(memberExpr, GenerateAliasMap(me.Parameters, aliases));
+        }
+
+        public static string ToOrderAscending<T, TSecond, TThird, TFourth>(this Expression<Func<T, TSecond, TThird, TFourth, object>> me)
+        {
+            return ToOrderAscending(me, new string[] { });
+        }
+
+        public static string ToOrderAscending<T, TSecond, TThird, TFourth>(this Expression<Func<T, TSecond, TThird, TFourth, object>> me, string[] aliases)
+        {
+            var memberExpr = ExtractMember(me.Body);
+
+            return ToOrderAscending(memberExpr, GenerateAliasMap(me.Parameters, aliases));
+        }
+
+        public static string ToOrderDescending<T, TSecond, TThird, TFourth>(this Expression<Func<T, TSecond, TThird, TFourth, object>> me)
+        {
+            return ToOrderDescending(me, new string[] { });
+        }
+
+        public static string ToOrderDescending<T, TSecond, TThird, TFourth>(this Expression<Func<T, TSecond, TThird, TFourth, object>> me, string[] aliases)
         {
             var memberExpr = ExtractMember(me.Body);
 
@@ -1441,23 +1489,21 @@ namespace Chef.Extensions.Dapper
             }
         }
 
+        private static IEnumerable<MemberExpression> GetMemberExpressions(Expression expr)
+        {
+            if (expr is NewExpression newExpr) return newExpr.Arguments.OfType<MemberExpression>();
+
+            if (expr is MemberInitExpression memberInitExpr)
+            {
+                return memberInitExpr.Bindings.Select(x => (MemberExpression)((MemberAssignment)x).Expression);
+            }
+
+            throw new ArgumentException("Selector must be a NewExpression or MemberInitExpression.");
+        }
+
         private static string GenerateJoinSelectList(Expression body, IList<ParameterExpression> parameters, string[] aliases, out string splitOn)
         {
-            var key = string.Concat(string.Join("_", parameters.Select(p => string.Concat(p.Name, ":", p.Type.FullName))), "_", body.Type.FullName);
-
-            var memberExprs = MemberExpressionCollection.GetOrAdd(
-                key,
-                type =>
-                {
-                    if (body is NewExpression newExpr) return newExpr.Arguments.OfType<MemberExpression>();
-
-                    if (body is MemberInitExpression memberInitExpr)
-                    {
-                        return memberInitExpr.Bindings.Select(x => (MemberExpression)((MemberAssignment)x).Expression);
-                    }
-
-                    throw new ArgumentException("Selector must be a NewExpression or MemberInitExpression.");
-                });
+            var memberExprs = GetMemberExpressions(body);
 
             var splitOnList = new List<string>();
             var aliasMap = GenerateAliasMap(parameters, aliases);
@@ -1484,6 +1530,8 @@ namespace Chef.Extensions.Dapper
 
                 selectorContainer.Add(statement);
             }
+
+            if (splitOnList.Count < selectorContainers.Count) throw new InvalidOperationException("Selected columns must cover all joined tables.");
 
             splitOn = string.Join(",", splitOnList.Skip(1));
 

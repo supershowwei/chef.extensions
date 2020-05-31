@@ -104,6 +104,70 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryOneAsync_with_Cross_InnerJoin_Four_Tables_and_Different_Lambda_ParameterNames_use_QueryObject()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.InnerJoin(a => a.Manager, (a, b) => a.ManagerId == b.Id)
+                             .InnerJoin((c, d) => c.Department, (c, d, e) => c.DepartmentId == e.DepId)
+                             .InnerJoin((f, g, h) => g.Department, (f, g, h, j) => g.DepartmentId == j.DepId)
+                             .Where((k, m, n, o) => k.Id == 1)
+                             .Select(
+                                 (x, y, z, t) => new
+                                              {
+                                                  x.Id,
+                                                  x.Name,
+                                                  ManagerId = y.Id,
+                                                  ManagerName = y.Name,
+                                                  DepartmentId = z.DepId,
+                                                  DepartmentName = z.Name,
+                                                  ManagerDepartmentId = t.DepId,
+                                                  ManagerDepartmentName = t.Name
+                                              })
+                             .QueryOneAsync();
+
+            result.Name.Should().Be("Johnny");
+            result.Department.DepId.Should().Be(3);
+            result.Department.Name.Should().Be("董事長室");
+            result.Manager.Id.Should().Be(2);
+            result.Manager.Name.Should().Be("Amy");
+            result.Manager.Department.DepId.Should().Be(2);
+            result.Manager.Department.Name.Should().Be("業務部");
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_with_Cross_InnerJoin_Four_Tables_and_Mass_Column_Sequence_use_QueryObject()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.InnerJoin(x => x.Manager, (x, y) => x.ManagerId == y.Id)
+                             .InnerJoin((x, y) => x.Department, (x, y, z) => x.DepartmentId == z.DepId)
+                             .InnerJoin((x, y, z) => y.Department, (x, y, z, t) => y.DepartmentId == t.DepId)
+                             .Where((x, y, z, t) => x.Id == 1)
+                             .Select(
+                                 (x, y, z, t) => new
+                                              {
+                                                  x.Name,
+                                                  ManagerDepartmentName = t.Name,
+                                                  ManagerName = y.Name,
+                                                  DepartmentName = z.Name,
+                                                  ManagerDepartmentId = t.DepId,
+                                                  DepartmentId = z.DepId,
+                                                  ManagerId = y.Id,
+                                                  x.Id
+                                              })
+                             .QueryOneAsync();
+
+            result.Name.Should().Be("Johnny");
+            result.Department.DepId.Should().Be(3);
+            result.Department.Name.Should().Be("董事長室");
+            result.Manager.Id.Should().Be(2);
+            result.Manager.Name.Should().Be("Amy");
+            result.Manager.Department.DepId.Should().Be(2);
+            result.Manager.Department.Name.Should().Be("業務部");
+        }
+
+        [TestMethod]
         public async Task Test_QueryOneAsync_with_Nested_InnerJoin_Three_Tables_and_Different_Lambda_ParameterNames()
         {
             var memberDataAccess = DataAccessFactory.Create<User>();
@@ -195,8 +259,8 @@ namespace Chef.Extensions.Tests
                                             .Select((x, y) => new { x.Id, x.Name })
                                             .QueryOneAsync())
                 .Should()
-                .Throw<ArgumentException>()
-                .WithMessage("When using the multi-mapping APIs ensure you set the splitOn param if you have keys other than Id*");
+                .Throw<InvalidOperationException>()
+                .WithMessage("Selected columns must cover all joined tables.");
         }
 
         [TestMethod]

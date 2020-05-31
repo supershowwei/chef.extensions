@@ -423,6 +423,22 @@ namespace Chef.Extensions.DbAccess.Fluent
 
         #region QueryObject<T, TSecond, TThird>Extension
 
+        public static QueryObject<T, TSecond, TThird, TFourth> InnerJoin<T, TSecond, TThird, TFourth>(
+            this QueryObject<T, TSecond, TThird> me,
+            Expression<Func<T, TSecond, TThird, TFourth>> propertyPath,
+            Expression<Func<T, TSecond, TThird, TFourth, bool>> condition)
+        {
+            return new QueryObject<T, TSecond, TThird, TFourth>(me.DataAccess, me.SecondJoin, me.ThirdJoin, (propertyPath, condition, JoinType.Inner));
+        }
+
+        public static QueryObject<T, TSecond, TThird, TFourth> LeftJoin<T, TSecond, TThird, TFourth>(
+            this QueryObject<T, TSecond, TThird> me,
+            Expression<Func<T, TSecond, TThird, TFourth>> propertyPath,
+            Expression<Func<T, TSecond, TThird, TFourth, bool>> condition)
+        {
+            return new QueryObject<T, TSecond, TThird, TFourth>(me.DataAccess, me.SecondJoin, me.ThirdJoin, (propertyPath, condition, JoinType.Left));
+        }
+
         public static QueryObject<T, TSecond, TThird> Where<T, TSecond, TThird>(this QueryObject<T, TSecond, TThird> me, Expression<Func<T, TSecond, TThird, bool>> predicate)
         {
             me.Predicate = predicate;
@@ -512,6 +528,101 @@ namespace Chef.Extensions.DbAccess.Fluent
         public static Task<List<T>> QueryAsync<T, TSecond, TThird>(this QueryObject<T, TSecond, TThird> me)
         {
             return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+        }
+
+        #endregion
+
+        #region QueryObject<T, TSecond, TThird, TFourth>Extension
+
+        public static QueryObject<T, TSecond, TThird, TFourth> Where<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me, Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate)
+        {
+            me.Predicate = predicate;
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond, TThird, TFourth> And<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me, Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate)
+        {
+            var replacer = new ExpressionReplacer();
+
+            predicate = replacer.Replace(predicate, me.Predicate);
+
+            me.Predicate = Expression.Lambda<Func<T, TSecond, TThird, TFourth, bool>>(Expression.AndAlso(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond, TThird, TFourth> Or<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me, Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate)
+        {
+            var replacer = new ExpressionReplacer();
+
+            predicate = replacer.Replace(predicate, me.Predicate);
+
+            me.Predicate = Expression.Lambda<Func<T, TSecond, TThird, TFourth, bool>>(Expression.OrElse(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond, TThird, TFourth> Select<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me, Expression<Func<T, TSecond, TThird, TFourth, object>> selector)
+        {
+            me.Selector = selector;
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond, TThird, TFourth> OrderBy<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me, Expression<Func<T, TSecond, TThird, TFourth, object>> ordering)
+        {
+            me.OrderExpressions = new List<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> { (ordering, Sortord.Ascending) };
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond, TThird, TFourth> ThenBy<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me, Expression<Func<T, TSecond, TThird, TFourth, object>> ordering)
+        {
+            me.OrderExpressions.Add((ordering, Sortord.Ascending));
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond, TThird, TFourth> OrderByDescending<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me, Expression<Func<T, TSecond, TThird, TFourth, object>> ordering)
+        {
+            me.OrderExpressions = new List<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> { (ordering, Sortord.Descending) };
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond, TThird, TFourth> ThenByDescending<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me, Expression<Func<T, TSecond, TThird, TFourth, object>> ordering)
+        {
+            me.OrderExpressions.Add((ordering, Sortord.Descending));
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond, TThird, TFourth> Top<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me, int n)
+        {
+            me.Top = n;
+
+            return me;
+        }
+
+        public static T QueryOne<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me)
+        {
+            return me.DataAccess.QueryOne(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+        }
+
+        public static Task<T> QueryOneAsync<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me)
+        {
+            return me.DataAccess.QueryOneAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+        }
+
+        public static List<T> Query<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me)
+        {
+            return me.DataAccess.Query(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+        }
+
+        public static Task<List<T>> QueryAsync<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me)
+        {
+            return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
         }
 
         #endregion

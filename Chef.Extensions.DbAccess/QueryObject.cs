@@ -73,4 +73,35 @@ namespace Chef.Extensions.DbAccess
 
         public (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) ThirdJoin { get; }
     }
+
+    public class QueryObject<T, TSecond, TThird, TFourth>
+    {
+        public QueryObject(
+            IDataAccess<T> dataAccess,
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin)
+        {
+            this.DataAccess = dataAccess;
+            this.SecondJoin = secondJoin;
+            this.ThirdJoin = thirdJoin;
+            this.FourthJoin = fourthJoin;
+        }
+
+        public IDataAccess<T> DataAccess { get; }
+
+        public Expression<Func<T, TSecond, TThird, TFourth, bool>> Predicate { get; set; }
+
+        public List<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> OrderExpressions { get; set; }
+
+        public Expression<Func<T, TSecond, TThird, TFourth, object>> Selector { get; set; }
+
+        public int? Top { get; set; }
+
+        public (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) SecondJoin { get; }
+
+        public (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) ThirdJoin { get; }
+
+        public (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) FourthJoin { get; }
+    }
 }
