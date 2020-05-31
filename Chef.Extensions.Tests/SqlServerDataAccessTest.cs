@@ -432,38 +432,11 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
-        public async Task Test_QueryOneAsync_use_SelectAll()
-        {
-            var clubDataAccess = DataAccessFactory.Create<Club>();
-
-            var club = await clubDataAccess.Where(x => x.Id == 35).SelectAll().QueryOneAsync();
-
-            club.Id.Should().Be(35);
-            club.Name.Should().Be("韓靜宜");
-            club.IsActive.Should().BeTrue();
-            club.Intro.Should().Be("韓");
-        }
-
-        [TestMethod]
-        public async Task Test_QueryOneAsync_use_SelectAll_with_NotMapped()
-        {
-            var clubDataAccess = DataAccessFactory.Create<Club>();
-
-            var club = await clubDataAccess.Where(x => x.Id == 35).SelectAll().QueryOneAsync();
-
-            club.Id.Should().Be(35);
-            club.Name.Should().Be("韓靜宜");
-            club.IsActive.Should().BeTrue();
-            club.Intro.Should().Be("韓");
-            club.IgnoreColumn.Should().BeNullOrEmpty();
-        }
-
-        [TestMethod]
         public async Task Test_QueryOneAsync_with_AS_Keyword_Alias()
         {
             var advertisementSettingDataAccess = DataAccessFactory.Create<AdvertisementSetting>("Advertisement");
 
-            var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").SelectAll().QueryOneAsync();
+            var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").Select(x => new { x.Id }).QueryOneAsync();
 
             result.Id.Should().Be(Guid.Parse("df31efe5-b78f-4b4b-954a-0078328e34d2"));
         }
@@ -473,7 +446,7 @@ namespace Chef.Extensions.Tests
         {
             var advertisementSettingDataAccess = DataAccessFactory.Create<AdvertisementSetting>("Advertisement2");
 
-            var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").SelectAll().QueryOneAsync();
+            var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").Select(x => new { x.Id }).QueryOneAsync();
 
             result.Id.Should().Be(Guid.Parse("df31efe5-b78f-4b4b-954a-0078328e34d2"));
         }
@@ -483,7 +456,7 @@ namespace Chef.Extensions.Tests
         {
             var advertisementSettingDataAccess = DataAccessFactory.Create<DerivedAdvertisementSetting>("Advertisement");
 
-            var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").SelectAll().QueryOneAsync();
+            var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").Select(x => new { x.Id }).QueryOneAsync();
 
             result.Id.Should().Be(Guid.Parse("df31efe5-b78f-4b4b-954a-0078328e34d2"));
         }
@@ -493,7 +466,7 @@ namespace Chef.Extensions.Tests
         {
             var advertisementSettingDataAccess = DataAccessFactory.Create<DerivedAdvertisementSetting>("Advertisement3");
 
-            var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").SelectAll().QueryOneAsync();
+            var result = await advertisementSettingDataAccess.Where(x => x.Type == "1000x90首頁下").Select(x => new { x.Id }).QueryOneAsync();
 
             result.Id.Should().Be(Guid.Parse("df31efe5-b78f-4b4b-954a-0078328e34d2"));
         }
@@ -784,7 +757,7 @@ namespace Chef.Extensions.Tests
         {
             var clubDataAccess = DataAccessFactory.Create<Club>();
 
-            var clubs = await clubDataAccess.Where(x => x.Intro == null).SelectAll().QueryAsync();
+            var clubs = await clubDataAccess.Where(x => x.Intro == null).Select(x => new { x.Id }).QueryAsync();
 
             clubs.Count.Should().BeGreaterOrEqualTo(5);
         }

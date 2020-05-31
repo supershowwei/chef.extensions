@@ -18,9 +18,4 @@
     <Folder Include="Fluent\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.1.0" />
-    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
-  </ItemGroup>
-
 </Project>
