@@ -104,6 +104,43 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryOneAsync_with_InnerJoin_Five_Tables_use_QueryObject()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.InnerJoin(v => v.Department, (v, w) => v.DepartmentId == w.DepId)
+                             .InnerJoin((v, w) => v.Manager, (v, w, x) => v.ManagerId == x.Id)
+                             .InnerJoin((v, w, x) => x.Department, (v, w, x, y) => x.DepartmentId == y.DepId)
+                             .InnerJoin((v, w, x, y) => x.Manager, (v, w, x, y, z) => x.ManagerId == z.Id)
+                             .Where((v, w, x, y, z) => v.Id == 1)
+                             .Select(
+                                 (v, w, x, y, z) => new
+                                                    {
+                                                        v.Id,
+                                                        v.Name,
+                                                        DepartmentId = w.DepId,
+                                                        DepartmentName = w.Name,
+                                                        ManagerId = x.Id,
+                                                        ManagerName = x.Name,
+                                                        ManagerDepartmentId = y.DepId,
+                                                        ManagerDepartmentName = y.Name,
+                                                        ManagerOfManagerId = z.Id,
+                                                        ManagerOfManagerName = z.Name
+                                                    })
+                             .QueryOneAsync();
+
+            result.Name.Should().Be("Johnny");
+            result.Department.DepId.Should().Be(3);
+            result.Department.Name.Should().Be("董事長室");
+            result.Manager.Id.Should().Be(2);
+            result.Manager.Name.Should().Be("Amy");
+            result.Manager.Department.DepId.Should().Be(2);
+            result.Manager.Department.Name.Should().Be("業務部");
+            result.Manager.Manager.Id.Should().Be(1);
+            result.Manager.Manager.Name.Should().Be("Johnny");
+        }
+
+        [TestMethod]
         public async Task Test_QueryOneAsync_with_Cross_InnerJoin_Four_Tables_and_Different_Lambda_ParameterNames_use_QueryObject()
         {
             var memberDataAccess = DataAccessFactory.Create<User>();

@@ -104,4 +104,39 @@ namespace Chef.Extensions.DbAccess
 
         public (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) FourthJoin { get; }
     }
+
+    public class QueryObject<T, TSecond, TThird, TFourth, TFifth>
+    {
+        public QueryObject(
+            IDataAccess<T> dataAccess,
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin)
+        {
+            this.DataAccess = dataAccess;
+            this.SecondJoin = secondJoin;
+            this.ThirdJoin = thirdJoin;
+            this.FourthJoin = fourthJoin;
+            this.FifthJoin = fifthJoin;
+        }
+
+        public IDataAccess<T> DataAccess { get; }
+
+        public Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> Predicate { get; set; }
+
+        public List<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> OrderExpressions { get; set; }
+
+        public Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> Selector { get; set; }
+
+        public int? Top { get; set; }
+
+        public (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) SecondJoin { get; }
+
+        public (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) ThirdJoin { get; }
+
+        public (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) FourthJoin { get; }
+
+        public (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) FifthJoin { get; }
+    }
 }

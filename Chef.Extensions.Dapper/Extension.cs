@@ -660,6 +660,16 @@ namespace Chef.Extensions.Dapper
             return GenerateJoinSelectList(me.Body, me.Parameters, aliases, out splitOn);
         }
 
+        public static string ToSelectList<T, TSecond, TThird, TFourth, TFifth>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> me, out string splitOn)
+        {
+            return ToSelectList(me, new string[] { }, out splitOn);
+        }
+
+        public static string ToSelectList<T, TSecond, TThird, TFourth, TFifth>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> me, string[] aliases, out string splitOn)
+        {
+            return GenerateJoinSelectList(me.Body, me.Parameters, aliases, out splitOn);
+        }
+
         public static string ToSearchCondition<T>(this Expression<Func<T, bool>> me)
         {
             return ToSearchCondition(me, string.Empty, null);
@@ -778,6 +788,36 @@ namespace Chef.Extensions.Dapper
         }
 
         public static string ToSearchCondition<T, TSecond, TThird, TFourth>(this Expression<Func<T, TSecond, TThird, TFourth, bool>> me, string[] aliases, IDictionary<string, object> parameters)
+        {
+            var aliasMap = GenerateAliasMap(me.Parameters, aliases);
+
+            var sb = new StringBuilder();
+
+            ParseCondition(me.Body, aliasMap, sb, parameters);
+
+            return sb.ToString();
+        }
+
+        public static string ToSearchCondition<T, TSecond, TThird, TFourth, TFifth>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> me, out IDictionary<string, object> parameters)
+        {
+            parameters = new Dictionary<string, object>();
+
+            return ToSearchCondition(me, new string[] { }, parameters);
+        }
+
+        public static string ToSearchCondition<T, TSecond, TThird, TFourth, TFifth>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> me, string[] aliases, out IDictionary<string, object> parameters)
+        {
+            parameters = new Dictionary<string, object>();
+
+            return ToSearchCondition(me, aliases, parameters);
+        }
+
+        public static string ToSearchCondition<T, TSecond, TThird, TFourth, TFifth>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> me, IDictionary<string, object> parameters)
+        {
+            return ToSearchCondition(me, new string[] { }, parameters);
+        }
+
+        public static string ToSearchCondition<T, TSecond, TThird, TFourth, TFifth>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> me, string[] aliases, IDictionary<string, object> parameters)
         {
             var aliasMap = GenerateAliasMap(me.Parameters, aliases);
 
@@ -1073,6 +1113,30 @@ namespace Chef.Extensions.Dapper
         }
 
         public static string ToOrderDescending<T, TSecond, TThird, TFourth>(this Expression<Func<T, TSecond, TThird, TFourth, object>> me, string[] aliases)
+        {
+            var memberExpr = ExtractMember(me.Body);
+
+            return ToOrderDescending(memberExpr, GenerateAliasMap(me.Parameters, aliases));
+        }
+
+        public static string ToOrderAscending<T, TSecond, TThird, TFourth, TFifth>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> me)
+        {
+            return ToOrderAscending(me, new string[] { });
+        }
+
+        public static string ToOrderAscending<T, TSecond, TThird, TFourth, TFifth>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> me, string[] aliases)
+        {
+            var memberExpr = ExtractMember(me.Body);
+
+            return ToOrderAscending(memberExpr, GenerateAliasMap(me.Parameters, aliases));
+        }
+
+        public static string ToOrderDescending<T, TSecond, TThird, TFourth, TFifth>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> me)
+        {
+            return ToOrderDescending(me, new string[] { });
+        }
+
+        public static string ToOrderDescending<T, TSecond, TThird, TFourth, TFifth>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> me, string[] aliases)
         {
             var memberExpr = ExtractMember(me.Body);
 

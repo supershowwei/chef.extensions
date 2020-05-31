@@ -205,6 +205,61 @@ namespace Chef.Extensions.DbAccess
             }
         }
 
+        public virtual T QueryOne<TSecond, TThird, TFourth, TFifth>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
+            int? top = null)
+        {
+            return this.QueryOneAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, predicate, orderings, selector, top).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual async Task<T> QueryOneAsync<TSecond, TThird, TFourth, TFifth>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
+            int? top = null)
+        {
+            var (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter, fifthSetter) = GenerateQueryStatement(
+                this.tableName,
+                this.alias,
+                secondJoin,
+                thirdJoin,
+                fourthJoin,
+                fifthJoin,
+                predicate,
+                orderings,
+                selector,
+                top);
+
+            using (var db = new SqlConnection(this.connectionString))
+            {
+                var result = await db.QueryAsync<T, TSecond, TThird, TFourth, TFifth, T>(
+                                 sql,
+                                 (first, second, third, fourth, fifth) =>
+                                     {
+                                         secondSetter(first, second);
+                                         thirdSetter(first, second, third);
+                                         fourthSetter(first, second, third, fourth);
+                                         fifthSetter(first, second, third, fourth, fifth);
+
+                                         return first;
+                                     },
+                                 parameters,
+                                 splitOn: splitOn);
+
+                return result.SingleOrDefault();
+            }
+        }
+
         public virtual List<T> Query(
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
@@ -356,6 +411,61 @@ namespace Chef.Extensions.DbAccess
                                          secondSetter(first, second);
                                          thirdSetter(first, second, third);
                                          fourthSetter(first, second, third, fourth);
+
+                                         return first;
+                                     },
+                                 parameters,
+                                 splitOn: splitOn);
+
+                return result.ToList();
+            }
+        }
+
+        public virtual List<T> Query<TSecond, TThird, TFourth, TFifth>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
+            int? top = null)
+        {
+            return this.QueryAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, predicate, orderings, selector, top).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual async Task<List<T>> QueryAsync<TSecond, TThird, TFourth, TFifth>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
+            int? top = null)
+        {
+            var (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter, fifthSetter) = GenerateQueryStatement(
+                this.tableName,
+                this.alias,
+                secondJoin,
+                thirdJoin,
+                fourthJoin,
+                fifthJoin,
+                predicate,
+                orderings,
+                selector,
+                top);
+
+            using (var db = new SqlConnection(this.connectionString))
+            {
+                var result = await db.QueryAsync<T, TSecond, TThird, TFourth, TFifth, T>(
+                                 sql,
+                                 (first, second, third, fourth, fifth) =>
+                                     {
+                                         secondSetter(first, second);
+                                         thirdSetter(first, second, third);
+                                         fourthSetter(first, second, third, fourth);
+                                         fifthSetter(first, second, third, fourth, fifth);
 
                                          return first;
                                      },
@@ -1016,6 +1126,73 @@ ORDER BY ";
             return (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter);
         }
 
+        private static (string, IDictionary<string, object>, string, Action<T, TSecond>, Action<T, TSecond, TThird>, Action<T, TSecond, TThird, TFourth>, Action<T, TSecond, TThird, TFourth, TFifth>) GenerateQueryStatement<TSecond, TThird, TFourth, TFifth>(
+            string tableName,
+            string alias,
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
+            int? top = null)
+        {
+            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5) };
+
+            SqlBuilder sql = @"
+SELECT ";
+            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
+
+            string splitOn;
+
+            if (selector != null)
+            {
+                sql += selector.ToSelectList(aliases, out splitOn);
+            }
+            else
+            {
+                throw new ArgumentException("Must be at least one column selected.");
+            }
+
+            sql += $@"
+FROM {tableName} [{alias}] WITH (NOLOCK)";
+
+            sql += GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
+            sql += GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
+            sql += GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
+            sql += GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(aliases);
+
+            if (!string.IsNullOrEmpty(orderExpressions))
+            {
+                sql += @"
+ORDER BY ";
+                sql += orderExpressions;
+            }
+
+            sql += ";";
+
+            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
+            var thirdSetter = GetOrCreateSetter(thirdJoin.Item1);
+            var fourthSetter = GetOrCreateSetter(fourthJoin.Item1);
+            var fifthSetter = GetOrCreateSetter(fifthJoin.Item1);
+
+            return (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter, fifthSetter);
+        }
+
         private static Action<T, TSecond> GetOrCreateSetter<TSecond>(Expression<Func<T, TSecond>> lambdaExpr)
         {
             var memberExpr = (MemberExpression)lambdaExpr.Body;
@@ -1126,6 +1303,51 @@ ORDER BY ";
                                          };
 
                         return Expression.Lambda<Action<T, TSecond, TThird, TFourth>>(
+                                Expression.Call(
+                                    instanceParam,
+                                    propertyInfo.GetSetMethod(),
+                                    Expression.Convert(argumentParam, propertyInfo.PropertyType)),
+                                parameters)
+                            .Compile();
+                    });
+
+            return setter;
+        }
+
+        private static Action<T, TSecond, TThird, TFourth, TFifth> GetOrCreateSetter<TSecond, TThird, TFourth, TFifth>(Expression<Func<T, TSecond, TThird, TFourth, TFifth>> lambdaExpr)
+        {
+            var memberExpr = (MemberExpression)lambdaExpr.Body;
+
+            if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
+            {
+                throw new ArgumentException("Member can not applied [NotMapped].");
+            }
+
+            var parameterExpr = (ParameterExpression)memberExpr.Expression;
+
+            var argumentIndex = lambdaExpr.Parameters.FindIndex(x => x.Name == parameterExpr.Name);
+
+            var propertyInfo = (PropertyInfo)memberExpr.Member;
+
+            var setterKey = string.Concat("(", typeof(T).FullName, ", ", typeof(TSecond).FullName, ", ", typeof(TThird).FullName, ", ", typeof(TFourth).FullName, ", ", typeof(TFifth).FullName, ") -> [", argumentIndex, "]:", propertyInfo.DeclaringType.FullName, ".", propertyInfo.Name);
+
+            var setter = (Action<T, TSecond, TThird, TFourth, TFifth>)Setters.GetOrAdd(
+                setterKey,
+                key =>
+                    {
+                        var instanceParam = Expression.Parameter(propertyInfo.DeclaringType);
+                        var argumentParam = Expression.Parameter(propertyInfo.PropertyType);
+
+                        var parameters = new[]
+                                         {
+                                             argumentIndex == 0 ? instanceParam : Expression.Parameter(typeof(T)),
+                                             argumentIndex == 1 ? instanceParam : Expression.Parameter(typeof(TSecond)),
+                                             argumentIndex == 2 ? instanceParam : Expression.Parameter(typeof(TThird)),
+                                             argumentIndex == 3 ? instanceParam : Expression.Parameter(typeof(TFourth)),
+                                             argumentParam
+                                         };
+
+                        return Expression.Lambda<Action<T, TSecond, TThird, TFourth, TFifth>>(
                                 Expression.Call(
                                     instanceParam,
                                     propertyInfo.GetSetMethod(),
