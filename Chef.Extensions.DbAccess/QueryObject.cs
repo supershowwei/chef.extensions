@@ -139,4 +139,43 @@ namespace Chef.Extensions.DbAccess
 
         public (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) FifthJoin { get; }
     }
+
+    public class QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth>
+    {
+        public QueryObject(
+            IDataAccess<T> dataAccess,
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin)
+        {
+            this.DataAccess = dataAccess;
+            this.SecondJoin = secondJoin;
+            this.ThirdJoin = thirdJoin;
+            this.FourthJoin = fourthJoin;
+            this.FifthJoin = fifthJoin;
+            this.SixthJoin = sixthJoin;
+        }
+
+        public IDataAccess<T> DataAccess { get; }
+
+        public Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> Predicate { get; set; }
+
+        public List<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>>, Sortord)> OrderExpressions { get; set; }
+
+        public Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> Selector { get; set; }
+
+        public int? Top { get; set; }
+
+        public (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) SecondJoin { get; }
+
+        public (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) ThirdJoin { get; }
+
+        public (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) FourthJoin { get; }
+
+        public (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) FifthJoin { get; }
+
+        public (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) SixthJoin { get; }
+    }
 }

@@ -108,24 +108,24 @@ namespace Chef.Extensions.Tests
         {
             var memberDataAccess = DataAccessFactory.Create<User>();
 
-            var result = await memberDataAccess.InnerJoin(v => v.Department, (v, w) => v.DepartmentId == w.DepId)
-                             .InnerJoin((v, w) => v.Manager, (v, w, x) => v.ManagerId == x.Id)
-                             .InnerJoin((v, w, x) => x.Department, (v, w, x, y) => x.DepartmentId == y.DepId)
-                             .InnerJoin((v, w, x, y) => x.Manager, (v, w, x, y, z) => x.ManagerId == z.Id)
-                             .Where((v, w, x, y, z) => v.Id == 1)
+            var result = await memberDataAccess.InnerJoin(a => a.Department, (a, b) => a.DepartmentId == b.DepId)
+                             .InnerJoin((a, b) => a.Manager, (a, b, c) => a.ManagerId == c.Id)
+                             .InnerJoin((a, b, c) => c.Department, (a, b, c, d) => c.DepartmentId == d.DepId)
+                             .InnerJoin((a, b, c, d) => c.Manager, (a, b, c, d, e) => c.ManagerId == e.Id)
+                             .Where((a, b, c, d, e) => a.Id == 1)
                              .Select(
-                                 (v, w, x, y, z) => new
+                                 (a, b, c, d, e) => new
                                                     {
-                                                        v.Id,
-                                                        v.Name,
-                                                        DepartmentId = w.DepId,
-                                                        DepartmentName = w.Name,
-                                                        ManagerId = x.Id,
-                                                        ManagerName = x.Name,
-                                                        ManagerDepartmentId = y.DepId,
-                                                        ManagerDepartmentName = y.Name,
-                                                        ManagerOfManagerId = z.Id,
-                                                        ManagerOfManagerName = z.Name
+                                                        a.Id,
+                                                        a.Name,
+                                                        DepartmentId = b.DepId,
+                                                        DepartmentName = b.Name,
+                                                        ManagerId = c.Id,
+                                                        ManagerName = c.Name,
+                                                        ManagerDepartmentId = d.DepId,
+                                                        ManagerDepartmentName = d.Name,
+                                                        ManagerOfManagerId = e.Id,
+                                                        ManagerOfManagerName = e.Name
                                                     })
                              .QueryOneAsync();
 
@@ -138,6 +138,48 @@ namespace Chef.Extensions.Tests
             result.Manager.Department.Name.Should().Be("業務部");
             result.Manager.Manager.Id.Should().Be(1);
             result.Manager.Manager.Name.Should().Be("Johnny");
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_with_InnerJoin_Six_Tables_use_QueryObject()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.InnerJoin(a => a.Department, (a, b) => a.DepartmentId == b.DepId)
+                             .InnerJoin((a, b) => a.Manager, (a, b, c) => a.ManagerId == c.Id)
+                             .InnerJoin((a, b, c) => c.Department, (a, b, c, d) => c.DepartmentId == d.DepId)
+                             .InnerJoin((a, b, c, d) => c.Manager, (a, b, c, d, e) => c.ManagerId == e.Id)
+                             .InnerJoin((a, b, c, d, e) => e.Department, (a, b, c, d, e, f) => e.DepartmentId == f.DepId)
+                             .Where((a, b, c, d, e, f) => a.Id == 1)
+                             .Select(
+                                 (a, b, c, d, e, f) => new
+                                 {
+                                     a.Id,
+                                     a.Name,
+                                     DepartmentId = b.DepId,
+                                     DepartmentName = b.Name,
+                                     ManagerId = c.Id,
+                                     ManagerName = c.Name,
+                                     ManagerDepartmentId = d.DepId,
+                                     ManagerDepartmentName = d.Name,
+                                     ManagerOfManagerId = e.Id,
+                                     ManagerOfManagerName = e.Name,
+                                     ManagerOfManagerDepartmentId = f.DepId,
+                                     ManagerOfManagerDepartmentName = f.Name
+                                 })
+                             .QueryOneAsync();
+
+            result.Name.Should().Be("Johnny");
+            result.Department.DepId.Should().Be(3);
+            result.Department.Name.Should().Be("董事長室");
+            result.Manager.Id.Should().Be(2);
+            result.Manager.Name.Should().Be("Amy");
+            result.Manager.Department.DepId.Should().Be(2);
+            result.Manager.Department.Name.Should().Be("業務部");
+            result.Manager.Manager.Id.Should().Be(1);
+            result.Manager.Manager.Name.Should().Be("Johnny");
+            result.Manager.Manager.Department.DepId.Should().Be(3);
+            result.Manager.Manager.Department.Name.Should().Be("董事長室");
         }
 
         [TestMethod]
@@ -548,6 +590,52 @@ namespace Chef.Extensions.Tests
             result[0].Department.DepId.Should().Be(3);
             result[1].Name.Should().Be("Flosser");
             result[1].Department.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task Test_QueryAsync_with_LeftJoin_Five_Tables_use_QueryObjet()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.LeftJoin(v => v.Department, (v, w) => v.DepartmentId == w.DepId)
+                             .LeftJoin((v, w) => v.Self, (v, w, x) => v.Id == x.Id)
+                             .LeftJoin((v, w, x) => x.Department, (v, w, x, y) => x.DepartmentId == y.DepId)
+                             .InnerJoin((v, w, x, y) => x.Manager, (v, w, x, y, z) => x.ManagerId == z.Id)
+                             .Where((v, w, x, y, z) => new[] { 1, 4 }.Contains(v.Id))
+                             .Select(
+                                 (v, w, x, y, z) => new
+                                 {
+                                     v.Id,
+                                     v.Name,
+                                     DepartmentId = w.DepId,
+                                     DepartmentName = w.Name,
+                                     ManagerId = x.Id,
+                                     ManagerName = x.Name,
+                                     ManagerDepartmentId = y.DepId,
+                                     ManagerDepartmentName = y.Name,
+                                     ManagerOfManagerId = z.Id,
+                                     ManagerOfManagerName = z.Name
+                                 })
+                             .QueryAsync();
+
+            result.Count.Should().Be(2);
+            result[0].Name.Should().Be("Johnny");
+            result[0].Department.DepId.Should().Be(3);
+            result[0].Department.Name.Should().Be("董事長室");
+            result[0].Self.Id.Should().Be(1);
+            result[0].Self.Name.Should().Be("Johnny");
+            result[0].Self.Department.DepId.Should().Be(3);
+            result[0].Self.Department.Name.Should().Be("董事長室");
+            result[0].Self.Manager.Id.Should().Be(2);
+            result[0].Self.Manager.Name.Should().Be("Amy");
+
+            result[1].Name.Should().Be("Flosser");
+            result[1].Department.Should().BeNull();
+            result[1].Self.Id.Should().Be(4);
+            result[1].Self.Name.Should().Be("Flosser");
+            result[1].Self.Department.Should().BeNull();
+            result[1].Self.Manager.Id.Should().Be(1);
+            result[1].Self.Manager.Name.Should().Be("Johnny");
         }
 
         [TestMethod]
