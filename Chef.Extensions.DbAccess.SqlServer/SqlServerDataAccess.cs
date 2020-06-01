@@ -1891,7 +1891,10 @@ ORDER BY ";
                                ? string.Concat("\r\n", condition.ToInnerJoin<TRight>(aliases, null, null))
                                : string.Concat("\r\n", condition.ToInnerJoin<TRight>(aliases, rightDatabase, rightConnectionStringAttr.Schema));
 
-                case JoinType.Left: return string.Concat("\r\n", condition.ToLeftJoin<TRight>(aliases, null, null));
+                case JoinType.Left:
+                    return string.Equals(database, rightDatabase, StringComparison.CurrentCultureIgnoreCase)
+                               ? string.Concat("\r\n", condition.ToLeftJoin<TRight>(aliases, null, null))
+                               : string.Concat("\r\n", condition.ToLeftJoin<TRight>(aliases, rightDatabase, rightConnectionStringAttr.Schema));
 
                 default: throw new ArgumentOutOfRangeException(nameof(joinType), "Unsupported join type.");
             }
