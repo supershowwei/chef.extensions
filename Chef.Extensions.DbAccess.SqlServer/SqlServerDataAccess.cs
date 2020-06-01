@@ -32,6 +32,8 @@ namespace Chef.Extensions.DbAccess
     {
         private static readonly ConcurrentDictionary<Type, PropertyInfo[]> RequiredColumns = new ConcurrentDictionary<Type, PropertyInfo[]>();
         private static readonly ConcurrentDictionary<string, Delegate> Setters = new ConcurrentDictionary<string, Delegate>();
+        private static readonly Regex ServerRegex = new Regex(@"(Server|Data Source)=([^;]+)", RegexOptions.IgnoreCase);
+        private static readonly Regex DatabaseRegex = new Regex(@"(Database|Initial Catalog)=([^;]+)", RegexOptions.IgnoreCase);
         private readonly string connectionString;
         private readonly string tableName;
         private readonly string alias;
@@ -1187,399 +1189,6 @@ ORDER BY ";
             return (sql, parameters);
         }
 
-        private static (string, IDictionary<string, object>, string, Action<T, TSecond>) GenerateQueryStatement<TSecond>(
-            string tableName,
-            string alias,
-            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
-            Expression<Func<T, TSecond, bool>> predicate,
-            IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
-            Expression<Func<T, TSecond, object>> selector = null,
-            int? top = null)
-        {
-            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2) };
-
-            SqlBuilder sql = @"
-SELECT ";
-            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
-
-            string splitOn;
-
-            if (selector != null)
-            {
-                sql += selector.ToSelectList(aliases, out splitOn);
-            }
-            else
-            {
-                throw new ArgumentException("Must be at least one column selected.");
-            }
-
-            sql += $@"
-FROM {tableName} [{alias}] WITH (NOLOCK)";
-
-            sql += GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-
-            var parameters = new Dictionary<string, object>();
-
-            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
-
-            if (!string.IsNullOrEmpty(searchCondition))
-            {
-                sql += @"
-WHERE ";
-                sql += searchCondition;
-            }
-
-            var orderExpressions = orderings.ToOrderExpressions(aliases);
-
-            if (!string.IsNullOrEmpty(orderExpressions))
-            {
-                sql += @"
-ORDER BY ";
-                sql += orderExpressions;
-            }
-
-            sql += ";";
-
-            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
-
-            return (sql, parameters, splitOn, secondSetter);
-        }
-
-        private static (string, IDictionary<string, object>, string, Action<T, TSecond>, Action<T, TSecond, TThird>) GenerateQueryStatement<TSecond, TThird>(
-            string tableName,
-            string alias,
-            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
-            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
-            Expression<Func<T, TSecond, TThird, bool>> predicate,
-            IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
-            Expression<Func<T, TSecond, TThird, object>> selector = null,
-            int? top = null)
-        {
-            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3) };
-
-            SqlBuilder sql = @"
-SELECT ";
-            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
-
-            string splitOn;
-
-            if (selector != null)
-            {
-                sql += selector.ToSelectList(aliases, out splitOn);
-            }
-            else
-            {
-                throw new ArgumentException("Must be at least one column selected.");
-            }
-
-            sql += $@"
-FROM {tableName} [{alias}] WITH (NOLOCK)";
-
-            sql += GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-
-            var parameters = new Dictionary<string, object>();
-
-            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
-
-            if (!string.IsNullOrEmpty(searchCondition))
-            {
-                sql += @"
-WHERE ";
-                sql += searchCondition;
-            }
-
-            var orderExpressions = orderings.ToOrderExpressions(aliases);
-
-            if (!string.IsNullOrEmpty(orderExpressions))
-            {
-                sql += @"
-ORDER BY ";
-                sql += orderExpressions;
-            }
-
-            sql += ";";
-
-            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
-            var thirdSetter = GetOrCreateSetter(thirdJoin.Item1);
-
-            return (sql, parameters, splitOn, secondSetter, thirdSetter);
-        }
-
-        private static (string, IDictionary<string, object>, string, Action<T, TSecond>, Action<T, TSecond, TThird>, Action<T, TSecond, TThird, TFourth>) GenerateQueryStatement<TSecond, TThird, TFourth>(
-            string tableName,
-            string alias,
-            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
-            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
-            Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate,
-            IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> orderings = null,
-            Expression<Func<T, TSecond, TThird, TFourth, object>> selector = null,
-            int? top = null)
-        {
-            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4) };
-
-            SqlBuilder sql = @"
-SELECT ";
-            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
-
-            string splitOn;
-
-            if (selector != null)
-            {
-                sql += selector.ToSelectList(aliases, out splitOn);
-            }
-            else
-            {
-                throw new ArgumentException("Must be at least one column selected.");
-            }
-
-            sql += $@"
-FROM {tableName} [{alias}] WITH (NOLOCK)";
-
-            sql += GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
-
-            var parameters = new Dictionary<string, object>();
-
-            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
-
-            if (!string.IsNullOrEmpty(searchCondition))
-            {
-                sql += @"
-WHERE ";
-                sql += searchCondition;
-            }
-
-            var orderExpressions = orderings.ToOrderExpressions(aliases);
-
-            if (!string.IsNullOrEmpty(orderExpressions))
-            {
-                sql += @"
-ORDER BY ";
-                sql += orderExpressions;
-            }
-
-            sql += ";";
-
-            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
-            var thirdSetter = GetOrCreateSetter(thirdJoin.Item1);
-            var fourthSetter = GetOrCreateSetter(fourthJoin.Item1);
-
-            return (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter);
-        }
-
-        private static (string, IDictionary<string, object>, string, Action<T, TSecond>, Action<T, TSecond, TThird>, Action<T, TSecond, TThird, TFourth>, Action<T, TSecond, TThird, TFourth, TFifth>) GenerateQueryStatement<TSecond, TThird, TFourth, TFifth>(
-            string tableName,
-            string alias,
-            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
-            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
-            Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
-            IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
-            Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
-            int? top = null)
-        {
-            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5) };
-
-            SqlBuilder sql = @"
-SELECT ";
-            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
-
-            string splitOn;
-
-            if (selector != null)
-            {
-                sql += selector.ToSelectList(aliases, out splitOn);
-            }
-            else
-            {
-                throw new ArgumentException("Must be at least one column selected.");
-            }
-
-            sql += $@"
-FROM {tableName} [{alias}] WITH (NOLOCK)";
-
-            sql += GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
-
-            var parameters = new Dictionary<string, object>();
-
-            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
-
-            if (!string.IsNullOrEmpty(searchCondition))
-            {
-                sql += @"
-WHERE ";
-                sql += searchCondition;
-            }
-
-            var orderExpressions = orderings.ToOrderExpressions(aliases);
-
-            if (!string.IsNullOrEmpty(orderExpressions))
-            {
-                sql += @"
-ORDER BY ";
-                sql += orderExpressions;
-            }
-
-            sql += ";";
-
-            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
-            var thirdSetter = GetOrCreateSetter(thirdJoin.Item1);
-            var fourthSetter = GetOrCreateSetter(fourthJoin.Item1);
-            var fifthSetter = GetOrCreateSetter(fifthJoin.Item1);
-
-            return (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter, fifthSetter);
-        }
-
-        private static (string, IDictionary<string, object>, string, Action<T, TSecond>, Action<T, TSecond, TThird>, Action<T, TSecond, TThird, TFourth>, Action<T, TSecond, TThird, TFourth, TFifth>, Action<T, TSecond, TThird, TFourth, TFifth, TSixth>) GenerateQueryStatement<TSecond, TThird, TFourth, TFifth, TSixth>(
-            string tableName,
-            string alias,
-            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
-            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
-            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> predicate,
-            IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>>, Sortord)> orderings = null,
-            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> selector = null,
-            int? top = null)
-        {
-            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5), GenerateAlias(typeof(TSixth), 6) };
-
-            SqlBuilder sql = @"
-SELECT ";
-            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
-
-            string splitOn;
-
-            if (selector != null)
-            {
-                sql += selector.ToSelectList(aliases, out splitOn);
-            }
-            else
-            {
-                throw new ArgumentException("Must be at least one column selected.");
-            }
-
-            sql += $@"
-FROM {tableName} [{alias}] WITH (NOLOCK)";
-
-            sql += GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TSixth>(sixthJoin.Item2, sixthJoin.Item3, aliases);
-
-            var parameters = new Dictionary<string, object>();
-
-            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
-
-            if (!string.IsNullOrEmpty(searchCondition))
-            {
-                sql += @"
-WHERE ";
-                sql += searchCondition;
-            }
-
-            var orderExpressions = orderings.ToOrderExpressions(aliases);
-
-            if (!string.IsNullOrEmpty(orderExpressions))
-            {
-                sql += @"
-ORDER BY ";
-                sql += orderExpressions;
-            }
-
-            sql += ";";
-
-            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
-            var thirdSetter = GetOrCreateSetter(thirdJoin.Item1);
-            var fourthSetter = GetOrCreateSetter(fourthJoin.Item1);
-            var fifthSetter = GetOrCreateSetter(fifthJoin.Item1);
-            var sixthSetter = GetOrCreateSetter(sixthJoin.Item1);
-
-            return (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter, fifthSetter, sixthSetter);
-        }
-
-        private static (string, IDictionary<string, object>, string, Action<T, TSecond>, Action<T, TSecond, TThird>, Action<T, TSecond, TThird, TFourth>, Action<T, TSecond, TThird, TFourth, TFifth>, Action<T, TSecond, TThird, TFourth, TFifth, TSixth>, Action<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>) GenerateQueryStatement<TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(
-            string tableName,
-            string alias,
-            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
-            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>>, JoinType) seventhJoin,
-            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>> predicate,
-            IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>>, Sortord)> orderings = null,
-            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> selector = null,
-            int? top = null)
-        {
-            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5), GenerateAlias(typeof(TSixth), 6), GenerateAlias(typeof(TSeventh), 7) };
-
-            SqlBuilder sql = @"
-SELECT ";
-            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
-
-            string splitOn;
-
-            if (selector != null)
-            {
-                sql += selector.ToSelectList(aliases, out splitOn);
-            }
-            else
-            {
-                throw new ArgumentException("Must be at least one column selected.");
-            }
-
-            sql += $@"
-FROM {tableName} [{alias}] WITH (NOLOCK)";
-
-            sql += GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TSixth>(sixthJoin.Item2, sixthJoin.Item3, aliases);
-            sql += GenerateJoinStatement<TSeventh>(seventhJoin.Item2, seventhJoin.Item3, aliases);
-
-            var parameters = new Dictionary<string, object>();
-
-            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
-
-            if (!string.IsNullOrEmpty(searchCondition))
-            {
-                sql += @"
-WHERE ";
-                sql += searchCondition;
-            }
-
-            var orderExpressions = orderings.ToOrderExpressions(aliases);
-
-            if (!string.IsNullOrEmpty(orderExpressions))
-            {
-                sql += @"
-ORDER BY ";
-                sql += orderExpressions;
-            }
-
-            sql += ";";
-
-            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
-            var thirdSetter = GetOrCreateSetter(thirdJoin.Item1);
-            var fourthSetter = GetOrCreateSetter(fourthJoin.Item1);
-            var fifthSetter = GetOrCreateSetter(fifthJoin.Item1);
-            var sixthSetter = GetOrCreateSetter(sixthJoin.Item1);
-            var seventhSetter = GetOrCreateSetter(seventhJoin.Item1);
-
-            return (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter, fifthSetter, sixthSetter, seventhSetter);
-        }
-
         private static Action<T, TSecond> GetOrCreateSetter<TSecond>(Expression<Func<T, TSecond>> lambdaExpr)
         {
             var memberExpr = (MemberExpression)lambdaExpr.Body;
@@ -1839,21 +1448,6 @@ ORDER BY ";
             return setter;
         }
 
-        private static string GenerateJoinStatement<TRight>(LambdaExpression condition, JoinType joinType, string[] aliases)
-        {
-            if (condition == null)
-            {
-                throw new ArgumentException("Must have join condition.");
-            }
-
-            switch (joinType)
-            {
-                case JoinType.Inner: return string.Concat("\r\n", condition.ToInnerJoin<TRight>(aliases));
-                case JoinType.Left: return string.Concat("\r\n", condition.ToLeftJoin<TRight>(aliases));
-                default: throw new ArgumentOutOfRangeException(nameof(joinType), "Unsupported join type.");
-            }
-        }
-
         private static (string, string) ResolveColumnList(string sql)
         {
             var columnList = new Dictionary<string, string>();
@@ -1866,6 +1460,441 @@ ORDER BY ";
             }
 
             return (string.Join(", ", columnList.Keys), string.Join(", ", columnList.Values));
+        }
+
+        private (string, IDictionary<string, object>, string, Action<T, TSecond>) GenerateQueryStatement<TSecond>(
+            string tableName,
+            string alias,
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            Expression<Func<T, TSecond, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, object>> selector = null,
+            int? top = null)
+        {
+            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2) };
+
+            SqlBuilder sql = @"
+SELECT ";
+            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
+
+            string splitOn;
+
+            if (selector != null)
+            {
+                sql += selector.ToSelectList(aliases, out splitOn);
+            }
+            else
+            {
+                throw new ArgumentException("Must be at least one column selected.");
+            }
+
+            sql += $@"
+FROM {tableName} [{alias}] WITH (NOLOCK)";
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(aliases);
+
+            if (!string.IsNullOrEmpty(orderExpressions))
+            {
+                sql += @"
+ORDER BY ";
+                sql += orderExpressions;
+            }
+
+            sql += ";";
+
+            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
+
+            return (sql, parameters, splitOn, secondSetter);
+        }
+
+        private (string, IDictionary<string, object>, string, Action<T, TSecond>, Action<T, TSecond, TThird>) GenerateQueryStatement<TSecond, TThird>(
+            string tableName,
+            string alias,
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            Expression<Func<T, TSecond, TThird, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, object>> selector = null,
+            int? top = null)
+        {
+            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3) };
+
+            SqlBuilder sql = @"
+SELECT ";
+            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
+
+            string splitOn;
+
+            if (selector != null)
+            {
+                sql += selector.ToSelectList(aliases, out splitOn);
+            }
+            else
+            {
+                throw new ArgumentException("Must be at least one column selected.");
+            }
+
+            sql += $@"
+FROM {tableName} [{alias}] WITH (NOLOCK)";
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(aliases);
+
+            if (!string.IsNullOrEmpty(orderExpressions))
+            {
+                sql += @"
+ORDER BY ";
+                sql += orderExpressions;
+            }
+
+            sql += ";";
+
+            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
+            var thirdSetter = GetOrCreateSetter(thirdJoin.Item1);
+
+            return (sql, parameters, splitOn, secondSetter, thirdSetter);
+        }
+
+        private (string, IDictionary<string, object>, string, Action<T, TSecond>, Action<T, TSecond, TThird>, Action<T, TSecond, TThird, TFourth>) GenerateQueryStatement<TSecond, TThird, TFourth>(
+            string tableName,
+            string alias,
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, TFourth, object>> selector = null,
+            int? top = null)
+        {
+            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4) };
+
+            SqlBuilder sql = @"
+SELECT ";
+            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
+
+            string splitOn;
+
+            if (selector != null)
+            {
+                sql += selector.ToSelectList(aliases, out splitOn);
+            }
+            else
+            {
+                throw new ArgumentException("Must be at least one column selected.");
+            }
+
+            sql += $@"
+FROM {tableName} [{alias}] WITH (NOLOCK)";
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(aliases);
+
+            if (!string.IsNullOrEmpty(orderExpressions))
+            {
+                sql += @"
+ORDER BY ";
+                sql += orderExpressions;
+            }
+
+            sql += ";";
+
+            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
+            var thirdSetter = GetOrCreateSetter(thirdJoin.Item1);
+            var fourthSetter = GetOrCreateSetter(fourthJoin.Item1);
+
+            return (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter);
+        }
+
+        private (string, IDictionary<string, object>, string, Action<T, TSecond>, Action<T, TSecond, TThird>, Action<T, TSecond, TThird, TFourth>, Action<T, TSecond, TThird, TFourth, TFifth>) GenerateQueryStatement<TSecond, TThird, TFourth, TFifth>(
+            string tableName,
+            string alias,
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
+            int? top = null)
+        {
+            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5) };
+
+            SqlBuilder sql = @"
+SELECT ";
+            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
+
+            string splitOn;
+
+            if (selector != null)
+            {
+                sql += selector.ToSelectList(aliases, out splitOn);
+            }
+            else
+            {
+                throw new ArgumentException("Must be at least one column selected.");
+            }
+
+            sql += $@"
+FROM {tableName} [{alias}] WITH (NOLOCK)";
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(aliases);
+
+            if (!string.IsNullOrEmpty(orderExpressions))
+            {
+                sql += @"
+ORDER BY ";
+                sql += orderExpressions;
+            }
+
+            sql += ";";
+
+            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
+            var thirdSetter = GetOrCreateSetter(thirdJoin.Item1);
+            var fourthSetter = GetOrCreateSetter(fourthJoin.Item1);
+            var fifthSetter = GetOrCreateSetter(fifthJoin.Item1);
+
+            return (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter, fifthSetter);
+        }
+
+        private (string, IDictionary<string, object>, string, Action<T, TSecond>, Action<T, TSecond, TThird>, Action<T, TSecond, TThird, TFourth>, Action<T, TSecond, TThird, TFourth, TFifth>, Action<T, TSecond, TThird, TFourth, TFifth, TSixth>) GenerateQueryStatement<TSecond, TThird, TFourth, TFifth, TSixth>(
+            string tableName,
+            string alias,
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> selector = null,
+            int? top = null)
+        {
+            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5), GenerateAlias(typeof(TSixth), 6) };
+
+            SqlBuilder sql = @"
+SELECT ";
+            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
+
+            string splitOn;
+
+            if (selector != null)
+            {
+                sql += selector.ToSelectList(aliases, out splitOn);
+            }
+            else
+            {
+                throw new ArgumentException("Must be at least one column selected.");
+            }
+
+            sql += $@"
+FROM {tableName} [{alias}] WITH (NOLOCK)";
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TSixth>(sixthJoin.Item2, sixthJoin.Item3, aliases);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(aliases);
+
+            if (!string.IsNullOrEmpty(orderExpressions))
+            {
+                sql += @"
+ORDER BY ";
+                sql += orderExpressions;
+            }
+
+            sql += ";";
+
+            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
+            var thirdSetter = GetOrCreateSetter(thirdJoin.Item1);
+            var fourthSetter = GetOrCreateSetter(fourthJoin.Item1);
+            var fifthSetter = GetOrCreateSetter(fifthJoin.Item1);
+            var sixthSetter = GetOrCreateSetter(sixthJoin.Item1);
+
+            return (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter, fifthSetter, sixthSetter);
+        }
+
+        private (string, IDictionary<string, object>, string, Action<T, TSecond>, Action<T, TSecond, TThird>, Action<T, TSecond, TThird, TFourth>, Action<T, TSecond, TThird, TFourth, TFifth>, Action<T, TSecond, TThird, TFourth, TFifth, TSixth>, Action<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>) GenerateQueryStatement<TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(
+            string tableName,
+            string alias,
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>>, JoinType) seventhJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>> predicate,
+            IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>>, Sortord)> orderings = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> selector = null,
+            int? top = null)
+        {
+            var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5), GenerateAlias(typeof(TSixth), 6), GenerateAlias(typeof(TSeventh), 7) };
+
+            SqlBuilder sql = @"
+SELECT ";
+            sql += top.HasValue ? $"TOP ({top})" : string.Empty;
+
+            string splitOn;
+
+            if (selector != null)
+            {
+                sql += selector.ToSelectList(aliases, out splitOn);
+            }
+            else
+            {
+                throw new ArgumentException("Must be at least one column selected.");
+            }
+
+            sql += $@"
+FROM {tableName} [{alias}] WITH (NOLOCK)";
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TSixth>(sixthJoin.Item2, sixthJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TSeventh>(seventhJoin.Item2, seventhJoin.Item3, aliases);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(aliases);
+
+            if (!string.IsNullOrEmpty(orderExpressions))
+            {
+                sql += @"
+ORDER BY ";
+                sql += orderExpressions;
+            }
+
+            sql += ";";
+
+            var secondSetter = GetOrCreateSetter(secondJoin.Item1);
+            var thirdSetter = GetOrCreateSetter(thirdJoin.Item1);
+            var fourthSetter = GetOrCreateSetter(fourthJoin.Item1);
+            var fifthSetter = GetOrCreateSetter(fifthJoin.Item1);
+            var sixthSetter = GetOrCreateSetter(sixthJoin.Item1);
+            var seventhSetter = GetOrCreateSetter(seventhJoin.Item1);
+
+            return (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter, fifthSetter, sixthSetter, seventhSetter);
+        }
+
+        private string GenerateJoinStatement<TRight>(LambdaExpression condition, JoinType joinType, string[] aliases)
+        {
+            if (condition == null)
+            {
+                throw new ArgumentException("Must have join condition.");
+            }
+
+            var server = ServerRegex.Match(this.connectionString).Groups[2].Value.Trim();
+            var database = DatabaseRegex.Match(this.connectionString).Groups[2].Value.Trim();
+
+            ConnectionStringAttribute rightConnectionStringAttr = null;
+            string rightConnectionString = null;
+
+            foreach (var connectionStringAttr in typeof(TRight).GetCustomAttributes<ConnectionStringAttribute>())
+            {
+                rightConnectionString = SqlServerDataAccessFactory.Instance.GetConnectionString(connectionStringAttr.ConnectionString);
+
+                if (rightConnectionString.ToLower().Contains(server.ToLower()))
+                {
+                    rightConnectionStringAttr = connectionStringAttr;
+
+                    break;
+                }
+            }
+
+            if (rightConnectionStringAttr == null) throw new ArgumentException("Table is not in the same database server.");
+
+            var rightDatabase = DatabaseRegex.Match(rightConnectionString).Groups[2].Value.Trim();
+
+            switch (joinType)
+            {
+                case JoinType.Inner:
+                    return string.Equals(database, rightDatabase, StringComparison.CurrentCultureIgnoreCase)
+                               ? string.Concat("\r\n", condition.ToInnerJoin<TRight>(aliases, null, null))
+                               : string.Concat("\r\n", condition.ToInnerJoin<TRight>(aliases, rightDatabase, rightConnectionStringAttr.Schema));
+
+                case JoinType.Left: return string.Concat("\r\n", condition.ToLeftJoin<TRight>(aliases, null, null));
+
+                default: throw new ArgumentOutOfRangeException(nameof(joinType), "Unsupported join type.");
+            }
         }
 
         private (string, DataTable) ConvertToTableValuedParameters(IEnumerable<T> values)

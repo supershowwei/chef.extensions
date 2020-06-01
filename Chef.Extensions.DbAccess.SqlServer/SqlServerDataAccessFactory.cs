@@ -76,5 +76,12 @@ namespace Chef.Extensions.DbAccess.SqlServer
         {
             return UserDefinedTables.ContainsKey(typeof(T)) ? UserDefinedTables[typeof(T)] : (null, null);
         }
+
+        internal string GetConnectionString(string nameOrConnectionString)
+        {
+            return ConnectionStrings.ContainsKey(nameOrConnectionString)
+                       ? ConnectionStrings[nameOrConnectionString]
+                       : nameOrConnectionString;
+        }
     }
 }

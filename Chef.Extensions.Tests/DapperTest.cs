@@ -491,9 +491,19 @@ namespace Chef.Extensions.Tests
         {
             Expression<Func<Member, Video, bool>> innerJoinPredicate = (x, y) => x.Id == y.Id;
 
-            var innerJoinSearchCodition = innerJoinPredicate.ToInnerJoin<Video>(new[] { "m", "v" });
+            var innerJoinSearchCodition = innerJoinPredicate.ToInnerJoin<Video>(new[] { "m", "v" }, null, null);
 
             innerJoinSearchCodition.Should().Be("INNER JOIN Video [v] WITH (NOLOCK) ON [m].[Id] = [v].[ID]");
+        }
+
+        [TestMethod]
+        public void Test_ToInnerJoin_with_Database_and_Schema()
+        {
+            Expression<Func<Member, Video, bool>> innerJoinPredicate = (x, y) => x.Id == y.Id;
+
+            var innerJoinSearchCodition = innerJoinPredicate.ToInnerJoin<Video>(new[] { "m", "v" }, "MyDB", "dbo");
+
+            innerJoinSearchCodition.Should().Be("INNER JOIN [MyDB].[dbo].[Video] [v] WITH (NOLOCK) ON [m].[Id] = [v].[ID]");
         }
 
         [TestMethod]
@@ -501,7 +511,7 @@ namespace Chef.Extensions.Tests
         {
             Expression<Func<Member, Video, bool>> innerJoinPredicate = (x, y) => x.Id == y.Id && x.Id == y.PackageId;
 
-            var innerJoinSearchCodition = innerJoinPredicate.ToInnerJoin<Video>(new[] { "m", "v" });
+            var innerJoinSearchCodition = innerJoinPredicate.ToInnerJoin<Video>(new[] { "m", "v" }, null, null);
 
             innerJoinSearchCodition.Should().Be("INNER JOIN Video [v] WITH (NOLOCK) ON ([m].[Id] = [v].[ID]) AND ([m].[Id] = [v].[PackageID])");
         }
@@ -511,7 +521,7 @@ namespace Chef.Extensions.Tests
         {
             Expression<Func<Member, Video, bool>> leftJoinPredicate = (x, y) => x.Id == y.Id;
 
-            var leftJoinSearchCodition = leftJoinPredicate.ToLeftJoin<Video>(new[] { "m", "v" });
+            var leftJoinSearchCodition = leftJoinPredicate.ToLeftJoin<Video>(new[] { "m", "v" }, null, null);
 
             leftJoinSearchCodition.Should().Be("LEFT JOIN Video [v] WITH (NOLOCK) ON [m].[Id] = [v].[ID]");
         }
@@ -521,7 +531,7 @@ namespace Chef.Extensions.Tests
         {
             Expression<Func<Member, Video, bool>> leftJoinPredicate = (x, y) => x.Id == y.Id && x.Id == y.PackageId;
 
-            var leftJoinSearchCodition = leftJoinPredicate.ToLeftJoin<Video>(new[] { "m", "v" });
+            var leftJoinSearchCodition = leftJoinPredicate.ToLeftJoin<Video>(new[] { "m", "v" }, null, null);
 
             leftJoinSearchCodition.Should().Be("LEFT JOIN Video [v] WITH (NOLOCK) ON ([m].[Id] = [v].[ID]) AND ([m].[Id] = [v].[PackageID])");
         }

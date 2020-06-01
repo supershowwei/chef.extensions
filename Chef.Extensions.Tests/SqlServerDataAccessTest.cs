@@ -54,6 +54,21 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryOneAsync_with_InnerJoin_Two_Tables_and_Cross_Database_use_QueryObject()
+        {
+            var advertisementSettingDataAccess = DataAccessFactory.Create<AdvertisementSetting>("Advertisement");
+
+            var result = await advertisementSettingDataAccess.InnerJoin(x => x.Owner, (x, y) => x.OwnerId == y.Id)
+                             .Where((x, y) => x.Type == "1000x90首頁下")
+                             .Select((x, y) => new { x.Id, OwnerId = y.Id, OwnerName = y.Name })
+                             .QueryOneAsync();
+
+            result.Id.Should().Be(Guid.Parse("df31efe5-b78f-4b4b-954a-0078328e34d2"));
+            result.Owner.Id.Should().Be(1);
+            result.Owner.Name.Should().Be("Johnny");
+        }
+
+        [TestMethod]
         public async Task Test_QueryOneAsync_with_InnerJoin_Three_Tables()
         {
             var memberDataAccess = DataAccessFactory.Create<User>();
@@ -1704,6 +1719,10 @@ namespace Chef.Extensions.Tests
         public int Weight { get; set; }
 
         public string AdCode { get; set; }
+
+        public int? OwnerId { get; set; }
+
+        public User Owner { get; set; }
     }
 
     [Table("Member")]
@@ -1745,6 +1764,7 @@ namespace Chef.Extensions.Tests
         public User Manager { get; set; }
     }
 
+    [ConnectionString(@"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Member;Integrated Security=True")]
     internal class Department
     {
         [Column("Id")]

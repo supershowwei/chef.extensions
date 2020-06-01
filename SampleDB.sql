@@ -300,12 +300,13 @@ CREATE TABLE [dbo].[AdvertisementSetting](
 	[platformId] [int] NULL,
 	[platformName] [nvarchar](50) NULL,
 	[LastUpdateTime] [datetime] NULL,
-	[AdCode] [nvarchar](max) NULL
+	[AdCode] [nvarchar](max) NULL,
+	[OwnerId] [int] NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 
-INSERT INTO [AdvertisementSetting] (id, typeId, type, titleId, title, imageName, imageId, image, linkId, linkName, link, weightId, weight, state, stateName, scheduleId, scheduleName, StartTime, EndTime, description, CreateTime, platformId, platformName, LastUpdateTime, AdCode) VALUES
-('df31efe5-b78f-4b4b-954a-0078328e34d2', 6, N'1000x90', 54, N'场約', N'场約', 92, N' ', 41, N'场約', N' ', 10, 100, 4, N'场約', 0, NULL, NULL, NULL, N'', CONVERT(DATETIME, '2016-02-15 12:10:38.247', 121), 1, N'PC', CONVERT(DATETIME, '2016-02-15 12:10:38.247', 121), NULL)
+INSERT INTO [AdvertisementSetting] (id, typeId, type, titleId, title, imageName, imageId, image, linkId, linkName, link, weightId, weight, state, stateName, scheduleId, scheduleName, StartTime, EndTime, description, CreateTime, platformId, platformName, LastUpdateTime, AdCode, OwnerId) VALUES
+('df31efe5-b78f-4b4b-954a-0078328e34d2', 6, N'1000x90', 54, N'场約', N'场約', 92, N' ', 41, N'场約', N' ', 10, 100, 4, N'场約', 0, NULL, NULL, NULL, N'', CONVERT(DATETIME, '2016-02-15 12:10:38.247', 121), 1, N'PC', CONVERT(DATETIME, '2016-02-15 12:10:38.247', 121), NULL, 1)
 GO
 
 /****** Object:  Database [Member]    Script Date: 2020/05/20 09:37:33 ******/
@@ -440,7 +441,7 @@ CREATE TABLE [dbo].[Member](
 	[Phone] [varchar](50) NULL,
 	[Address] [nvarchar](200) NULL,
 	[DepartmentId] [int] NOT NULL,
-	[ManagerId] [int] NOT NULL,,
+	[ManagerId] [int] NOT NULL
  CONSTRAINT [PK_Member] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

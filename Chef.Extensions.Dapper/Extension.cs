@@ -908,12 +908,12 @@ namespace Chef.Extensions.Dapper
             return sb.ToString();
         }
 
-        public static string ToInnerJoin<TRight>(this LambdaExpression me)
+        public static string ToInnerJoin<TRight>(this LambdaExpression me, string database, string schema)
         {
-            return ToInnerJoin<TRight>(me, new string[] { });
+            return ToInnerJoin<TRight>(me, new string[] { }, database, schema);
         }
 
-        public static string ToInnerJoin<TRight>(this LambdaExpression me, string[] aliases)
+        public static string ToInnerJoin<TRight>(this LambdaExpression me, string[] aliases, string database, string schema)
         {
             var aliasMap = GenerateAliasMap(me.Parameters, aliases);
 
@@ -922,7 +922,14 @@ namespace Chef.Extensions.Dapper
 
             var sb = new StringBuilder();
 
-            sb.Append($"INNER JOIN {rightTable}");
+            if (!string.IsNullOrEmpty(database) && !string.IsNullOrEmpty(schema))
+            {
+                sb.Append($"INNER JOIN [{database}].[{schema}].[{rightTable}]");
+            }
+            else
+            {
+                sb.Append($"INNER JOIN {rightTable}");
+            }
 
             if (!string.IsNullOrEmpty(rightTableAlias)) sb.Append($" {rightTableAlias}");
 
@@ -933,12 +940,12 @@ namespace Chef.Extensions.Dapper
             return sb.ToString();
         }
 
-        public static string ToLeftJoin<TRight>(this LambdaExpression me)
+        public static string ToLeftJoin<TRight>(this LambdaExpression me, string database, string schema)
         {
-            return ToLeftJoin<TRight>(me, new string[] { });
+            return ToLeftJoin<TRight>(me, new string[] { }, database, schema);
         }
 
-        public static string ToLeftJoin<TRight>(this LambdaExpression me, string[] aliases)
+        public static string ToLeftJoin<TRight>(this LambdaExpression me, string[] aliases, string database, string schema)
         {
             var aliasMap = GenerateAliasMap(me.Parameters, aliases);
 
@@ -947,7 +954,14 @@ namespace Chef.Extensions.Dapper
 
             var sb = new StringBuilder();
 
-            sb.Append($"LEFT JOIN {rightTable}");
+            if (!string.IsNullOrEmpty(database) && !string.IsNullOrEmpty(schema))
+            {
+                sb.Append($"LEFT JOIN [{database}].[{schema}].[{rightTable}]");
+            }
+            else
+            {
+                sb.Append($"LEFT JOIN {rightTable}");
+            }
 
             if (!string.IsNullOrEmpty(rightTableAlias)) sb.Append($" {rightTableAlias}");
 
@@ -1568,7 +1582,15 @@ namespace Chef.Extensions.Dapper
             {
                 if (!(expr is MemberExpression memberExpr))
                 {
-                    throw new ArgumentException("Expression must be MemberExpression.");
+                    if (!(expr is UnaryExpression unaryExpr))
+                    {
+                        throw new ArgumentException("Expression must be MemberExpression.");
+                    }
+
+                    if ((memberExpr = unaryExpr.Operand as MemberExpression) == null)
+                    {
+                        throw new ArgumentException("Expression must be MemberExpression.");
+                    }
                 }
 
                 if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
