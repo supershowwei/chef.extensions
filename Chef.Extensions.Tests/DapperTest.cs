@@ -37,6 +37,20 @@ namespace Chef.Extensions.Tests
     public class DapperTest
     {
         [TestMethod]
+        public void Test_ToSearchCondition_use_String_CompareTo()
+        {
+            var firstName = "abc";
+
+            Expression<Func<Member, bool>> predicate = x => x.FirstName.CompareTo(firstName) > 0 && x.LastName.CompareTo("cba") <= 0;
+
+            var searchCondition = predicate.ToSearchCondition("m", out var parameters);
+
+            searchCondition.Should().Be("([m].[first_name] > @FirstName_0) AND ([m].[last_name] <= @LastName_0)");
+            ((DbString)parameters["FirstName_0"]).Value.Should().Be(firstName);
+            parameters["LastName_0"].Should().Be("cba");
+        }
+
+        [TestMethod]
         public void Test_ToSearchCondition_in_Join_Two_Tables()
         {
             Expression<Func<Member, Video, bool>> predicate = (x, y) => x.Id < 1 && y.Id == 2 && y.PackageId == 1;

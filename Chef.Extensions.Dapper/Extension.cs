@@ -1394,16 +1394,19 @@ namespace Chef.Extensions.Dapper
                 }
                 else
                 {
+                    var argumentExpr = binaryExpr.Right;
+
                     if (!(binaryExpr.Left is MemberExpression left))
                     {
-                        if (!(binaryExpr.Left is UnaryExpression unaryExpr))
+                        switch (binaryExpr.Left)
                         {
-                            throw new ArgumentException("Left expression must be MemberExpression.");
-                        }
+                            case UnaryExpression unaryExpr when (left = unaryExpr.Operand as MemberExpression) != null: break;
 
-                        if ((left = unaryExpr.Operand as MemberExpression) == null)
-                        {
-                            throw new ArgumentException("Left expression must be MemberExpression.");
+                            case MethodCallExpression methodCallExpr when methodCallExpr.Method.GetFullName().EndsWith(".CompareTo") && (left = methodCallExpr.Object as MemberExpression) != null:
+                                argumentExpr = methodCallExpr.Arguments[0];
+                                break;
+
+                            default: throw new ArgumentException("Left expression must be MemberExpression.");
                         }
                     }
 
@@ -1425,7 +1428,7 @@ namespace Chef.Extensions.Dapper
 
                     if (parameters != null)
                     {
-                        SetParameter(left.Member, ExtractConstant(binaryExpr.Right), columnAttribute, parameters, out parameterName);
+                        SetParameter(left.Member, ExtractConstant(argumentExpr), columnAttribute, parameters, out parameterName);
                     }
 
                     if (parameters != null && parameters[parameterName] == null)
@@ -1455,24 +1458,24 @@ namespace Chef.Extensions.Dapper
 
                 if (methodFullName.EndsWith(".Equals"))
                 {
-                    var argumentExpr = (MemberExpression)methodCallExpr.Object;
+                    var memberExpr = (MemberExpression)methodCallExpr.Object;
 
-                    if (Attribute.IsDefined(argumentExpr.Member, typeof(NotMappedAttribute)))
+                    if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
                     {
                         throw new ArgumentException("Member can not applied [NotMapped].");
                     }
 
-                    var parameterExpr = (ParameterExpression)argumentExpr.Expression;
+                    var parameterExpr = (ParameterExpression)memberExpr.Expression;
 
                     var alias = aliasMap[parameterExpr.Name];
-                    var columnAttribute = argumentExpr.Member.GetCustomAttribute<ColumnAttribute>();
-                    var parameterName = argumentExpr.Member.Name;
+                    var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
+                    var parameterName = memberExpr.Member.Name;
                     var columnName = columnAttribute?.Name ?? parameterName;
-                    var parameterType = (argumentExpr.Member as PropertyInfo)?.PropertyType ?? argumentExpr.Member.DeclaringType;
+                    var parameterType = (memberExpr.Member as PropertyInfo)?.PropertyType ?? memberExpr.Member.DeclaringType;
                     
                     if (parameters != null)
                     {
-                        SetParameter(argumentExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out parameterName);
+                        SetParameter(memberExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out parameterName);
                     }
 
                     sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, parameterType, parameters)}", alias);
@@ -1508,24 +1511,24 @@ namespace Chef.Extensions.Dapper
                 }
                 else if (methodFullName.IsLikeOperator())
                 {
-                    var argumentExpr = (MemberExpression)methodCallExpr.Object;
+                    var memberExpr = (MemberExpression)methodCallExpr.Object;
 
-                    if (Attribute.IsDefined(argumentExpr.Member, typeof(NotMappedAttribute)))
+                    if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute)))
                     {
                         throw new ArgumentException("Member can not applied [NotMapped].");
                     }
 
-                    var parameterExpr = (ParameterExpression)argumentExpr.Expression;
+                    var parameterExpr = (ParameterExpression)memberExpr.Expression;
 
                     var alias = aliasMap[parameterExpr.Name];
-                    var columnAttribute = argumentExpr.Member.GetCustomAttribute<ColumnAttribute>();
-                    var parameterName = argumentExpr.Member.Name;
+                    var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
+                    var parameterName = memberExpr.Member.Name;
                     var columnName = columnAttribute?.Name ?? parameterName;
-                    var parameterType = (argumentExpr.Member as PropertyInfo)?.PropertyType ?? argumentExpr.Member.DeclaringType;
+                    var parameterType = (memberExpr.Member as PropertyInfo)?.PropertyType ?? memberExpr.Member.DeclaringType;
 
                     if (parameters != null)
                     {
-                        SetParameter(argumentExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out parameterName);
+                        SetParameter(memberExpr.Member, ExtractConstant(methodCallExpr.Arguments[0]), columnAttribute, parameters, out parameterName);
                     }
 
                     if (methodFullName.Equals("System.String.Contains"))
@@ -1700,6 +1703,19 @@ namespace Chef.Extensions.Dapper
                 case ExpressionType.LessThan: return "<";
                 case ExpressionType.LessThanOrEqual: return "<=";
                 default: throw new ArgumentException("Invalid NodeType.");
+            }
+        }
+
+        private static string MapOperator(string comparison)
+        {
+            switch (comparison)
+            {
+                case ".Equals": return "=";
+                case ".GreaterThan": return ">";
+                case ".GreaterThanOrEqual": return ">=";
+                case ".LessThan": return "<";
+                case ".LessThanOrEqual": return "<=";
+                default: throw new ArgumentException("Invalid Comparison.");
             }
         }
 

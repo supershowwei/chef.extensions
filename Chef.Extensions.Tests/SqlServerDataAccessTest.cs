@@ -36,6 +36,17 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryOneAsync_use_String_Comparison()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.Where(x => x.Name.CompareTo("J") >= 0).Select(x => new { x.Id }).QueryAsync();
+
+            result.Count.Should().BeGreaterOrEqualTo(2);
+            result.Select(x => x.Id).Should().Contain(new[] { 1, 3 });
+        }
+
+        [TestMethod]
         public async Task Test_QueryOneAsync_with_InnerJoin_Two_Tables()
         {
             var memberDataAccess = DataAccessFactory.Create<User>();
