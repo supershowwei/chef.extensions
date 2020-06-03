@@ -67,7 +67,9 @@
     <Compile Include="DoubleTest.cs" />
     <Compile Include="DecimalTest.cs" />
     <Compile Include="StringTest.cs" />
-    <Compile Include="DapperTest.cs" />
+    <Compile Include="SqlServerDataAccess.StatementExtension.Test.cs">
+        <DependentUpon>SqlServerDataAccessTest.cs</DependentUpon>
+    </Compile>
     <Compile Include="SqlServerDataAccessTest.cs" />
   </ItemGroup>
   <ItemGroup>

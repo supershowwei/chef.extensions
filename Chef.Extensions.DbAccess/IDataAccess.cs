@@ -23,27 +23,31 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
             Expression<Func<T, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         Task<T> QueryOneAsync(
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
             Expression<Func<T, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         T QueryOne<TSecond>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
             Expression<Func<T, TSecond, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         Task<T> QueryOneAsync<TSecond>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
             Expression<Func<T, TSecond, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         T QueryOne<TSecond, TThird>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -51,7 +55,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         Task<T> QueryOneAsync<TSecond, TThird>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -59,7 +64,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         T QueryOne<TSecond, TThird, TFourth>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -68,7 +74,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         Task<T> QueryOneAsync<TSecond, TThird, TFourth>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -77,7 +84,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         T QueryOne<TSecond, TThird, TFourth, TFifth>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -87,7 +95,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         Task<T> QueryOneAsync<TSecond, TThird, TFourth, TFifth>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -97,7 +106,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         T QueryOne<TSecond, TThird, TFourth, TFifth, TSixth>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -108,7 +118,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         Task<T> QueryOneAsync<TSecond, TThird, TFourth, TFifth, TSixth>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -119,7 +130,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         T QueryOne<TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -131,7 +143,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         Task<T> QueryOneAsync<TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -143,33 +156,38 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         List<T> Query(
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
             Expression<Func<T, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         Task<List<T>> QueryAsync(
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
             Expression<Func<T, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         List<T> Query<TSecond>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
             Expression<Func<T, TSecond, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         Task<List<T>> QueryAsync<TSecond>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
             Expression<Func<T, TSecond, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         List<T> Query<TSecond, TThird>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -177,7 +195,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         Task<List<T>> QueryAsync<TSecond, TThird>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -185,7 +204,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         List<T> Query<TSecond, TThird, TFourth>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -194,7 +214,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         Task<List<T>> QueryAsync<TSecond, TThird, TFourth>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -203,7 +224,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         List<T> Query<TSecond, TThird, TFourth, TFifth>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -213,7 +235,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         Task<List<T>> QueryAsync<TSecond, TThird, TFourth, TFifth>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -223,7 +246,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         List<T> Query<TSecond, TThird, TFourth, TFifth, TSixth>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -234,7 +258,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         Task<List<T>> QueryAsync<TSecond, TThird, TFourth, TFifth, TSixth>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -245,7 +270,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         List<T> Query<TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -257,7 +283,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         Task<List<T>> QueryAsync<TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
@@ -269,7 +296,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> selector = null,
-            int? top = null);
+            int? skipped = null,
+            int? taken = null);
 
         int Count(Expression<Func<T, bool>> predicate);
 

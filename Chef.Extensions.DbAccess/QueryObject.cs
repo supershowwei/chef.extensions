@@ -21,7 +21,9 @@ namespace Chef.Extensions.DbAccess
 
         public Expression<Func<T>> Setter { get; set; }
 
-        public int? Top { get; set; }
+        public int? Skipped { get; set; }
+
+        public int? Taken { get; set; }
     }
 
     public class QueryObject<T, TSecond>
@@ -42,7 +44,9 @@ namespace Chef.Extensions.DbAccess
 
         public Expression<Func<T, TSecond, object>> Selector { get; set; }
 
-        public int? Top { get; set; }
+        public int? Skipped { get; set; }
+
+        public int? Taken { get; set; }
 
         public (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) SecondJoin { get; }
     }
@@ -67,7 +71,9 @@ namespace Chef.Extensions.DbAccess
 
         public Expression<Func<T, TSecond, TThird, object>> Selector { get; set; }
 
-        public int? Top { get; set; }
+        public int? Skipped { get; set; }
+
+        public int? Taken { get; set; }
 
         public (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) SecondJoin { get; }
 
@@ -96,7 +102,9 @@ namespace Chef.Extensions.DbAccess
 
         public Expression<Func<T, TSecond, TThird, TFourth, object>> Selector { get; set; }
 
-        public int? Top { get; set; }
+        public int? Skipped { get; set; }
+
+        public int? Taken { get; set; }
 
         public (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) SecondJoin { get; }
 
@@ -129,7 +137,9 @@ namespace Chef.Extensions.DbAccess
 
         public Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> Selector { get; set; }
 
-        public int? Top { get; set; }
+        public int? Skipped { get; set; }
+
+        public int? Taken { get; set; }
 
         public (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) SecondJoin { get; }
 
@@ -166,7 +176,9 @@ namespace Chef.Extensions.DbAccess
 
         public Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> Selector { get; set; }
 
-        public int? Top { get; set; }
+        public int? Skipped { get; set; }
+
+        public int? Taken { get; set; }
 
         public (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) SecondJoin { get; }
 
@@ -207,7 +219,9 @@ namespace Chef.Extensions.DbAccess
 
         public Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> Selector { get; set; }
 
-        public int? Top { get; set; }
+        public int? Skipped { get; set; }
+
+        public int? Taken { get; set; }
 
         public (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) SecondJoin { get; }
 

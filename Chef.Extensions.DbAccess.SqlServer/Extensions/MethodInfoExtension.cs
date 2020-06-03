@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Chef.Extensions.Dapper.Extensions
+namespace Chef.Extensions.DbAccess.SqlServer.Extensions
 {
     internal static class MethodInfoExtension
     {

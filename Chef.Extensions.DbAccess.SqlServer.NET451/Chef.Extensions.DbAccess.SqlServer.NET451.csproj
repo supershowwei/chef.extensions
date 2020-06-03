@@ -31,11 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Chef.Extensions.Dapper, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Chef.Extensions.Dapper.2.2.8\lib\net451\Chef.Extensions.Dapper.dll</HintPath>
-    </Reference>
     <Reference Include="Chef.Extensions.DbAccess, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Chef.Extensions.DbAccess.1.1.8\lib\net451\Chef.Extensions.DbAccess.dll</HintPath>
+      <HintPath>..\packages\Chef.Extensions.DbAccess.1.1.9\lib\net451\Chef.Extensions.DbAccess.dll</HintPath>
     </Reference>
     <Reference Include="Dapper, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapper.1.50.0\lib\net451\Dapper.dll</HintPath>
@@ -60,6 +57,15 @@
     </Compile>
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\Extensions\IEnumerableExtension.cs">
       <Link>Extensions\IEnumerableExtension.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\Extensions\MethodInfoExtension.cs">
+      <Link>Extensions\MethodInfoExtension.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\Extensions\StatementExtension.cs">
+      <Link>Extensions\StatementExtension.cs</Link>
+    </Compile>
+    <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\Extensions\StringBuilderExtension.cs">
+      <Link>Extensions\StringBuilderExtension.cs</Link>
     </Compile>
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\Extensions\StringExtension.cs">
       <Link>Extensions\StringExtension.cs</Link>

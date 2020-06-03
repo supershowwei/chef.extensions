@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Chef.Extensions.Dapper;
+using Chef.Extensions.DbAccess.SqlServer.Extensions;
 using Dapper;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,7 +34,7 @@ namespace Chef.Extensions.Tests
     }
 
     [TestClass]
-    public class DapperTest
+    public class SqlServerDataAccess_StatementExtension_Test
     {
         [TestMethod]
         public void Test_ToSearchCondition_use_String_CompareTo()

@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Chef.Extensions.Dapper.Extensions
+namespace Chef.Extensions.DbAccess.SqlServer.Extensions
 {
     internal static class StringBuilderExtension
     {

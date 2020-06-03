@@ -40,9 +40,14 @@ namespace Chef.Extensions.DbAccess.Fluent
                    };
         }
 
-        public static QueryObject<T> Top<T>(this IDataAccess<T> me, int n)
+        public static QueryObject<T> Skip<T>(this IDataAccess<T> me, int n)
         {
-            return new QueryObject<T>(me) { Top = n };
+            return new QueryObject<T>(me) { Skipped = n };
+        }
+
+        public static QueryObject<T> Take<T>(this IDataAccess<T> me, int n)
+        {
+            return new QueryObject<T>(me) { Taken = n };
         }
 
         public static QueryObject<T, TSecond> InnerJoin<T, TSecond>(
@@ -136,31 +141,38 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me;
         }
 
-        public static QueryObject<T> Top<T>(this QueryObject<T> me, int n)
+        public static QueryObject<T> Skip<T>(this QueryObject<T> me, int n)
         {
-            me.Top = n;
+            me.Skipped = n;
+
+            return me;
+        }
+
+        public static QueryObject<T> Take<T>(this QueryObject<T> me, int n)
+        {
+            me.Taken = n;
 
             return me;
         }
 
         public static T QueryOne<T>(this QueryObject<T> me)
         {
-            return me.DataAccess.QueryOne(me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryOne(me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static Task<T> QueryOneAsync<T>(this QueryObject<T> me)
         {
-            return me.DataAccess.QueryOneAsync(me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryOneAsync(me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static List<T> Query<T>(this QueryObject<T> me)
         {
-            return me.DataAccess.Query(me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.Query(me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static Task<List<T>> QueryAsync<T>(this QueryObject<T> me)
         {
-            return me.DataAccess.QueryAsync(me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryAsync(me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static int Count<T>(this QueryObject<T> me)
@@ -367,31 +379,38 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me;
         }
 
-        public static QueryObject<T, TSecond> Top<T, TSecond>(this QueryObject<T, TSecond> me, int n)
+        public static QueryObject<T, TSecond> Skip<T, TSecond>(this QueryObject<T, TSecond> me, int n)
         {
-            me.Top = n;
+            me.Skipped = n;
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond> Take<T, TSecond>(this QueryObject<T, TSecond> me, int n)
+        {
+            me.Taken = n;
 
             return me;
         }
 
         public static T QueryOne<T, TSecond>(this QueryObject<T, TSecond> me)
         {
-            return me.DataAccess.QueryOne(me.SecondJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryOne(me.SecondJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static Task<T> QueryOneAsync<T, TSecond>(this QueryObject<T, TSecond> me)
         {
-            return me.DataAccess.QueryOneAsync(me.SecondJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryOneAsync(me.SecondJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static List<T> Query<T, TSecond>(this QueryObject<T, TSecond> me)
         {
-            return me.DataAccess.Query(me.SecondJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.Query(me.SecondJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static Task<List<T>> QueryAsync<T, TSecond>(this QueryObject<T, TSecond> me)
         {
-            return me.DataAccess.QueryAsync(me.SecondJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryAsync(me.SecondJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         #endregion
@@ -478,31 +497,38 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me;
         }
 
-        public static QueryObject<T, TSecond, TThird> Top<T, TSecond, TThird>(this QueryObject<T, TSecond, TThird> me, int n)
+        public static QueryObject<T, TSecond, TThird> Skip<T, TSecond, TThird>(this QueryObject<T, TSecond, TThird> me, int n)
         {
-            me.Top = n;
+            me.Skipped = n;
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond, TThird> Take<T, TSecond, TThird>(this QueryObject<T, TSecond, TThird> me, int n)
+        {
+            me.Taken = n;
 
             return me;
         }
 
         public static T QueryOne<T, TSecond, TThird>(this QueryObject<T, TSecond, TThird> me)
         {
-            return me.DataAccess.QueryOne(me.SecondJoin, me.ThirdJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryOne(me.SecondJoin, me.ThirdJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static Task<T> QueryOneAsync<T, TSecond, TThird>(this QueryObject<T, TSecond, TThird> me)
         {
-            return me.DataAccess.QueryOneAsync(me.SecondJoin, me.ThirdJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryOneAsync(me.SecondJoin, me.ThirdJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static List<T> Query<T, TSecond, TThird>(this QueryObject<T, TSecond, TThird> me)
         {
-            return me.DataAccess.Query(me.SecondJoin, me.ThirdJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.Query(me.SecondJoin, me.ThirdJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static Task<List<T>> QueryAsync<T, TSecond, TThird>(this QueryObject<T, TSecond, TThird> me)
         {
-            return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         #endregion
@@ -589,31 +615,38 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me;
         }
 
-        public static QueryObject<T, TSecond, TThird, TFourth> Top<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me, int n)
+        public static QueryObject<T, TSecond, TThird, TFourth> Skip<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me, int n)
         {
-            me.Top = n;
+            me.Skipped = n;
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond, TThird, TFourth> Take<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me, int n)
+        {
+            me.Taken = n;
 
             return me;
         }
 
         public static T QueryOne<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me)
         {
-            return me.DataAccess.QueryOne(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryOne(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static Task<T> QueryOneAsync<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me)
         {
-            return me.DataAccess.QueryOneAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryOneAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static List<T> Query<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me)
         {
-            return me.DataAccess.Query(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.Query(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static Task<List<T>> QueryAsync<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me)
         {
-            return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         #endregion
@@ -700,31 +733,38 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me;
         }
 
-        public static QueryObject<T, TSecond, TThird, TFourth, TFifth> Top<T, TSecond, TThird, TFourth, TFifth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth> me, int n)
+        public static QueryObject<T, TSecond, TThird, TFourth, TFifth> Skip<T, TSecond, TThird, TFourth, TFifth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth> me, int n)
         {
-            me.Top = n;
+            me.Skipped = n;
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond, TThird, TFourth, TFifth> Take<T, TSecond, TThird, TFourth, TFifth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth> me, int n)
+        {
+            me.Taken = n;
 
             return me;
         }
 
         public static T QueryOne<T, TSecond, TThird, TFourth, TFifth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth> me)
         {
-            return me.DataAccess.QueryOne(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryOne(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static Task<T> QueryOneAsync<T, TSecond, TThird, TFourth, TFifth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth> me)
         {
-            return me.DataAccess.QueryOneAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryOneAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static List<T> Query<T, TSecond, TThird, TFourth, TFifth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth> me)
         {
-            return me.DataAccess.Query(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.Query(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static Task<List<T>> QueryAsync<T, TSecond, TThird, TFourth, TFifth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth> me)
         {
-            return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         #endregion
@@ -811,31 +851,38 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me;
         }
 
-        public static QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth> Top<T, TSecond, TThird, TFourth, TFifth, TSixth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth> me, int n)
+        public static QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth> Skip<T, TSecond, TThird, TFourth, TFifth, TSixth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth> me, int n)
         {
-            me.Top = n;
+            me.Skipped = n;
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth> Take<T, TSecond, TThird, TFourth, TFifth, TSixth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth> me, int n)
+        {
+            me.Taken = n;
 
             return me;
         }
 
         public static T QueryOne<T, TSecond, TThird, TFourth, TFifth, TSixth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth> me)
         {
-            return me.DataAccess.QueryOne(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryOne(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static Task<T> QueryOneAsync<T, TSecond, TThird, TFourth, TFifth, TSixth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth> me)
         {
-            return me.DataAccess.QueryOneAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryOneAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static List<T> Query<T, TSecond, TThird, TFourth, TFifth, TSixth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth> me)
         {
-            return me.DataAccess.Query(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.Query(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static Task<List<T>> QueryAsync<T, TSecond, TThird, TFourth, TFifth, TSixth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth> me)
         {
-            return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         #endregion
@@ -906,31 +953,38 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me;
         }
 
-        public static QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> Top<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> me, int n)
+        public static QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> Skip<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> me, int n)
         {
-            me.Top = n;
+            me.Skipped = n;
+
+            return me;
+        }
+
+        public static QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> Take<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> me, int n)
+        {
+            me.Taken = n;
 
             return me;
         }
 
         public static T QueryOne<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> me)
         {
-            return me.DataAccess.QueryOne(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.SeventhJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryOne(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.SeventhJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static Task<T> QueryOneAsync<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> me)
         {
-            return me.DataAccess.QueryOneAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.SeventhJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryOneAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.SeventhJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static List<T> Query<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> me)
         {
-            return me.DataAccess.Query(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.SeventhJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.Query(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.SeventhJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         public static Task<List<T>> QueryAsync<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> me)
         {
-            return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.SeventhJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Top);
+            return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.SeventhJoin, me.Predicate, me.OrderExpressions, me.Selector, me.Skipped, me.Taken);
         }
 
         #endregion

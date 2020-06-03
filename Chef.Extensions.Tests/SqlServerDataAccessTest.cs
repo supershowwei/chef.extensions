@@ -17,7 +17,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Chef.Extensions.Tests
 {
     [TestClass]
-    public class SqlServerDataAccessTest
+    public partial class SqlServerDataAccessTest
     {
         private static readonly IDataAccessFactory DataAccessFactory = SqlServerDataAccessFactory.Instance;
 
@@ -458,6 +458,17 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryOneAsync_with_use_Pagination_QueryObject()
+        {
+            var clubDataAccess = DataAccessFactory.Create<Club>();
+
+            var club = await clubDataAccess.Select(x => new { x.Id, x.Name }).OrderBy(x => x.Id).Skip(3).Take(1).QueryOneAsync();
+
+            club.Id.Should().Be(12);
+            club.Name.Should().Be("黃亮香");
+        }
+
+        [TestMethod]
         public async Task Test_QueryOneAsync_with_AS_Keyword_Alias()
         {
             var advertisementSettingDataAccess = DataAccessFactory.Create<AdvertisementSetting>("Advertisement");
@@ -803,6 +814,20 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryAsync_with_use_Pagination_QueryObject()
+        {
+            var clubDataAccess = DataAccessFactory.Create<Club>();
+
+            var clubs = await clubDataAccess.Select(x => new { x.Id, x.Name }).OrderBy(x => x.Id).Skip(3).Take(2).QueryAsync();
+
+            clubs.Count.Should().Be(2);
+            clubs[0].Id.Should().Be(12);
+            clubs[1].Id.Should().Be(15);
+            clubs[0].Name.Should().Be("黃亮香");
+            clubs[1].Name.Should().Contain("歐陽邦瑋");
+        }
+
+        [TestMethod]
         public async Task Test_QueryAsync_with_Selector_use_QueryObject()
         {
             var clubDataAccess = DataAccessFactory.Create<Club>();
@@ -874,14 +899,14 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
-        public async Task Test_QueryAsync_with_Selector_use_QueryObject_and_OrderByDescending_and_Top()
+        public async Task Test_QueryAsync_with_Selector_use_QueryObject_and_OrderByDescending_and_Take()
         {
             var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubs = await clubDataAccess.Where(x => new[] { 17, 25 }.Contains(x.Id))
                             .OrderByDescending(x => x.Id)
                             .Select(x => new { x.Name })
-                            .Top(1)
+                            .Take(1)
                             .QueryAsync();
 
             clubs.Count.Should().Be(1);
@@ -890,14 +915,14 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
-        public async Task Test_QueryAllAsync_with_Selector_use_QueryObject_and_OrderByDescending_and_ThenBy_Top()
+        public async Task Test_QueryAllAsync_with_Selector_use_QueryObject_and_OrderByDescending_and_ThenBy_Take()
         {
             var clubDataAccess = DataAccessFactory.Create<Club>();
 
             var clubs = await clubDataAccess.OrderByDescending(x => x.IsActive)
                             .ThenBy(x => x.Id)
                             .Select(x => new { x.Id, x.Name })
-                            .Top(1)
+                            .Take(1)
                             .QueryAsync();
 
             clubs.Count.Should().Be(1);
