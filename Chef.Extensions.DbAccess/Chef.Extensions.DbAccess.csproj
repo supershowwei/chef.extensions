@@ -46,6 +46,7 @@
   <ItemGroup>
     <Compile Include="ConnectionStringAttribute.cs" />
     <Compile Include="Fluent\Extension.cs" />
+    <Compile Include="Grouping.cs" />
     <Compile Include="IDataAccess.cs" />
     <Compile Include="IDataAccessFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

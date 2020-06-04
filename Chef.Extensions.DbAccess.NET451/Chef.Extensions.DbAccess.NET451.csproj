@@ -50,6 +50,9 @@
     <Compile Include="..\Chef.Extensions.DbAccess\Fluent\Extension.cs">
       <Link>Fluent\Extension.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.DbAccess\Grouping.cs">
+      <Link>Grouping.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.DbAccess\IDataAccess.cs">
       <Link>IDataAccess.cs</Link>
     </Compile>

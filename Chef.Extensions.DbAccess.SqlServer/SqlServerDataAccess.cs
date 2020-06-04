@@ -49,20 +49,24 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
             Expression<Func<T, object>> selector = null,
+            Expression<Func<T, object>> groupingColumns = null,
+            Expression<Func<Grouping<T>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            return this.QueryOneAsync(predicate, orderings, selector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.QueryOneAsync(predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual Task<T> QueryOneAsync(
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
             Expression<Func<T, object>> selector = null,
+            Expression<Func<T, object>> groupingColumns = null,
+            Expression<Func<Grouping<T>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            var (sql, parameters) = GenerateQueryStatement(this.tableName, this.alias, predicate, orderings, selector, skipped, taken);
+            var (sql, parameters) = GenerateQueryStatement(this.tableName, this.alias, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken);
 
             return this.ExecuteQueryOneAsync<T>(sql, parameters);
         }
@@ -72,10 +76,12 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, object>> selector = null,
+            Expression<Func<T, TSecond, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            return this.QueryOneAsync(secondJoin, predicate, orderings, selector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.QueryOneAsync(secondJoin, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task<T> QueryOneAsync<TSecond>(
@@ -83,6 +89,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, object>> selector = null,
+            Expression<Func<T, TSecond, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -93,23 +101,34 @@ namespace Chef.Extensions.DbAccess
                 predicate,
                 orderings,
                 selector,
+                groupingColumns,
+                groupingSelector,
                 skipped,
                 taken);
 
-            using (var db = new SqlConnection(this.connectionString))
+            if (groupingSelector != null)
             {
-                var result = await db.QueryAsync<T, TSecond, T>(
-                                 sql,
-                                 (first, second) =>
-                                     {
-                                         secondSetter(first, second);
+                var result = await this.ExecuteQueryOneAsync<T>(sql, parameters);
 
-                                         return first;
-                                     },
-                                 parameters,
-                                 splitOn: splitOn);
+                return result;
+            }
+            else
+            {
+                using (var db = new SqlConnection(this.connectionString))
+                {
+                    var result = await db.QueryAsync<T, TSecond, T>(
+                                     sql,
+                                     (first, second) =>
+                                         {
+                                             secondSetter(first, second);
 
-                return result.SingleOrDefault();
+                                             return first;
+                                         },
+                                     parameters,
+                                     splitOn: splitOn);
+
+                    return result.SingleOrDefault();
+                }
             }
         }
 
@@ -119,10 +138,12 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            return this.QueryOneAsync(secondJoin, thirdJoin, predicate, orderings, selector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.QueryOneAsync(secondJoin, thirdJoin, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task<T> QueryOneAsync<TSecond, TThird>(
@@ -131,6 +152,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -142,24 +165,35 @@ namespace Chef.Extensions.DbAccess
                 predicate,
                 orderings,
                 selector,
+                groupingColumns,
+                groupingSelector,
                 skipped,
                 taken);
 
-            using (var db = new SqlConnection(this.connectionString))
+            if (groupingSelector != null)
             {
-                var result = await db.QueryAsync<T, TSecond, TThird, T>(
-                                 sql,
-                                 (first, second, third) =>
-                                     {
-                                         secondSetter(first, second);
-                                         thirdSetter(first, second, third);
+                var result = await this.ExecuteQueryOneAsync<T>(sql, parameters);
 
-                                         return first;
-                                     },
-                                 parameters,
-                                 splitOn: splitOn);
+                return result;
+            }
+            else
+            {
+                using (var db = new SqlConnection(this.connectionString))
+                {
+                    var result = await db.QueryAsync<T, TSecond, TThird, T>(
+                                     sql,
+                                     (first, second, third) =>
+                                         {
+                                             secondSetter(first, second);
+                                             thirdSetter(first, second, third);
 
-                return result.SingleOrDefault();
+                                             return first;
+                                         },
+                                     parameters,
+                                     splitOn: splitOn);
+
+                    return result.SingleOrDefault();
+                }
             }
         }
 
@@ -170,10 +204,12 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            return this.QueryOneAsync(secondJoin, thirdJoin, fourthJoin, predicate, orderings, selector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.QueryOneAsync(secondJoin, thirdJoin, fourthJoin, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task<T> QueryOneAsync<TSecond, TThird, TFourth>(
@@ -183,6 +219,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -195,25 +233,36 @@ namespace Chef.Extensions.DbAccess
                 predicate,
                 orderings,
                 selector,
+                groupingColumns,
+                groupingSelector,
                 skipped,
                 taken);
 
-            using (var db = new SqlConnection(this.connectionString))
+            if (groupingSelector != null)
             {
-                var result = await db.QueryAsync<T, TSecond, TThird, TFourth, T>(
-                                 sql,
-                                 (first, second, third, fourth) =>
-                                     {
-                                         secondSetter(first, second);
-                                         thirdSetter(first, second, third);
-                                         fourthSetter(first, second, third, fourth);
+                var result = await this.ExecuteQueryOneAsync<T>(sql, parameters);
 
-                                         return first;
-                                     },
-                                 parameters,
-                                 splitOn: splitOn);
+                return result;
+            }
+            else
+            {
+                using (var db = new SqlConnection(this.connectionString))
+                {
+                    var result = await db.QueryAsync<T, TSecond, TThird, TFourth, T>(
+                                     sql,
+                                     (first, second, third, fourth) =>
+                                         {
+                                             secondSetter(first, second);
+                                             thirdSetter(first, second, third);
+                                             fourthSetter(first, second, third, fourth);
 
-                return result.SingleOrDefault();
+                                             return first;
+                                         },
+                                     parameters,
+                                     splitOn: splitOn);
+
+                    return result.SingleOrDefault();
+                }
             }
         }
 
@@ -225,20 +274,25 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            return this.QueryOneAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, predicate, orderings, selector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.QueryOneAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task<T> QueryOneAsync<TSecond, TThird, TFourth, TFifth>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
             (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
             (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType)
+                fifthJoin,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -252,26 +306,37 @@ namespace Chef.Extensions.DbAccess
                 predicate,
                 orderings,
                 selector,
+                groupingColumns,
+                groupingSelector,
                 skipped,
                 taken);
 
-            using (var db = new SqlConnection(this.connectionString))
+            if (groupingSelector != null)
             {
-                var result = await db.QueryAsync<T, TSecond, TThird, TFourth, TFifth, T>(
-                                 sql,
-                                 (first, second, third, fourth, fifth) =>
-                                     {
-                                         secondSetter(first, second);
-                                         thirdSetter(first, second, third);
-                                         fourthSetter(first, second, third, fourth);
-                                         fifthSetter(first, second, third, fourth, fifth);
+                var result = await this.ExecuteQueryOneAsync<T>(sql, parameters);
 
-                                         return first;
-                                     },
-                                 parameters,
-                                 splitOn: splitOn);
+                return result;
+            }
+            else
+            {
+                using (var db = new SqlConnection(this.connectionString))
+                {
+                    var result = await db.QueryAsync<T, TSecond, TThird, TFourth, TFifth, T>(
+                                     sql,
+                                     (first, second, third, fourth, fifth) =>
+                                         {
+                                             secondSetter(first, second);
+                                             thirdSetter(first, second, third);
+                                             fourthSetter(first, second, third, fourth);
+                                             fifthSetter(first, second, third, fourth, fifth);
 
-                return result.SingleOrDefault();
+                                             return first;
+                                         },
+                                     parameters,
+                                     splitOn: splitOn);
+
+                    return result.SingleOrDefault();
+                }
             }
         }
 
@@ -284,21 +349,27 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth, TSixth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            return this.QueryOneAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, sixthJoin, predicate, orderings, selector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.QueryOneAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, sixthJoin, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task<T> QueryOneAsync<TSecond, TThird, TFourth, TFifth, TSixth>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
             (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
             (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType)
+                fifthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>,
+                Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth, TSixth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -313,27 +384,38 @@ namespace Chef.Extensions.DbAccess
                 predicate,
                 orderings,
                 selector,
+                groupingColumns,
+                groupingSelector,
                 skipped,
                 taken);
 
-            using (var db = new SqlConnection(this.connectionString))
+            if (groupingSelector != null)
             {
-                var result = await db.QueryAsync<T, TSecond, TThird, TFourth, TFifth, TSixth, T>(
-                                 sql,
-                                 (first, second, third, fourth, fifth, sixth) =>
-                                     {
-                                         secondSetter(first, second);
-                                         thirdSetter(first, second, third);
-                                         fourthSetter(first, second, third, fourth);
-                                         fifthSetter(first, second, third, fourth, fifth);
-                                         sixthSetter(first, second, third, fourth, fifth, sixth);
+                var result = await this.ExecuteQueryOneAsync<T>(sql, parameters);
 
-                                         return first;
-                                     },
-                                 parameters,
-                                 splitOn: splitOn);
+                return result;
+            }
+            else
+            {
+                using (var db = new SqlConnection(this.connectionString))
+                {
+                    var result = await db.QueryAsync<T, TSecond, TThird, TFourth, TFifth, TSixth, T>(
+                                     sql,
+                                     (first, second, third, fourth, fifth, sixth) =>
+                                         {
+                                             secondSetter(first, second);
+                                             thirdSetter(first, second, third);
+                                             fourthSetter(first, second, third, fourth);
+                                             fifthSetter(first, second, third, fourth, fifth);
+                                             sixthSetter(first, second, third, fourth, fifth, sixth);
 
-                return result.SingleOrDefault();
+                                             return first;
+                                         },
+                                     parameters,
+                                     splitOn: splitOn);
+
+                    return result.SingleOrDefault();
+                }
             }
         }
 
@@ -347,59 +429,78 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            return this.QueryOneAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, sixthJoin, seventhJoin, predicate, orderings, selector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.QueryOneAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, sixthJoin, seventhJoin, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task<T> QueryOneAsync<TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
             (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
             (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>>, JoinType) seventhJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType)
+                fifthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>,
+                Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>>,
+                Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>>, JoinType) seventhJoin,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            var (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter, fifthSetter, sixthSetter, seventhSetter) = GenerateQueryStatement(
-                this.tableName,
-                this.alias,
-                secondJoin,
-                thirdJoin,
-                fourthJoin,
-                fifthJoin,
-                sixthJoin,
-                seventhJoin,
-                predicate,
-                orderings,
-                selector,
-                skipped,
-                taken);
+            var (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter, fifthSetter, sixthSetter, seventhSetter) =
+                GenerateQueryStatement(
+                    this.tableName,
+                    this.alias,
+                    secondJoin,
+                    thirdJoin,
+                    fourthJoin,
+                    fifthJoin,
+                    sixthJoin,
+                    seventhJoin,
+                    predicate,
+                    orderings,
+                    selector,
+                    groupingColumns,
+                    groupingSelector,
+                    skipped,
+                    taken);
 
-            using (var db = new SqlConnection(this.connectionString))
+            if (groupingSelector != null)
             {
-                var result = await db.QueryAsync<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, T>(
-                                 sql,
-                                 (first, second, third, fourth, fifth, sixth, seventh) =>
-                                     {
-                                         secondSetter(first, second);
-                                         thirdSetter(first, second, third);
-                                         fourthSetter(first, second, third, fourth);
-                                         fifthSetter(first, second, third, fourth, fifth);
-                                         sixthSetter(first, second, third, fourth, fifth, sixth);
-                                         seventhSetter(first, second, third, fourth, fifth, sixth, seventh);
+                var result = await this.ExecuteQueryOneAsync<T>(sql, parameters);
 
-                                         return first;
-                                     },
-                                 parameters,
-                                 splitOn: splitOn);
+                return result;
+            }
+            else
+            {
+                using (var db = new SqlConnection(this.connectionString))
+                {
+                    var result = await db.QueryAsync<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, T>(
+                                     sql,
+                                     (first, second, third, fourth, fifth, sixth, seventh) =>
+                                         {
+                                             secondSetter(first, second);
+                                             thirdSetter(first, second, third);
+                                             fourthSetter(first, second, third, fourth);
+                                             fifthSetter(first, second, third, fourth, fifth);
+                                             sixthSetter(first, second, third, fourth, fifth, sixth);
+                                             seventhSetter(first, second, third, fourth, fifth, sixth, seventh);
 
-                return result.SingleOrDefault();
+                                             return first;
+                                         },
+                                     parameters,
+                                     splitOn: splitOn);
+
+                    return result.SingleOrDefault();
+                }
             }
         }
 
@@ -407,20 +508,24 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
             Expression<Func<T, object>> selector = null,
+            Expression<Func<T, object>> groupingColumns = null,
+            Expression<Func<Grouping<T>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            return this.QueryAsync(predicate, orderings, selector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.QueryAsync(predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual Task<List<T>> QueryAsync(
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
             Expression<Func<T, object>> selector = null,
+            Expression<Func<T, object>> groupingColumns = null,
+            Expression<Func<Grouping<T>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            var (sql, parameters) = GenerateQueryStatement(this.tableName, this.alias, predicate, orderings, selector, skipped, taken);
+            var (sql, parameters) = GenerateQueryStatement(this.tableName, this.alias, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken);
 
             return this.ExecuteQueryAsync<T>(sql, parameters);
         }
@@ -430,10 +535,12 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, object>> selector = null,
+            Expression<Func<T, TSecond, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            return this.QueryAsync(secondJoin, predicate, orderings, selector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.QueryAsync(secondJoin, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task<List<T>> QueryAsync<TSecond>(
@@ -441,6 +548,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, object>> selector = null,
+            Expression<Func<T, TSecond, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -451,23 +560,34 @@ namespace Chef.Extensions.DbAccess
                 predicate,
                 orderings,
                 selector,
+                groupingColumns,
+                groupingSelector,
                 skipped,
                 taken);
 
-            using (var db = new SqlConnection(this.connectionString))
+            if (groupingSelector != null)
             {
-                var result = await db.QueryAsync<T, TSecond, T>(
-                                 sql,
-                                 (first, second) =>
-                                     {
-                                         secondSetter(first, second);
+                var result = await this.ExecuteQueryAsync<T>(sql, parameters);
 
-                                         return first;
-                                     },
-                                 parameters,
-                                 splitOn: splitOn);
+                return result;
+            }
+            else
+            {
+                using (var db = new SqlConnection(this.connectionString))
+                {
+                    var result = await db.QueryAsync<T, TSecond, T>(
+                                     sql,
+                                     (first, second) =>
+                                         {
+                                             secondSetter(first, second);
 
-                return result.ToList();
+                                             return first;
+                                         },
+                                     parameters,
+                                     splitOn: splitOn);
+
+                    return result.ToList();
+                }
             }
         }
 
@@ -477,10 +597,12 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            return this.QueryAsync(secondJoin, thirdJoin, predicate, orderings, selector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.QueryAsync(secondJoin, thirdJoin, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task<List<T>> QueryAsync<TSecond, TThird>(
@@ -489,6 +611,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -500,24 +624,35 @@ namespace Chef.Extensions.DbAccess
                 predicate,
                 orderings,
                 selector,
+                groupingColumns,
+                groupingSelector,
                 skipped,
                 taken);
 
-            using (var db = new SqlConnection(this.connectionString))
+            if (groupingSelector != null)
             {
-                var result = await db.QueryAsync<T, TSecond, TThird, T>(
-                                 sql,
-                                 (first, second, third) =>
-                                     {
-                                         secondSetter(first, second);
-                                         thirdSetter(first, second, third);
+                var result = await this.ExecuteQueryAsync<T>(sql, parameters);
 
-                                         return first;
-                                     },
-                                 parameters,
-                                 splitOn: splitOn);
+                return result;
+            }
+            else
+            {
+                using (var db = new SqlConnection(this.connectionString))
+                {
+                    var result = await db.QueryAsync<T, TSecond, TThird, T>(
+                                     sql,
+                                     (first, second, third) =>
+                                         {
+                                             secondSetter(first, second);
+                                             thirdSetter(first, second, third);
 
-                return result.ToList();
+                                             return first;
+                                         },
+                                     parameters,
+                                     splitOn: splitOn);
+
+                    return result.ToList();
+                }
             }
         }
 
@@ -528,10 +663,12 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            return this.QueryAsync(secondJoin, thirdJoin, fourthJoin, predicate, orderings, selector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.QueryAsync(secondJoin, thirdJoin, fourthJoin, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task<List<T>> QueryAsync<TSecond, TThird, TFourth>(
@@ -541,6 +678,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -553,25 +692,36 @@ namespace Chef.Extensions.DbAccess
                 predicate,
                 orderings,
                 selector,
+                groupingColumns,
+                groupingSelector,
                 skipped,
                 taken);
 
-            using (var db = new SqlConnection(this.connectionString))
+            if (groupingSelector != null)
             {
-                var result = await db.QueryAsync<T, TSecond, TThird, TFourth, T>(
-                                 sql,
-                                 (first, second, third, fourth) =>
-                                     {
-                                         secondSetter(first, second);
-                                         thirdSetter(first, second, third);
-                                         fourthSetter(first, second, third, fourth);
+                var result = await this.ExecuteQueryAsync<T>(sql, parameters);
 
-                                         return first;
-                                     },
-                                 parameters,
-                                 splitOn: splitOn);
+                return result;
+            }
+            else
+            {
+                using (var db = new SqlConnection(this.connectionString))
+                {
+                    var result = await db.QueryAsync<T, TSecond, TThird, TFourth, T>(
+                                     sql,
+                                     (first, second, third, fourth) =>
+                                         {
+                                             secondSetter(first, second);
+                                             thirdSetter(first, second, third);
+                                             fourthSetter(first, second, third, fourth);
 
-                return result.ToList();
+                                             return first;
+                                         },
+                                     parameters,
+                                     splitOn: splitOn);
+
+                    return result.ToList();
+                }
             }
         }
 
@@ -583,10 +733,12 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            return this.QueryAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, predicate, orderings, selector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.QueryAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task<List<T>> QueryAsync<TSecond, TThird, TFourth, TFifth>(
@@ -597,6 +749,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -610,26 +764,37 @@ namespace Chef.Extensions.DbAccess
                 predicate,
                 orderings,
                 selector,
+                groupingColumns,
+                groupingSelector,
                 skipped,
                 taken);
 
-            using (var db = new SqlConnection(this.connectionString))
+            if (groupingSelector != null)
             {
-                var result = await db.QueryAsync<T, TSecond, TThird, TFourth, TFifth, T>(
-                                 sql,
-                                 (first, second, third, fourth, fifth) =>
-                                     {
-                                         secondSetter(first, second);
-                                         thirdSetter(first, second, third);
-                                         fourthSetter(first, second, third, fourth);
-                                         fifthSetter(first, second, third, fourth, fifth);
+                var result = await this.ExecuteQueryAsync<T>(sql, parameters);
 
-                                         return first;
-                                     },
-                                 parameters,
-                                 splitOn: splitOn);
+                return result;
+            }
+            else
+            {
+                using (var db = new SqlConnection(this.connectionString))
+                {
+                    var result = await db.QueryAsync<T, TSecond, TThird, TFourth, TFifth, T>(
+                                     sql,
+                                     (first, second, third, fourth, fifth) =>
+                                         {
+                                             secondSetter(first, second);
+                                             thirdSetter(first, second, third);
+                                             fourthSetter(first, second, third, fourth);
+                                             fifthSetter(first, second, third, fourth, fifth);
 
-                return result.ToList();
+                                             return first;
+                                         },
+                                     parameters,
+                                     splitOn: splitOn);
+
+                    return result.ToList();
+                }
             }
         }
 
@@ -642,10 +807,12 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth, TSixth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            return this.QueryAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, sixthJoin, predicate, orderings, selector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.QueryAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, sixthJoin, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task<List<T>> QueryAsync<TSecond, TThird, TFourth, TFifth, TSixth>(
@@ -657,6 +824,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth, TSixth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -671,27 +840,38 @@ namespace Chef.Extensions.DbAccess
                 predicate,
                 orderings,
                 selector,
+                groupingColumns,
+                groupingSelector,
                 skipped,
                 taken);
 
-            using (var db = new SqlConnection(this.connectionString))
+            if (groupingSelector != null)
             {
-                var result = await db.QueryAsync<T, TSecond, TThird, TFourth, TFifth, TSixth, T>(
-                                 sql,
-                                 (first, second, third, fourth, fifth, sixth) =>
-                                     {
-                                         secondSetter(first, second);
-                                         thirdSetter(first, second, third);
-                                         fourthSetter(first, second, third, fourth);
-                                         fifthSetter(first, second, third, fourth, fifth);
-                                         sixthSetter(first, second, third, fourth, fifth, sixth);
+                var result = await this.ExecuteQueryAsync<T>(sql, parameters);
 
-                                         return first;
-                                     },
-                                 parameters,
-                                 splitOn: splitOn);
+                return result;
+            }
+            else
+            {
+                using (var db = new SqlConnection(this.connectionString))
+                {
+                    var result = await db.QueryAsync<T, TSecond, TThird, TFourth, TFifth, TSixth, T>(
+                                     sql,
+                                     (first, second, third, fourth, fifth, sixth) =>
+                                         {
+                                             secondSetter(first, second);
+                                             thirdSetter(first, second, third);
+                                             fourthSetter(first, second, third, fourth);
+                                             fifthSetter(first, second, third, fourth, fifth);
+                                             sixthSetter(first, second, third, fourth, fifth, sixth);
 
-                return result.ToList();
+                                             return first;
+                                         },
+                                     parameters,
+                                     splitOn: splitOn);
+
+                    return result.ToList();
+                }
             }
         }
 
@@ -705,10 +885,12 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
-            return this.QueryAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, sixthJoin, seventhJoin, predicate, orderings, selector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
+            return this.QueryAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, sixthJoin, seventhJoin, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         public virtual async Task<List<T>> QueryAsync<TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(
@@ -721,6 +903,8 @@ namespace Chef.Extensions.DbAccess
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -736,28 +920,39 @@ namespace Chef.Extensions.DbAccess
                 predicate,
                 orderings,
                 selector,
+                groupingColumns,
+                groupingSelector,
                 skipped,
                 taken);
 
-            using (var db = new SqlConnection(this.connectionString))
+            if (groupingSelector != null)
             {
-                var result = await db.QueryAsync<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, T>(
-                                 sql,
-                                 (first, second, third, fourth, fifth, sixth, seventh) =>
-                                     {
-                                         secondSetter(first, second);
-                                         thirdSetter(first, second, third);
-                                         fourthSetter(first, second, third, fourth);
-                                         fifthSetter(first, second, third, fourth, fifth);
-                                         sixthSetter(first, second, third, fourth, fifth, sixth);
-                                         seventhSetter(first, second, third, fourth, fifth, sixth, seventh);
+                var result = await this.ExecuteQueryAsync<T>(sql, parameters);
 
-                                         return first;
-                                     },
-                                 parameters,
-                                 splitOn: splitOn);
+                return result;
+            }
+            else
+            {
+                using (var db = new SqlConnection(this.connectionString))
+                {
+                    var result = await db.QueryAsync<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, T>(
+                                     sql,
+                                     (first, second, third, fourth, fifth, sixth, seventh) =>
+                                         {
+                                             secondSetter(first, second);
+                                             thirdSetter(first, second, third);
+                                             fourthSetter(first, second, third, fourth);
+                                             fifthSetter(first, second, third, fourth, fifth);
+                                             sixthSetter(first, second, third, fourth, fifth, sixth);
+                                             seventhSetter(first, second, third, fourth, fifth, sixth, seventh);
 
-                return result.ToList();
+                                             return first;
+                                         },
+                                     parameters,
+                                     splitOn: splitOn);
+
+                    return result.ToList();
+                }
             }
         }
 
@@ -1185,6 +1380,8 @@ WHERE ";
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
             Expression<Func<T, object>> selector = null,
+            Expression<Func<T, object>> groupingColumns = null,
+            Expression<Func<Grouping<T>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -1192,7 +1389,11 @@ WHERE ";
 SELECT ";
             sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
 
-            if (selector != null)
+            if (groupingSelector != null)
+            {
+                sql += groupingSelector.ToGroupingSelectList(new[] { alias });
+            }
+            else if (selector != null)
             {
                 sql += selector.ToSelectList(alias);
             }
@@ -1213,6 +1414,15 @@ FROM {tableName} [{alias}] WITH (NOLOCK)";
                 sql += @"
 WHERE ";
                 sql += searchCondition;
+            }
+
+            var groupingExpression = groupingColumns == null ? string.Empty : groupingColumns.ToGroupingColumns(new[] { alias });
+
+            if (!string.IsNullOrEmpty(groupingExpression))
+            {
+                sql += @"
+GROUP BY ";
+                sql += groupingExpression;
             }
 
             var orderExpressions = orderings.ToOrderExpressions(alias);
@@ -1521,6 +1731,8 @@ FETCH NEXT {taken.Value} ROWS ONLY";
             Expression<Func<T, TSecond, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, object>> selector = null,
+            Expression<Func<T, TSecond, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -1532,9 +1744,15 @@ SELECT ";
 
             string splitOn;
 
-            if (selector != null)
+            if (groupingSelector != null)
             {
-                sql += selector.ToSelectList(aliases, out splitOn);
+                sql += groupingSelector.ToGroupingSelectList(aliases);
+
+                splitOn = string.Empty;
+            }
+            else if (selector != null)
+            {
+                sql += selector.ToJoinSelectList(aliases, out splitOn);
             }
             else
             {
@@ -1555,6 +1773,15 @@ FROM {tableName} [{alias}] WITH (NOLOCK)";
                 sql += @"
 WHERE ";
                 sql += searchCondition;
+            }
+
+            var groupingExpression = groupingColumns == null ? string.Empty : groupingColumns.ToGroupingColumns(aliases);
+
+            if (!string.IsNullOrEmpty(groupingExpression))
+            {
+                sql += @"
+GROUP BY ";
+                sql += groupingExpression;
             }
 
             var orderExpressions = orderings.ToOrderExpressions(aliases);
@@ -1593,6 +1820,8 @@ FETCH NEXT {taken.Value} ROWS ONLY";
             Expression<Func<T, TSecond, TThird, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -1604,9 +1833,15 @@ SELECT ";
 
             string splitOn;
 
-            if (selector != null)
+            if (groupingSelector != null)
             {
-                sql += selector.ToSelectList(aliases, out splitOn);
+                sql += groupingSelector.ToGroupingSelectList(aliases);
+
+                splitOn = string.Empty;
+            }
+            else if (selector != null)
+            {
+                sql += selector.ToJoinSelectList(aliases, out splitOn);
             }
             else
             {
@@ -1628,6 +1863,15 @@ FROM {tableName} [{alias}] WITH (NOLOCK)";
                 sql += @"
 WHERE ";
                 sql += searchCondition;
+            }
+
+            var groupingExpression = groupingColumns == null ? string.Empty : groupingColumns.ToGroupingColumns(aliases);
+
+            if (!string.IsNullOrEmpty(groupingExpression))
+            {
+                sql += @"
+GROUP BY ";
+                sql += groupingExpression;
             }
 
             var orderExpressions = orderings.ToOrderExpressions(aliases);
@@ -1668,6 +1912,8 @@ FETCH NEXT {taken.Value} ROWS ONLY";
             Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -1679,9 +1925,15 @@ SELECT ";
 
             string splitOn;
 
-            if (selector != null)
+            if (groupingSelector != null)
             {
-                sql += selector.ToSelectList(aliases, out splitOn);
+                sql += groupingSelector.ToGroupingSelectList(aliases);
+
+                splitOn = string.Empty;
+            }
+            else if (selector != null)
+            {
+                sql += selector.ToJoinSelectList(aliases, out splitOn);
             }
             else
             {
@@ -1704,6 +1956,15 @@ FROM {tableName} [{alias}] WITH (NOLOCK)";
                 sql += @"
 WHERE ";
                 sql += searchCondition;
+            }
+
+            var groupingExpression = groupingColumns == null ? string.Empty : groupingColumns.ToGroupingColumns(aliases);
+
+            if (!string.IsNullOrEmpty(groupingExpression))
+            {
+                sql += @"
+GROUP BY ";
+                sql += groupingExpression;
             }
 
             var orderExpressions = orderings.ToOrderExpressions(aliases);
@@ -1746,6 +2007,8 @@ FETCH NEXT {taken.Value} ROWS ONLY";
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -1757,9 +2020,15 @@ SELECT ";
 
             string splitOn;
 
-            if (selector != null)
+            if (groupingSelector != null)
             {
-                sql += selector.ToSelectList(aliases, out splitOn);
+                sql += groupingSelector.ToGroupingSelectList(aliases);
+
+                splitOn = string.Empty;
+            }
+            else if (selector != null)
+            {
+                sql += selector.ToJoinSelectList(aliases, out splitOn);
             }
             else
             {
@@ -1783,6 +2052,15 @@ FROM {tableName} [{alias}] WITH (NOLOCK)";
                 sql += @"
 WHERE ";
                 sql += searchCondition;
+            }
+
+            var groupingExpression = groupingColumns == null ? string.Empty : groupingColumns.ToGroupingColumns(aliases);
+
+            if (!string.IsNullOrEmpty(groupingExpression))
+            {
+                sql += @"
+GROUP BY ";
+                sql += groupingExpression;
             }
 
             var orderExpressions = orderings.ToOrderExpressions(aliases);
@@ -1827,6 +2105,8 @@ FETCH NEXT {taken.Value} ROWS ONLY";
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth, TSixth>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -1838,9 +2118,15 @@ SELECT ";
 
             string splitOn;
 
-            if (selector != null)
+            if (groupingSelector != null)
             {
-                sql += selector.ToSelectList(aliases, out splitOn);
+                sql += groupingSelector.ToGroupingSelectList(aliases);
+
+                splitOn = string.Empty;
+            }
+            else if (selector != null)
+            {
+                sql += selector.ToJoinSelectList(aliases, out splitOn);
             }
             else
             {
@@ -1865,6 +2151,15 @@ FROM {tableName} [{alias}] WITH (NOLOCK)";
                 sql += @"
 WHERE ";
                 sql += searchCondition;
+            }
+
+            var groupingExpression = groupingColumns == null ? string.Empty : groupingColumns.ToGroupingColumns(aliases);
+
+            if (!string.IsNullOrEmpty(groupingExpression))
+            {
+                sql += @"
+GROUP BY ";
+                sql += groupingExpression;
             }
 
             var orderExpressions = orderings.ToOrderExpressions(aliases);
@@ -1911,6 +2206,8 @@ FETCH NEXT {taken.Value} ROWS ONLY";
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> selector = null,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> groupingColumns = null,
+            Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>, T>> groupingSelector = null,
             int? skipped = null,
             int? taken = null)
         {
@@ -1922,9 +2219,15 @@ SELECT ";
 
             string splitOn;
 
-            if (selector != null)
+            if (groupingSelector != null)
             {
-                sql += selector.ToSelectList(aliases, out splitOn);
+                sql += groupingSelector.ToGroupingSelectList(aliases);
+
+                splitOn = string.Empty;
+            }
+            else if (selector != null)
+            {
+                sql += selector.ToJoinSelectList(aliases, out splitOn);
             }
             else
             {
@@ -1950,6 +2253,15 @@ FROM {tableName} [{alias}] WITH (NOLOCK)";
                 sql += @"
 WHERE ";
                 sql += searchCondition;
+            }
+
+            var groupingExpression = groupingColumns == null ? string.Empty : groupingColumns.ToGroupingColumns(aliases);
+
+            if (!string.IsNullOrEmpty(groupingExpression))
+            {
+                sql += @"
+GROUP BY ";
+                sql += groupingExpression;
             }
 
             var orderExpressions = orderings.ToOrderExpressions(aliases);

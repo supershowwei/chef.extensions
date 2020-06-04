@@ -11,13 +11,14 @@ using System.Transactions;
 using Chef.Extensions.DbAccess;
 using Chef.Extensions.DbAccess.Fluent;
 using Chef.Extensions.DbAccess.SqlServer;
+using Chef.Extensions.Decimal;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Chef.Extensions.Tests
 {
     [TestClass]
-    public partial class SqlServerDataAccessTest
+    public class SqlServerDataAccessTest
     {
         private static readonly IDataAccessFactory DataAccessFactory = SqlServerDataAccessFactory.Instance;
 
@@ -34,6 +35,7 @@ namespace Chef.Extensions.Tests
                 "ClubType",
                 new Dictionary<string, System.Type> { ["ClubID"] = typeof(int), ["Name"] = typeof(string), ["IsActive"] = typeof(bool) });
         }
+
 
         [TestMethod]
         public async Task Test_QueryOneAsync_use_String_Comparison()
@@ -100,6 +102,62 @@ namespace Chef.Extensions.Tests
             result.Department.Name.Should().Be("董事長室");
             result.Manager.Id.Should().Be(2);
             result.Manager.Name.Should().Be("Amy");
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_with_InnerJoin_Three_Tables_and_GroupBy_use_QueryObject()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.InnerJoin(x => x.Department, (a, b) => a.DepartmentId == b.DepId)
+                .LeftJoin((c, d) => c.Subordinate, (m, n, o) => o.ManagerId == m.Id)
+                .GroupBy(
+                    (c, d, e) => new { c.Id, d.Name },
+                    g => new User
+                         {
+                             Id = g.Select((a, b, c) => a.Id),
+                             Name = g.Select((m, n, o) => n.Name),
+                             SubordinateCount = g.Count()
+                         })
+                .Where((u1, d1, u2) => u1.Id == 1)
+                .QueryOneAsync();
+
+            result.Id.Should().Be(1);
+            result.Name.Should().Be("董事長室");
+            result.SubordinateCount.Should().Be(3);
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_with_InnerJoin_Three_Tables_and_GroupBy_use_StatisticModel_and_QueryObject()
+        {
+            var memberDataAccess = DataAccessFactory.Create<UserStatistic>();
+
+            var result = await memberDataAccess.InnerJoin(x => x.Department, (a, b) => a.DepartmentId == b.DepId)
+                .LeftJoin((c, d) => c.Subordinate, (m, n, o) => o.ManagerId == m.Id)
+                .GroupBy(
+                    (c, d, e) => new { c.Id, c.Name, DepartmentName = d.Name },
+                    g => new UserStatistic
+                    {
+                             Id = g.Select((a, b, c) => a.Id),
+                             Name = g.Select((m, n, o) => m.Name),
+                             DepartmentName = g.Select((x, y, z) => y.Name),
+                             SubordinateCount = g.Count(),
+                             MaxSubordinateId = g.Max((o, p, q) => q.Id),
+                             MinSubordinateId = g.Min((us, dep, u) => u.Id),
+                             SumSubordinateAge = g.Sum((xx, yy, zz) => zz.Age),
+                             AvgSubordinateAge = g.Avg((aa, bb, cc) => cc.Age)
+                         })
+                .Where((u1, d1, u2) => u1.Id == 1)
+                .QueryOneAsync();
+
+            result.Id.Should().Be(1);
+            result.Name.Should().Be("Johnny");
+            result.DepartmentName.Should().Be("董事長室");
+            result.SubordinateCount.Should().Be(3);
+            result.MaxSubordinateId.Should().Be(4);
+            result.MinSubordinateId.Should().Be(2);
+            result.SumSubordinateAge.Should().Be(109);
+            Math.Round(result.AvgSubordinateAge, 2).Should().Be(36.33m);
         }
 
         [TestMethod]
@@ -839,6 +897,18 @@ namespace Chef.Extensions.Tests
             clubs[1].Id.Should().Be(0);
             clubs[0].Name.Should().Be("吳淑娟");
             clubs[1].Name.Should().Be("鄧偉成");
+        }
+
+        [TestMethod]
+        public async Task Test_QueryAsync_with_use_Pagination_only_Skip_QueryObject()
+        {
+            var clubDataAccess = DataAccessFactory.Create<Club>();
+
+            var clubs = await clubDataAccess.Select(x => new { x.Id, x.Name }).OrderBy(x => x.Id).Skip(26).QueryAsync();
+
+            clubs.Count.Should().BeGreaterOrEqualTo(2);
+            clubs.Select(x => x.Id).Should().Contain(new[] { 38, 39 });
+            clubs.Select(x => x.Name).Should().Contain(new[] { "謝秋齊", "王真希" });
         }
 
         [TestMethod]
@@ -1789,15 +1859,54 @@ namespace Chef.Extensions.Tests
 
         public string Address { get; set; }
 
+        public int SubordinateCount { get; set; }
+
+        public int MaxSubordinateId { get; set; }
+
+        public int SubordinateId { get; set; }
+
+        public User Subordinate { get; set; }
+
         public int DepartmentId { get; set; }
-
-        public int ManagerId { get; set; }
-
-        public User Self { get; set; }
 
         public Department Department { get; set; }
 
+        public int ManagerId { get; set; }
+
         public User Manager { get; set; }
+
+        public User Self { get; set; }
+    }
+
+    [ConnectionString(@"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Member;Integrated Security=True")]
+    [Table("Member")]
+    internal class UserStatistic
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+
+        public string DepartmentName { get; set; }
+
+        public int SubordinateCount { get; set; }
+
+        public int MaxSubordinateId { get; set; }
+
+        public int MinSubordinateId { get; set; }
+
+        public int SumSubordinateAge { get; set; }
+
+        public decimal AvgSubordinateAge { get; set; }
+
+        public int DepartmentId { get; set; }
+
+        public Department Department { get; set; }
+
+        public int ManagerId { get; set; }
+
+        public User Manager { get; set; }
+
+        public User Subordinate { get; set; }
     }
 
     [ConnectionString(@"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Member;Integrated Security=True")]

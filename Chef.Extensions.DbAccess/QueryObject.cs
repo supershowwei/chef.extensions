@@ -19,6 +19,10 @@ namespace Chef.Extensions.DbAccess
 
         public Expression<Func<T, object>> Selector { get; set; }
 
+        public Expression<Func<T, object>> GroupingColumns { get; set; }
+
+        public Expression<Func<Grouping<T>, T>> GroupingSelector { get; set; }
+
         public Expression<Func<T>> Setter { get; set; }
 
         public int? Skipped { get; set; }
@@ -43,6 +47,10 @@ namespace Chef.Extensions.DbAccess
         public List<(Expression<Func<T, TSecond, object>>, Sortord)> OrderExpressions { get; set; }
 
         public Expression<Func<T, TSecond, object>> Selector { get; set; }
+
+        public Expression<Func<T, TSecond, object>> GroupingColumns { get; set; }
+
+        public Expression<Func<Grouping<T, TSecond>, T>> GroupingSelector { get; set; }
 
         public int? Skipped { get; set; }
 
@@ -70,6 +78,10 @@ namespace Chef.Extensions.DbAccess
         public List<(Expression<Func<T, TSecond, TThird, object>>, Sortord)> OrderExpressions { get; set; }
 
         public Expression<Func<T, TSecond, TThird, object>> Selector { get; set; }
+
+        public Expression<Func<T, TSecond, TThird, object>> GroupingColumns { get; set; }
+
+        public Expression<Func<Grouping<T, TSecond, TThird>, T>> GroupingSelector { get; set; }
 
         public int? Skipped { get; set; }
 
@@ -101,6 +113,10 @@ namespace Chef.Extensions.DbAccess
         public List<(Expression<Func<T, TSecond, TThird, TFourth, object>>, Sortord)> OrderExpressions { get; set; }
 
         public Expression<Func<T, TSecond, TThird, TFourth, object>> Selector { get; set; }
+
+        public Expression<Func<T, TSecond, TThird, TFourth, object>> GroupingColumns { get; set; }
+
+        public Expression<Func<Grouping<T, TSecond, TThird, TFourth>, T>> GroupingSelector { get; set; }
 
         public int? Skipped { get; set; }
 
@@ -136,6 +152,10 @@ namespace Chef.Extensions.DbAccess
         public List<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> OrderExpressions { get; set; }
 
         public Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> Selector { get; set; }
+
+        public Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> GroupingColumns { get; set; }
+
+        public Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth>, T>> GroupingSelector { get; set; }
 
         public int? Skipped { get; set; }
 
@@ -175,6 +195,10 @@ namespace Chef.Extensions.DbAccess
         public List<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>>, Sortord)> OrderExpressions { get; set; }
 
         public Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> Selector { get; set; }
+
+        public Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> GroupingColumns { get; set; }
+
+        public Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth, TSixth>, T>> GroupingSelector { get; set; }
 
         public int? Skipped { get; set; }
 
@@ -218,6 +242,10 @@ namespace Chef.Extensions.DbAccess
         public List<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>>, Sortord)> OrderExpressions { get; set; }
 
         public Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> Selector { get; set; }
+
+        public Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> GroupingColumns { get; set; }
+
+        public Expression<Func<Grouping<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>, T>> GroupingSelector { get; set; }
 
         public int? Skipped { get; set; }
 

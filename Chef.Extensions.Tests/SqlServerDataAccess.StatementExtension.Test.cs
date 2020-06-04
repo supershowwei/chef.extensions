@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Chef.Extensions.DbAccess;
 using Chef.Extensions.DbAccess.SqlServer.Extensions;
 using Dapper;
 using FluentAssertions;
@@ -551,11 +552,37 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToGroupingColumns_with_Three_Tables()
+        {
+            Expression<Func<Member, Department, Member, object>> columnExpr = (x, y, z) => new { x.Id, y.Name };
+
+            var columns = columnExpr.ToGroupingColumns(new[] { "m1", "d1", "m2" });
+
+            columns.Should().Be("[m1].[Id], [d1].[Name]");
+        }
+
+        [TestMethod]
+        public void Test_ToGroupingSelectList_with_Three_Tables()
+        {
+            Expression<Func<Grouping<Member, Department, Member>, Member>> groupingSelector = g => new Member
+                                                                                                   {
+                                                                                                       Id = g.Select((a, b, c) => a.Id),
+                                                                                                       FirstName = g.Select((d, e, f) => d.LastName),
+                                                                                                       SubordinateCount = g.Count(),
+                                                                                                       MaxSubordinateId = g.Max((x, y, z) => z.Id)
+                                                                                                   };
+
+            var selector = groupingSelector.ToGroupingSelectList(new[] { "m1", "d1", "m2" });
+
+            selector.Should().Be("[m1].[Id] AS [Id], [m1].[last_name] AS [FirstName], COUNT(*) AS [SubordinateCount], MAX([m2].[Id]) AS [MaxSubordinateId]");
+        }
+
+        [TestMethod]
         public void Test_ToSelectList_in_Join_Two_Tables()
         {
             Expression<Func<Member, Video, object>> selector = (x, y) => new { x.Id, VideoId = y.Id, x.FirstName, y.PackageId };
 
-            var selectList = selector.ToSelectList(new[] { "m", "v" }, out var splitOn);
+            var selectList = selector.ToJoinSelectList(new[] { "m", "v" }, out var splitOn);
 
             selectList.Should().Be("[m].[Id], [m].[first_name] AS [FirstName], [v].[ID] AS [Id], [v].[PackageID] AS [PackageId]");
             splitOn.Should().Be("Id");
@@ -566,7 +593,7 @@ namespace Chef.Extensions.Tests
         {
             Expression<Func<Member, Video, Member, object>> selector = (x, y, z) => new { x.Id, VideoId = y.Id, x.FirstName, y.PackageId, ZId = z.Id, ZFirstName = z.FirstName };
 
-            var selectList = selector.ToSelectList(new[] { "m1", "v", "m2" }, out var splitOn);
+            var selectList = selector.ToJoinSelectList(new[] { "m1", "v", "m2" }, out var splitOn);
 
             selectList.Should().Be("[m1].[Id], [m1].[first_name] AS [FirstName], [v].[ID] AS [Id], [v].[PackageID] AS [PackageId], [m2].[Id], [m2].[first_name] AS [FirstName]");
             splitOn.Should().Be("Id,Id");
@@ -871,6 +898,14 @@ namespace Chef.Extensions.Tests
         public double Seniority { get; set; }
 
         public int Age { get; set; }
+
+        public int SubordinateCount { get; set; }
+
+        public int MaxSubordinateId { get; set; }
+
+        public int SubordinateId { get; set; }
+
+        public Member Subordinate { get; set; }
 
         [NotMapped]
         public string IgnoredColumn { get; set; }

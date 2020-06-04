@@ -85,64 +85,150 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
             return sb.ToString();
         }
 
-        public static string ToSelectList<T, TSecond>(this Expression<Func<T, TSecond, object>> me, out string splitOn)
+        public static string ToJoinSelectList(this LambdaExpression lambdaExpr, string[] aliases, out string splitOn)
         {
-            return ToSelectList(me, new string[] { }, out splitOn);
+            var memberExprs = GetMemberExpressions(lambdaExpr.Body);
+
+            var splitOnList = new List<string>();
+            var aliasMap = GenerateAliasMap(lambdaExpr.Parameters, aliases);
+            var selectorContainers = lambdaExpr.Parameters.ToDictionary(x => x.Name, x => new List<string>());
+
+            foreach (var memberExpr in memberExprs)
+            {
+                if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute))) continue;
+
+                var parameterExpr = (ParameterExpression)memberExpr.Expression;
+
+                var alias = aliasMap[parameterExpr.Name];
+                var selectorContainer = selectorContainers[parameterExpr.Name];
+                var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
+                var columnName = columnAttribute?.Name;
+
+                var statement = string.IsNullOrEmpty(columnName)
+                                    ? $"[{memberExpr.Member.Name}]"
+                                    : $"[{columnName}] AS [{memberExpr.Member.Name}]";
+
+                if (!string.IsNullOrEmpty(alias)) statement = string.Concat($"{alias}.", statement);
+
+                if (!selectorContainer.Any()) splitOnList.Add(memberExpr.Member.Name);
+
+                selectorContainer.Add(statement);
+            }
+
+            if (splitOnList.Count < selectorContainers.Count) throw new InvalidOperationException("Selected columns must cover all joined tables.");
+
+            splitOn = string.Join(",", splitOnList.Skip(1));
+
+            return string.Join(", ", selectorContainers.SelectMany(x => x.Value));
         }
 
-        public static string ToSelectList<T, TSecond>(this Expression<Func<T, TSecond, object>> me, string[] aliases, out string splitOn)
+        public static string ToGroupingColumns(this LambdaExpression lambdaExpr, string[] aliases)
         {
-            return GenerateJoinSelectList(me.Body, me.Parameters, aliases, out splitOn);
+            var memberExprs = GetMemberExpressions(lambdaExpr.Body);
+
+            var aliasMap = GenerateAliasMap(lambdaExpr.Parameters, aliases);
+            var selectorContainers = lambdaExpr.Parameters.ToDictionary(x => x.Name, x => new List<string>());
+
+            foreach (var memberExpr in memberExprs)
+            {
+                if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute))) continue;
+
+                var parameterExpr = (ParameterExpression)memberExpr.Expression;
+
+                var alias = aliases.Length == 1 ? aliases[0] : aliasMap[parameterExpr.Name];
+
+                var selectorContainer = selectorContainers[parameterExpr.Name];
+                var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
+                var columnName = columnAttribute?.Name;
+
+                var statement = string.IsNullOrEmpty(columnName)
+                                    ? $"[{memberExpr.Member.Name}]"
+                                    : $"[{columnName}] AS [{memberExpr.Member.Name}]";
+
+                if (!string.IsNullOrEmpty(alias)) statement = string.Concat($"{alias}.", statement);
+
+                selectorContainer.Add(statement);
+            }
+
+            return string.Join(", ", selectorContainers.SelectMany(x => x.Value));
         }
 
-        public static string ToSelectList<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, object>> me, out string splitOn)
+        public static string ToGroupingSelectList(this LambdaExpression lambdaExpr, string[] aliases)
         {
-            return ToSelectList(me, new string[] { }, out splitOn);
-        }
+            if (!(lambdaExpr.Body is MemberInitExpression memberInitExpr))
+            {
+                throw new ArgumentException("Grouping selector must be a MemberInitExpression.");
+            }
 
-        public static string ToSelectList<T, TSecond, TThird>(this Expression<Func<T, TSecond, TThird, object>> me, string[] aliases, out string splitOn)
-        {
-            return GenerateJoinSelectList(me.Body, me.Parameters, aliases, out splitOn);
-        }
+            var memberAssignments = memberInitExpr.Bindings.Select(x => (MemberAssignment)x);
+            var selectorContainer = new List<string>();
 
-        public static string ToSelectList<T, TSecond, TThird, TFourth>(this Expression<Func<T, TSecond, TThird, TFourth, object>> me, out string splitOn)
-        {
-            return ToSelectList(me, new string[] { }, out splitOn);
-        }
+            foreach (var memberAssignment in memberAssignments)
+            {
+                if (Attribute.IsDefined(memberAssignment.Member, typeof(NotMappedAttribute))) continue;
 
-        public static string ToSelectList<T, TSecond, TThird, TFourth>(this Expression<Func<T, TSecond, TThird, TFourth, object>> me, string[] aliases, out string splitOn)
-        {
-            return GenerateJoinSelectList(me.Body, me.Parameters, aliases, out splitOn);
-        }
+                if (!(memberAssignment.Expression is MethodCallExpression methodCallExpr))
+                {
+                    throw new ArgumentException("Grouping selector assignment must be a MethodCallExpression.");
+                }
 
-        public static string ToSelectList<T, TSecond, TThird, TFourth, TFifth>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> me, out string splitOn)
-        {
-            return ToSelectList(me, new string[] { }, out splitOn);
-        }
+                var methodFullName = methodCallExpr.Method.GetFullName();
+                var statementBuilder = new StringBuilder();
 
-        public static string ToSelectList<T, TSecond, TThird, TFourth, TFifth>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> me, string[] aliases, out string splitOn)
-        {
-            return GenerateJoinSelectList(me.Body, me.Parameters, aliases, out splitOn);
-        }
+                if (methodFullName.EndsWith(".Count"))
+                {
+                    statementBuilder.Append("COUNT(*)");
+                }
+                else
+                {
+                    var selectExpr = (methodCallExpr.Arguments[0] as UnaryExpression).Operand as LambdaExpression;
+                    var memberExpr = selectExpr.Body as MemberExpression;
+                    var parameterExpr = memberExpr.Expression as ParameterExpression;
 
-        public static string ToSelectList<T, TSecond, TThird, TFourth, TFifth, TSixth>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> me, out string splitOn)
-        {
-            return ToSelectList(me, new string[] { }, out splitOn);
-        }
+                    var parameterIndex = selectExpr.Parameters.FindIndex(p => p.Name == parameterExpr.Name);
 
-        public static string ToSelectList<T, TSecond, TThird, TFourth, TFifth, TSixth>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> me, string[] aliases, out string splitOn)
-        {
-            return GenerateJoinSelectList(me.Body, me.Parameters, aliases, out splitOn);
-        }
+                    var alias = aliases[parameterIndex];
 
-        public static string ToSelectList<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> me, out string splitOn)
-        {
-            return ToSelectList(me, new string[] { }, out splitOn);
-        }
+                    var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
+                    var columnName = columnAttribute?.Name ?? memberExpr.Member.Name;
+                    var selectColumn = $"[{alias}].[{columnName}]";
 
-        public static string ToSelectList<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(this Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> me, string[] aliases, out string splitOn)
-        {
-            return GenerateJoinSelectList(me.Body, me.Parameters, aliases, out splitOn);
+                    if (methodFullName.EndsWith(".Select"))
+                    {
+                        statementBuilder.Append(selectColumn);
+                    }
+                    else if (methodFullName.EndsWith(".Avg"))
+                    {
+                        statementBuilder.Append("AVG(CAST(");
+                        statementBuilder.Append(selectColumn);
+                        statementBuilder.Append(" AS DECIMAL))");
+                    }
+                    else
+                    {
+                        if (methodFullName.EndsWith(".Max"))
+                        {
+                            statementBuilder.Append("MAX(");
+                        }
+                        else if (methodFullName.EndsWith(".Min"))
+                        {
+                            statementBuilder.Append("MIN(");
+                        }
+                        else if (methodFullName.EndsWith(".Sum"))
+                        {
+                            statementBuilder.Append("SUM(");
+                        }
+
+                        statementBuilder.Append(selectColumn);
+                        statementBuilder.Append(")");
+                    }
+                }
+
+                statementBuilder.Append($" AS [{memberAssignment.Member.Name}]");
+
+                selectorContainer.Add(statementBuilder.ToString());
+            }
+
+            return string.Join(", ", selectorContainer);
         }
 
         public static string ToSearchCondition<T>(this Expression<Func<T, bool>> me)
@@ -1125,43 +1211,6 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
             }
 
             throw new ArgumentException("Selector must be a NewExpression or MemberInitExpression.");
-        }
-
-        private static string GenerateJoinSelectList(Expression body, IList<ParameterExpression> parameters, string[] aliases, out string splitOn)
-        {
-            var memberExprs = GetMemberExpressions(body);
-
-            var splitOnList = new List<string>();
-            var aliasMap = GenerateAliasMap(parameters, aliases);
-            var selectorContainers = parameters.ToDictionary(x => x.Name, x => new List<string>());
-
-            foreach (var memberExpr in memberExprs)
-            {
-                if (Attribute.IsDefined(memberExpr.Member, typeof(NotMappedAttribute))) continue;
-
-                var parameterExpr = (ParameterExpression)memberExpr.Expression;
-
-                var alias = aliasMap[parameterExpr.Name];
-                var selectorContainer = selectorContainers[parameterExpr.Name];
-                var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
-                var columnName = columnAttribute?.Name;
-
-                var statement = string.IsNullOrEmpty(columnName)
-                                    ? $"[{memberExpr.Member.Name}]"
-                                    : $"[{columnName}] AS [{memberExpr.Member.Name}]";
-
-                if (!string.IsNullOrEmpty(alias)) statement = string.Concat($"{alias}.", statement);
-
-                if (!selectorContainer.Any()) splitOnList.Add(memberExpr.Member.Name);
-
-                selectorContainer.Add(statement);
-            }
-
-            if (splitOnList.Count < selectorContainers.Count) throw new InvalidOperationException("Selected columns must cover all joined tables.");
-
-            splitOn = string.Join(",", splitOnList.Skip(1));
-
-            return string.Join(", ", selectorContainers.SelectMany(x => x.Value));
         }
 
         private static string GenerateParameterStatement(string parameterName, Type parameterType, IDictionary<string, object> parameters)
