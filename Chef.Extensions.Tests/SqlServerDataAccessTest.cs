@@ -128,15 +128,15 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
-        public async Task Test_QueryOneAsync_with_InnerJoin_Three_Tables_and_GroupBy_use_StatisticModel_and_QueryObject()
+        public async Task Test_QueryOneAsync_with_InnerJoin_Three_Tables_and_GroupBy_use_StatisticsModel_and_QueryObject()
         {
-            var memberDataAccess = DataAccessFactory.Create<UserStatistic>();
+            var memberDataAccess = DataAccessFactory.Create<UserStatistics>();
 
             var result = await memberDataAccess.InnerJoin(x => x.Department, (a, b) => a.DepartmentId == b.DepId)
                 .LeftJoin((c, d) => c.Subordinate, (m, n, o) => o.ManagerId == m.Id)
                 .GroupBy(
                     (c, d, e) => new { c.Id, c.Name, DepartmentName = d.Name },
-                    g => new UserStatistic
+                    g => new UserStatistics
                     {
                              Id = g.Select((a, b, c) => a.Id),
                              Name = g.Select((m, n, o) => m.Name),
@@ -1880,7 +1880,7 @@ namespace Chef.Extensions.Tests
 
     [ConnectionString(@"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Member;Integrated Security=True")]
     [Table("Member")]
-    internal class UserStatistic
+    internal class UserStatistics
     {
         public int Id { get; set; }
 
