@@ -1224,11 +1224,16 @@ ORDER BY ";
                 sql += orderExpressions;
             }
 
-            if (skipped.HasValue && taken.HasValue)
+            if (skipped.HasValue)
             {
                 sql += $@"
-OFFSET {skipped.Value} ROWS
+OFFSET {skipped.Value} ROWS";
+
+                if (taken.HasValue)
+                {
+                    sql += $@"
 FETCH NEXT {taken.Value} ROWS ONLY";
+                }
             }
 
             sql += ";";
@@ -1561,11 +1566,16 @@ ORDER BY ";
                 sql += orderExpressions;
             }
 
-            if (skipped.HasValue && taken.HasValue)
+            if (skipped.HasValue)
             {
                 sql += $@"
-OFFSET {skipped.Value} ROWS
+OFFSET {skipped.Value} ROWS";
+
+                if (taken.HasValue)
+                {
+                    sql += $@"
 FETCH NEXT {taken.Value} ROWS ONLY";
+                }
             }
 
             sql += ";";
@@ -1629,11 +1639,16 @@ ORDER BY ";
                 sql += orderExpressions;
             }
 
-            if (skipped.HasValue && taken.HasValue)
+            if (skipped.HasValue)
             {
                 sql += $@"
-OFFSET {skipped.Value} ROWS
+OFFSET {skipped.Value} ROWS";
+
+                if (taken.HasValue)
+                {
+                    sql += $@"
 FETCH NEXT {taken.Value} ROWS ONLY";
+                }
             }
 
             sql += ";";
@@ -1700,11 +1715,16 @@ ORDER BY ";
                 sql += orderExpressions;
             }
 
-            if (skipped.HasValue && taken.HasValue)
+            if (skipped.HasValue)
             {
                 sql += $@"
-OFFSET {skipped.Value} ROWS
+OFFSET {skipped.Value} ROWS";
+
+                if (taken.HasValue)
+                {
+                    sql += $@"
 FETCH NEXT {taken.Value} ROWS ONLY";
+                }
             }
 
             sql += ";";
@@ -1774,11 +1794,16 @@ ORDER BY ";
                 sql += orderExpressions;
             }
 
-            if (skipped.HasValue && taken.HasValue)
+            if (skipped.HasValue)
             {
                 sql += $@"
-OFFSET {skipped.Value} ROWS
+OFFSET {skipped.Value} ROWS";
+
+                if (taken.HasValue)
+                {
+                    sql += $@"
 FETCH NEXT {taken.Value} ROWS ONLY";
+                }
             }
 
             sql += ";";
@@ -1851,11 +1876,16 @@ ORDER BY ";
                 sql += orderExpressions;
             }
 
-            if (skipped.HasValue && taken.HasValue)
+            if (skipped.HasValue)
             {
                 sql += $@"
-OFFSET {skipped.Value} ROWS
+OFFSET {skipped.Value} ROWS";
+
+                if (taken.HasValue)
+                {
+                    sql += $@"
 FETCH NEXT {taken.Value} ROWS ONLY";
+                }
             }
 
             sql += ";";
@@ -1931,11 +1961,16 @@ ORDER BY ";
                 sql += orderExpressions;
             }
 
-            if (skipped.HasValue && taken.HasValue)
+            if (skipped.HasValue)
             {
                 sql += $@"
-OFFSET {skipped.Value} ROWS
+OFFSET {skipped.Value} ROWS";
+
+                if (taken.HasValue)
+                {
+                    sql += $@"
 FETCH NEXT {taken.Value} ROWS ONLY";
+                }
             }
 
             sql += ";";
