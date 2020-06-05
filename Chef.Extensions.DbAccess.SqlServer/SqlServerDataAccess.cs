@@ -286,8 +286,7 @@ namespace Chef.Extensions.DbAccess
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
             (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
             (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType)
-                fifthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, object>> selector = null,
@@ -361,10 +360,8 @@ namespace Chef.Extensions.DbAccess
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
             (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
             (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType)
-                fifthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>,
-                Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, object>> selector = null,
@@ -441,12 +438,9 @@ namespace Chef.Extensions.DbAccess
             (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
             (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
             (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType)
-                fifthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>,
-                Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
-            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>>,
-                Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>>, JoinType) seventhJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>>, JoinType) seventhJoin,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>> predicate,
             IEnumerable<(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>>, Sortord)> orderings = null,
             Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, object>> selector = null,
@@ -1385,9 +1379,21 @@ WHERE ";
             int? skipped = null,
             int? taken = null)
         {
-            SqlBuilder sql = @"
+            SqlBuilder sql;
+
+            if (groupingSelector != null)
+            {
+                sql = $@"
+SELECT {(!skipped.HasValue && taken.HasValue ? string.Concat("TOP (", taken, ") ") : string.Empty)}* FROM
+(
 SELECT ";
-            sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
+            }
+            else
+            {
+                sql = @"
+SELECT ";
+                sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
+            }
 
             if (groupingSelector != null)
             {
@@ -1425,7 +1431,13 @@ GROUP BY ";
                 sql += groupingExpression;
             }
 
-            var orderExpressions = orderings.ToOrderExpressions(alias);
+            if (groupingSelector != null)
+            {
+                sql += @"
+) [__T__]";
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(groupingSelector != null ? string.Empty : alias);
 
             if (!string.IsNullOrEmpty(orderExpressions))
             {
@@ -1738,9 +1750,21 @@ FETCH NEXT {taken.Value} ROWS ONLY";
         {
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2) };
 
-            SqlBuilder sql = @"
+            SqlBuilder sql;
+
+            if (groupingSelector != null)
+            {
+                sql = $@"
+SELECT {(!skipped.HasValue && taken.HasValue ? string.Concat("TOP (", taken, ") ") : string.Empty)}* FROM
+(
 SELECT ";
-            sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
+            }
+            else
+            {
+                sql = @"
+SELECT ";
+                sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
+            }
 
             string splitOn;
 
@@ -1784,7 +1808,13 @@ GROUP BY ";
                 sql += groupingExpression;
             }
 
-            var orderExpressions = orderings.ToOrderExpressions(aliases);
+            if (groupingSelector != null)
+            {
+                sql += @"
+) [__T__]";
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(groupingSelector != null ? new string[] { } : aliases);
 
             if (!string.IsNullOrEmpty(orderExpressions))
             {
@@ -1937,9 +1967,21 @@ FETCH NEXT {taken.Value} ROWS ONLY";
         {
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4) };
 
-            SqlBuilder sql = @"
+            SqlBuilder sql;
+
+            if (groupingSelector != null)
+            {
+                sql = $@"
+SELECT {(!skipped.HasValue && taken.HasValue ? string.Concat("TOP (", taken, ") ") : string.Empty)}* FROM
+(
 SELECT ";
-            sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
+            }
+            else
+            {
+                sql = @"
+SELECT ";
+                sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
+            }
 
             string splitOn;
 
@@ -1985,7 +2027,13 @@ GROUP BY ";
                 sql += groupingExpression;
             }
 
-            var orderExpressions = orderings.ToOrderExpressions(aliases);
+            if (groupingSelector != null)
+            {
+                sql += @"
+) [__T__]";
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(groupingSelector != null ? new string[] { } : aliases);
 
             if (!string.IsNullOrEmpty(orderExpressions))
             {
@@ -2032,9 +2080,21 @@ FETCH NEXT {taken.Value} ROWS ONLY";
         {
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5) };
 
-            SqlBuilder sql = @"
+            SqlBuilder sql;
+
+            if (groupingSelector != null)
+            {
+                sql = $@"
+SELECT {(!skipped.HasValue && taken.HasValue ? string.Concat("TOP (", taken, ") ") : string.Empty)}* FROM
+(
 SELECT ";
-            sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
+            }
+            else
+            {
+                sql = @"
+SELECT ";
+                sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
+            }
 
             string splitOn;
 
@@ -2081,7 +2141,13 @@ GROUP BY ";
                 sql += groupingExpression;
             }
 
-            var orderExpressions = orderings.ToOrderExpressions(aliases);
+            if (groupingSelector != null)
+            {
+                sql += @"
+) [__T__]";
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(groupingSelector != null ? new string[] { } : aliases);
 
             if (!string.IsNullOrEmpty(orderExpressions))
             {
@@ -2130,9 +2196,21 @@ FETCH NEXT {taken.Value} ROWS ONLY";
         {
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5), GenerateAlias(typeof(TSixth), 6) };
 
-            SqlBuilder sql = @"
+            SqlBuilder sql;
+
+            if (groupingSelector != null)
+            {
+                sql = $@"
+SELECT {(!skipped.HasValue && taken.HasValue ? string.Concat("TOP (", taken, ") ") : string.Empty)}* FROM
+(
 SELECT ";
-            sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
+            }
+            else
+            {
+                sql = @"
+SELECT ";
+                sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
+            }
 
             string splitOn;
 
@@ -2180,7 +2258,13 @@ GROUP BY ";
                 sql += groupingExpression;
             }
 
-            var orderExpressions = orderings.ToOrderExpressions(aliases);
+            if (groupingSelector != null)
+            {
+                sql += @"
+) [__T__]";
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(groupingSelector != null ? new string[] { } : aliases);
 
             if (!string.IsNullOrEmpty(orderExpressions))
             {
@@ -2231,9 +2315,21 @@ FETCH NEXT {taken.Value} ROWS ONLY";
         {
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5), GenerateAlias(typeof(TSixth), 6), GenerateAlias(typeof(TSeventh), 7) };
 
-            SqlBuilder sql = @"
+            SqlBuilder sql;
+
+            if (groupingSelector != null)
+            {
+                sql = $@"
+SELECT {(!skipped.HasValue && taken.HasValue ? string.Concat("TOP (", taken, ") ") : string.Empty)}* FROM
+(
 SELECT ";
-            sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
+            }
+            else
+            {
+                sql = @"
+SELECT ";
+                sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
+            }
 
             string splitOn;
 
@@ -2282,7 +2378,13 @@ GROUP BY ";
                 sql += groupingExpression;
             }
 
-            var orderExpressions = orderings.ToOrderExpressions(aliases);
+            if (groupingSelector != null)
+            {
+                sql += @"
+) [__T__]";
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(groupingSelector != null ? new string[] { } : aliases);
 
             if (!string.IsNullOrEmpty(orderExpressions))
             {

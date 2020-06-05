@@ -1195,19 +1195,6 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
             }
         }
 
-        private static string MapOperator(string comparison)
-        {
-            switch (comparison)
-            {
-                case ".Equals": return "=";
-                case ".GreaterThan": return ">";
-                case ".GreaterThanOrEqual": return ">=";
-                case ".LessThan": return "<";
-                case ".LessThanOrEqual": return "<=";
-                default: throw new ArgumentException("Invalid Comparison.");
-            }
-        }
-
         private static IEnumerable<MemberExpression> GetMemberExpressions(Expression expr)
         {
             if (expr is NewExpression newExpr) return newExpr.Arguments.OfType<MemberExpression>();
