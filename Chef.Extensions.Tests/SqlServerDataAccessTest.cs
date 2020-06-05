@@ -141,7 +141,7 @@ namespace Chef.Extensions.Tests
                              Id = g.Select((a, b, c) => a.Id),
                              Name = g.Select((m, n, o) => m.Name),
                              DepartmentName = g.Select((x, y, z) => y.Name),
-                             SubordinateCount = g.Count(),
+                             TotalCount = g.Count(),
                              MaxSubordinateId = g.Max((o, p, q) => q.Id),
                              MinSubordinateId = g.Min((us, dep, u) => u.Id),
                              SumSubordinateAge = g.Sum((xx, yy, zz) => zz.Age),
@@ -153,11 +153,47 @@ namespace Chef.Extensions.Tests
             result.Id.Should().Be(1);
             result.Name.Should().Be("Johnny");
             result.DepartmentName.Should().Be("董事長室");
-            result.SubordinateCount.Should().Be(3);
+            result.TotalCount.Should().Be(3);
             result.MaxSubordinateId.Should().Be(4);
             result.MinSubordinateId.Should().Be(2);
             result.SumSubordinateAge.Should().Be(109);
             Math.Round(result.AvgSubordinateAge, 2).Should().Be(36.33m);
+        }
+
+        [TestMethod]
+        public async Task Test_QueryOneAsync_with_InnerJoin_Three_Tables_and_GroupBy_OrderBy_use_StatisticsModel_and_QueryObject()
+        {
+            var memberDataAccess = DataAccessFactory.Create<UserStatistics>();
+
+            var result = await memberDataAccess.InnerJoin(x => x.Department, (a, b) => a.DepartmentId == b.DepId)
+                .LeftJoin((c, d) => c.Subordinate, (m, n, o) => o.ManagerId == m.Id)
+                .GroupBy(
+                    (c, d, e) => new { c.Id, c.Name, DepartmentName = d.Name },
+                    g => new UserStatistics
+                    {
+                             Id = g.Select((a, b, c) => a.Id),
+                             Name = g.Select((m, n, o) => m.Name),
+                             DepartmentName = g.Select((x, y, z) => y.Name),
+                             SubordinateCount = g.Count((qq, kk, gg) => gg.Id),
+                             MaxSubordinateId = g.Max((o, p, q) => q.Id),
+                             MinSubordinateId = g.Min((us, dep, u) => u.Id),
+                             SumSubordinateAge = g.Sum((xx, yy, zz) => zz.Age),
+                             AvgSubordinateAge = g.Avg((aa, bb, cc) => cc.Age)
+                         })
+                .OrderByDescending((bb, cc, dd) => bb.Id)
+                .QueryAsync();
+
+            // 因為有 InnerJoin 部門，有一個 Member 沒有部門。
+            result.Count.Should().Be(3);
+
+            var firstResult = result.First();
+
+            firstResult.Name.Should().Be("ThreeM");
+            firstResult.DepartmentName.Should().Be("行銷部");
+            firstResult.SubordinateCount.Should().Be(0);
+            firstResult.MaxSubordinateId.Should().Be(0);
+            firstResult.MinSubordinateId.Should().Be(0);
+            firstResult.SumSubordinateAge.Should().Be(0);
         }
 
         [TestMethod]
@@ -1895,6 +1931,8 @@ namespace Chef.Extensions.Tests
         public int MinSubordinateId { get; set; }
 
         public int SumSubordinateAge { get; set; }
+
+        public int TotalCount { get; set; }
 
         public decimal AvgSubordinateAge { get; set; }
 

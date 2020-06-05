@@ -1827,9 +1827,21 @@ FETCH NEXT {taken.Value} ROWS ONLY";
         {
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3) };
 
-            SqlBuilder sql = @"
+            SqlBuilder sql;
+
+            if (groupingSelector != null)
+            {
+                sql = $@"
+SELECT {(!skipped.HasValue && taken.HasValue ? string.Concat("TOP (", taken, ") ") : string.Empty)}* FROM
+(
 SELECT ";
-            sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
+            }
+            else
+            {
+                sql = @"
+SELECT ";
+                sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
+            }
 
             string splitOn;
 
@@ -1874,7 +1886,13 @@ GROUP BY ";
                 sql += groupingExpression;
             }
 
-            var orderExpressions = orderings.ToOrderExpressions(aliases);
+            if (groupingSelector != null)
+            {
+                sql += @"
+) [__T__]";
+            }
+
+            var orderExpressions = orderings.ToOrderExpressions(groupingSelector != null ? new string[] { } : aliases);
 
             if (!string.IsNullOrEmpty(orderExpressions))
             {

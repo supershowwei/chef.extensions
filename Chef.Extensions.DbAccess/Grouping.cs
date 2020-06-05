@@ -23,6 +23,11 @@ namespace Chef.Extensions.DbAccess
             throw new NotImplementedException();
         }
 
+        public TColumn Count<TColumn>(Expression<Func<T, TColumn>> countSelector)
+        {
+            throw new NotImplementedException();
+        }
+
         public TColumn Max<TColumn>(Expression<Func<T, TColumn>> maxSelector)
         {
             throw new NotImplementedException();
@@ -47,6 +52,11 @@ namespace Chef.Extensions.DbAccess
     public class Grouping<T, TSecond> : Grouping
     {
         public TColumn Select<TColumn>(Expression<Func<T, TSecond, TColumn>> columnSelector)
+        {
+            throw new NotImplementedException();
+        }
+
+        public TColumn Count<TColumn>(Expression<Func<T, TSecond, TColumn>> countSelector)
         {
             throw new NotImplementedException();
         }
@@ -79,6 +89,11 @@ namespace Chef.Extensions.DbAccess
             throw new NotImplementedException();
         }
 
+        public TColumn Count<TColumn>(Expression<Func<T, TSecond, TThird, TColumn>> countSelector)
+        {
+            throw new NotImplementedException();
+        }
+
         public TColumn Max<TColumn>(Expression<Func<T, TSecond, TThird, TColumn>> maxSelector)
         {
             throw new NotImplementedException();
@@ -103,6 +118,11 @@ namespace Chef.Extensions.DbAccess
     public class Grouping<T, TSecond, TThird, TFourth> : Grouping
     {
         public TColumn Select<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TColumn>> columnSelector)
+        {
+            throw new NotImplementedException();
+        }
+
+        public TColumn Count<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TColumn>> countSelector)
         {
             throw new NotImplementedException();
         }
@@ -135,6 +155,11 @@ namespace Chef.Extensions.DbAccess
             throw new NotImplementedException();
         }
 
+        public TColumn Count<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TColumn>> countSelector)
+        {
+            throw new NotImplementedException();
+        }
+
         public TColumn Max<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TColumn>> maxSelector)
         {
             throw new NotImplementedException();
@@ -163,6 +188,11 @@ namespace Chef.Extensions.DbAccess
             throw new NotImplementedException();
         }
 
+        public TColumn Count<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TColumn>> countSelector)
+        {
+            throw new NotImplementedException();
+        }
+
         public TColumn Max<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TColumn>> maxSelector)
         {
             throw new NotImplementedException();
@@ -187,6 +217,11 @@ namespace Chef.Extensions.DbAccess
     public class Grouping<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> : Grouping
     {
         public TColumn Select<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TColumn>> columnSelector)
+        {
+            throw new NotImplementedException();
+        }
+
+        public TColumn Count<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TColumn>> countSelector)
         {
             throw new NotImplementedException();
         }

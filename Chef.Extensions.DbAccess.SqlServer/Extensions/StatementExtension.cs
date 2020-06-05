@@ -175,11 +175,7 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
                 var methodFullName = methodCallExpr.Method.GetFullName();
                 var statementBuilder = new StringBuilder();
 
-                if (methodFullName.EndsWith(".Count"))
-                {
-                    statementBuilder.Append("COUNT(*)");
-                }
-                else
+                if (methodCallExpr.Arguments.Count > 0)
                 {
                     var selectExpr = (methodCallExpr.Arguments[0] as UnaryExpression).Operand as LambdaExpression;
                     var memberExpr = selectExpr.Body as MemberExpression;
@@ -205,7 +201,11 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
                     }
                     else
                     {
-                        if (methodFullName.EndsWith(".Max"))
+                        if (methodFullName.EndsWith(".Count"))
+                        {
+                            statementBuilder.Append("COUNT(");
+                        }
+                        else if (methodFullName.EndsWith(".Max"))
                         {
                             statementBuilder.Append("MAX(");
                         }
@@ -220,6 +220,13 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
 
                         statementBuilder.Append(selectColumn);
                         statementBuilder.Append(")");
+                    }
+                }
+                else
+                {
+                    if (methodFullName.EndsWith(".Count"))
+                    {
+                        statementBuilder.Append("COUNT(*)");
                     }
                 }
 
@@ -832,17 +839,17 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
 
             for (var i = 0; i < parameterExprs.Count; i++)
             {
-                if ((i + 1) > aliases.Length)
-                {
-                    aliasMap.Add(parameterExprs[i].Name, string.Empty);
-                }
-                else
+                if (i < aliases.Length)
                 {
                     var alias = aliases[i];
 
                     alias = string.IsNullOrEmpty(alias) ? alias : string.Concat("[", alias, "]");
 
                     aliasMap.Add(parameterExprs[i].Name, alias);
+                }
+                else
+                {
+                    aliasMap.Add(parameterExprs[i].Name, string.Empty);
                 }
             }
 
