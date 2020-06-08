@@ -1005,6 +1005,21 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryAsync_with_Selector_use_QueryObject_and_Take_without_Ordering()
+        {
+            var clubDataAccess = DataAccessFactory.Create<Club>();
+
+            var clubs = await clubDataAccess.Where(x => new[] { 17, 25 }.Contains(x.Id))
+                            .Select(x => new { x.Name })
+                            .Take(1)
+                            .QueryAsync();
+
+            clubs.Count.Should().Be(1);
+            clubs[0].Id.Should().Be(0);
+            clubs[0].Name.Should().Be("吳淑娟");
+        }
+
+        [TestMethod]
         public async Task Test_QueryAsync_with_Selector_use_QueryObject_and_OrderByDescending_and_Take()
         {
             var clubDataAccess = DataAccessFactory.Create<Club>();
