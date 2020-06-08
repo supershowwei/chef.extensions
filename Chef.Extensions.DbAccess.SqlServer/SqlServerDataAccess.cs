@@ -1379,21 +1379,17 @@ WHERE ";
             int? skipped = null,
             int? taken = null)
         {
-            SqlBuilder sql;
+            SqlBuilder sql = string.Empty;
 
             if (groupingSelector != null)
             {
-                sql = $@"
-SELECT {(!skipped.HasValue && taken.HasValue ? string.Concat("TOP (", taken, ") ") : string.Empty)}* FROM
-(
-SELECT ";
+                sql += @"
+SELECT * FROM
+(";
             }
-            else
-            {
-                sql = @"
+
+            sql += @"
 SELECT ";
-                sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
-            }
 
             if (groupingSelector != null)
             {
@@ -1446,10 +1442,10 @@ ORDER BY ";
                 sql += orderExpressions;
             }
 
-            if (skipped.HasValue)
+            if (taken.HasValue || skipped.HasValue)
             {
                 sql += $@"
-OFFSET {skipped.Value} ROWS";
+OFFSET {skipped ?? 0} ROWS";
 
                 if (taken.HasValue)
                 {
@@ -1750,21 +1746,17 @@ FETCH NEXT {taken.Value} ROWS ONLY";
         {
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2) };
 
-            SqlBuilder sql;
+            SqlBuilder sql = string.Empty;
 
             if (groupingSelector != null)
             {
-                sql = $@"
-SELECT {(!skipped.HasValue && taken.HasValue ? string.Concat("TOP (", taken, ") ") : string.Empty)}* FROM
-(
-SELECT ";
+                sql += @"
+SELECT * FROM
+(";
             }
-            else
-            {
-                sql = @"
+
+            sql += @"
 SELECT ";
-                sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
-            }
 
             string splitOn;
 
@@ -1823,10 +1815,10 @@ ORDER BY ";
                 sql += orderExpressions;
             }
 
-            if (skipped.HasValue)
+            if (taken.HasValue || skipped.HasValue)
             {
                 sql += $@"
-OFFSET {skipped.Value} ROWS";
+OFFSET {skipped ?? 0} ROWS";
 
                 if (taken.HasValue)
                 {
@@ -1857,21 +1849,17 @@ FETCH NEXT {taken.Value} ROWS ONLY";
         {
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3) };
 
-            SqlBuilder sql;
+            SqlBuilder sql = string.Empty;
 
             if (groupingSelector != null)
             {
-                sql = $@"
-SELECT {(!skipped.HasValue && taken.HasValue ? string.Concat("TOP (", taken, ") ") : string.Empty)}* FROM
-(
-SELECT ";
+                sql += @"
+SELECT * FROM
+(";
             }
-            else
-            {
-                sql = @"
+
+            sql += @"
 SELECT ";
-                sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
-            }
 
             string splitOn;
 
@@ -1931,10 +1919,10 @@ ORDER BY ";
                 sql += orderExpressions;
             }
 
-            if (skipped.HasValue)
+            if (taken.HasValue || skipped.HasValue)
             {
                 sql += $@"
-OFFSET {skipped.Value} ROWS";
+OFFSET {skipped ?? 0} ROWS";
 
                 if (taken.HasValue)
                 {
@@ -1967,21 +1955,17 @@ FETCH NEXT {taken.Value} ROWS ONLY";
         {
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4) };
 
-            SqlBuilder sql;
+            SqlBuilder sql = string.Empty;
 
             if (groupingSelector != null)
             {
-                sql = $@"
-SELECT {(!skipped.HasValue && taken.HasValue ? string.Concat("TOP (", taken, ") ") : string.Empty)}* FROM
-(
-SELECT ";
+                sql += @"
+SELECT * FROM
+(";
             }
-            else
-            {
-                sql = @"
+
+            sql += @"
 SELECT ";
-                sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
-            }
 
             string splitOn;
 
@@ -2042,10 +2026,10 @@ ORDER BY ";
                 sql += orderExpressions;
             }
 
-            if (skipped.HasValue)
+            if (taken.HasValue || skipped.HasValue)
             {
                 sql += $@"
-OFFSET {skipped.Value} ROWS";
+OFFSET {skipped ?? 0} ROWS";
 
                 if (taken.HasValue)
                 {
@@ -2080,21 +2064,17 @@ FETCH NEXT {taken.Value} ROWS ONLY";
         {
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5) };
 
-            SqlBuilder sql;
+            SqlBuilder sql = string.Empty;
 
             if (groupingSelector != null)
             {
-                sql = $@"
-SELECT {(!skipped.HasValue && taken.HasValue ? string.Concat("TOP (", taken, ") ") : string.Empty)}* FROM
-(
-SELECT ";
+                sql += @"
+SELECT * FROM
+(";
             }
-            else
-            {
-                sql = @"
+
+            sql += @"
 SELECT ";
-                sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
-            }
 
             string splitOn;
 
@@ -2156,10 +2136,10 @@ ORDER BY ";
                 sql += orderExpressions;
             }
 
-            if (skipped.HasValue)
+            if (taken.HasValue || skipped.HasValue)
             {
                 sql += $@"
-OFFSET {skipped.Value} ROWS";
+OFFSET {skipped ?? 0} ROWS";
 
                 if (taken.HasValue)
                 {
@@ -2196,21 +2176,17 @@ FETCH NEXT {taken.Value} ROWS ONLY";
         {
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5), GenerateAlias(typeof(TSixth), 6) };
 
-            SqlBuilder sql;
+            SqlBuilder sql = string.Empty;
 
             if (groupingSelector != null)
             {
-                sql = $@"
-SELECT {(!skipped.HasValue && taken.HasValue ? string.Concat("TOP (", taken, ") ") : string.Empty)}* FROM
-(
-SELECT ";
+                sql += @"
+SELECT * FROM
+(";
             }
-            else
-            {
-                sql = @"
+
+            sql += @"
 SELECT ";
-                sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
-            }
 
             string splitOn;
 
@@ -2273,10 +2249,10 @@ ORDER BY ";
                 sql += orderExpressions;
             }
 
-            if (skipped.HasValue)
+            if (taken.HasValue || skipped.HasValue)
             {
                 sql += $@"
-OFFSET {skipped.Value} ROWS";
+OFFSET {skipped ?? 0} ROWS";
 
                 if (taken.HasValue)
                 {
@@ -2315,21 +2291,17 @@ FETCH NEXT {taken.Value} ROWS ONLY";
         {
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5), GenerateAlias(typeof(TSixth), 6), GenerateAlias(typeof(TSeventh), 7) };
 
-            SqlBuilder sql;
+            SqlBuilder sql = string.Empty;
 
             if (groupingSelector != null)
             {
-                sql = $@"
-SELECT {(!skipped.HasValue && taken.HasValue ? string.Concat("TOP (", taken, ") ") : string.Empty)}* FROM
-(
-SELECT ";
+                sql += @"
+SELECT * FROM
+(";
             }
-            else
-            {
-                sql = @"
+
+            sql += @"
 SELECT ";
-                sql += !skipped.HasValue && taken.HasValue ? $"TOP ({taken})" : string.Empty;
-            }
 
             string splitOn;
 
@@ -2393,10 +2365,10 @@ ORDER BY ";
                 sql += orderExpressions;
             }
 
-            if (skipped.HasValue)
+            if (taken.HasValue || skipped.HasValue)
             {
                 sql += $@"
-OFFSET {skipped.Value} ROWS";
+OFFSET {skipped ?? 0} ROWS";
 
                 if (taken.HasValue)
                 {
