@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Chef.Extensions.Object
 {
@@ -22,16 +24,11 @@ namespace Chef.Extensions.Object
                                                                         typeof(decimal),
                                                                     };
 
+        private static readonly ConcurrentDictionary<string, Delegate> ObjectConverter = new ConcurrentDictionary<string, Delegate>();
+
         public static bool IsNotNull(this object me)
         {
             return me != null;
-        }
-
-        public static T To<T>(this object me) where T : IConvertible
-        {
-            if (me == null) return default(T);
-
-            return (T)Convert.ChangeType(me, typeof(T));
         }
 
         public static T? ToNullable<T>(this object me)
@@ -69,6 +66,63 @@ namespace Chef.Extensions.Object
         public static bool NotExists<Ta, Tb>(this Ta me, IEnumerable<Tb> collection, Func<Ta, Tb, bool> predicate)
         {
             return collection.All(item => !predicate(me, item));
+        }
+
+        public static TTarget To<TTarget>(this object me)
+        {
+            if (me == null) return default(TTarget);
+
+            if (me is IConvertible) return (TTarget)Convert.ChangeType(me, typeof(TTarget));
+
+            var sourceType = me.GetType();
+            var targetType = typeof(TTarget);
+
+            var converterKey = string.Concat(sourceType.FullName, "->", targetType.FullName);
+
+            var converter = (Func<object, TTarget>)ObjectConverter.GetOrAdd(
+                converterKey,
+                key =>
+                    {
+                        var sourceProperties = sourceType.GetProperties().ToDictionary(p => p.Name, p => p);
+                        var targetProperties = targetType.GetProperties().ToDictionary(p => p.Name, p => p);
+
+                        var sourceParam = Expression.Parameter(typeof(object), "obj");
+                        var sourceVariable = Expression.Variable(sourceType, "source");
+
+                        var sourceAssign = Expression.Assign(sourceVariable, Expression.Convert(sourceParam, sourceType));
+
+                        var memberBindings = targetProperties.Where(
+                                p =>
+                                    {
+                                        if (!sourceProperties.ContainsKey(p.Key)) return false;
+
+                                        var sourceProperty = sourceProperties[p.Key];
+
+                                        if (p.Value.PropertyType != sourceProperty.PropertyType) return false;
+
+                                        return true;
+                                    })
+                            .Select(p => Expression.Bind(p.Value, Expression.Property(sourceVariable, sourceProperties[p.Key])));
+
+                        var memberInit = Expression.MemberInit(Expression.New(targetType), memberBindings);
+
+                        var returnLabel = Expression.Label(targetType);
+
+                        var block = Expression.Block(
+                            new[] { sourceVariable },
+                            sourceAssign,
+                            Expression.Return(returnLabel, memberInit),
+                            Expression.Label(returnLabel, Expression.Default(targetType)));
+
+                        return Expression.Lambda(block, sourceParam).Compile();
+                    });
+
+            return converter(me);
+        }
+
+        public static TTarget To<TTarget>(this object me, Func<object, TTarget> convert)
+        {
+            return convert(me);
         }
     }
 }

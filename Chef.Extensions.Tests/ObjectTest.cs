@@ -19,6 +19,42 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_To_Convert_Member_To_User()
+        {
+            var member = new Member { Id = 99 };
+            
+            var user = member.To<User>();
+
+            user.Id.Should().Be(99);
+        }
+
+        [TestMethod]
+        public void Test_To_Convert_Member_To_User_Again()
+        {
+            var member = new Member { Id = 99 };
+            
+            var user = member.To<User>();
+
+            user.Id.Should().Be(99);
+        }
+
+        [TestMethod]
+        public void Test_To_Convert_Member_To_User_use_Custom_Func()
+        {
+            var member = new Member { Id = 99 };
+
+            var user = member.To<User>(
+                obj =>
+                    {
+                        var m = (Member)obj;
+
+                        return new User { Id = m.Id };
+                    });
+
+            user.Id.Should().Be(99);
+        }
+
+        [TestMethod]
         public void Test_ToNullable_Change_Long_To_Nullable_Decimal()
         {
             var input = long.MaxValue;
