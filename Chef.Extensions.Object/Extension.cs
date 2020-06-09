@@ -96,9 +96,7 @@ namespace Chef.Extensions.Object
                                     {
                                         if (!sourceProperties.ContainsKey(p.Key)) return false;
 
-                                        var sourceProperty = sourceProperties[p.Key];
-
-                                        if (p.Value.PropertyType != sourceProperty.PropertyType) return false;
+                                        if (p.Value.PropertyType != sourceProperties[p.Key].PropertyType) return false;
 
                                         return true;
                                     })
