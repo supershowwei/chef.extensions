@@ -39,6 +39,19 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_To_Convert_Member_To_Existed_User()
+        {
+            var member = new Member { Id = 99 };
+            var user = new User { Id = 88, Name = "abc" };
+
+            var mappedUser = member.To<User>(user);
+
+            mappedUser.Should().BeSameAs(user);
+            mappedUser.Id.Should().Be(88);
+            mappedUser.Name.Should().Be("abc");
+        }
+
+        [TestMethod]
         public void Test_To_Convert_Member_To_User_use_Custom_Func()
         {
             var member = new Member { Id = 99 };

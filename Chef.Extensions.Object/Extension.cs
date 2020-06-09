@@ -77,7 +77,7 @@ namespace Chef.Extensions.Object
             var sourceType = me.GetType();
             var targetType = typeof(TTarget);
 
-            var converterKey = string.Concat(sourceType.FullName, "->", targetType.FullName);
+            var converterKey = string.Concat(sourceType.FullName, " -> ", targetType.FullName);
 
             var converter = (Func<object, TTarget>)ObjectConverter.GetOrAdd(
                 converterKey,
@@ -95,7 +95,6 @@ namespace Chef.Extensions.Object
                                 p =>
                                     {
                                         if (!sourceProperties.ContainsKey(p.Key)) return false;
-
                                         if (p.Value.PropertyType != sourceProperties[p.Key].PropertyType) return false;
 
                                         return true;
@@ -116,6 +115,58 @@ namespace Chef.Extensions.Object
                     });
 
             return converter(me);
+        }
+
+        public static TTarget To<TTarget>(this object me, TTarget existed)
+        {
+            if (me == null) return default(TTarget);
+
+            var sourceType = me.GetType();
+            var targetType = typeof(TTarget);
+
+            var converterKey = string.Concat(sourceType.FullName, " -> (Existed)", targetType.FullName);
+
+            var converter = (Func<object, TTarget, TTarget>)ObjectConverter.GetOrAdd(
+                converterKey,
+                key =>
+                    {
+                        var sourceProperties = sourceType.GetProperties().ToDictionary(p => p.Name, p => p);
+                        var targetProperties = targetType.GetProperties().ToDictionary(p => p.Name, p => p);
+
+                        var sourceParam = Expression.Parameter(typeof(object), "obj");
+                        var targetParam = Expression.Parameter(targetType, "target");
+                        var sourceVariable = Expression.Variable(sourceType, "source");
+
+                        var expressions = new List<Expression>();
+
+                        expressions.Add(Expression.Assign(sourceVariable, Expression.Convert(sourceParam, sourceType)));
+
+                        foreach (var targetProperty in targetProperties)
+                        {
+                            if (!sourceProperties.ContainsKey(targetProperty.Key)) continue;
+                            if (targetProperty.Value.PropertyType != sourceProperties[targetProperty.Key].PropertyType) continue;
+
+                            var targetPropertyExpr = Expression.Property(targetParam, targetProperty.Value.Name);
+
+                            Expression conditionAssign = Expression.Condition(
+                                Expression.Equal(targetPropertyExpr, Expression.Default(targetProperty.Value.PropertyType)),
+                                Expression.Property(sourceVariable, sourceProperties[targetProperty.Key]),
+                                targetPropertyExpr);
+
+                            expressions.Add(Expression.Assign(targetPropertyExpr, conditionAssign));
+                        }
+
+                        var returnLabel = Expression.Label(targetType);
+
+                        expressions.Add(Expression.Return(returnLabel, targetParam));
+                        expressions.Add(Expression.Label(returnLabel, Expression.Default(targetType)));
+
+                        var block = Expression.Block(new[] { sourceVariable }, expressions);
+
+                        return Expression.Lambda(block, sourceParam, targetParam).Compile();
+                    });
+
+            return converter(me, existed);
         }
 
         public static TTarget To<TTarget>(this object me, Func<object, TTarget> convert)
