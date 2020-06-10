@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Chef.Extensions.DbAccess, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Chef.Extensions.DbAccess.1.2.1\lib\net451\Chef.Extensions.DbAccess.dll</HintPath>
+      <HintPath>..\packages\Chef.Extensions.DbAccess.1.2.2\lib\net451\Chef.Extensions.DbAccess.dll</HintPath>
     </Reference>
     <Reference Include="Dapper, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Dapper.1.50.0\lib\net451\Dapper.dll</HintPath>
@@ -78,9 +78,6 @@
     </Compile>
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\SqlServerDataAccessFactory.cs">
       <Link>SqlServerDataAccessFactory.cs</Link>
-    </Compile>
-    <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\UserDefinedTableAttribute.cs">
-      <Link>UserDefinedTableAttribute.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

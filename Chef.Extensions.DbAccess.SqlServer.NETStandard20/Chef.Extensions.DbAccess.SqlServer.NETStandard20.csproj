@@ -16,7 +16,6 @@
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\SqlBuilder.cs" Link="SqlBuilder.cs" />
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\SqlServerDataAccess.cs" Link="SqlServerDataAccess.cs" />
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\SqlServerDataAccessFactory.cs" Link="SqlServerDataAccessFactory.cs" />
-    <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\UserDefinedTableAttribute.cs" Link="UserDefinedTableAttribute.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Chef.Extensions.DbAccess" Version="1.2.1" />
+    <PackageReference Include="Chef.Extensions.DbAccess" Version="1.2.2" />
     <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.1.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />

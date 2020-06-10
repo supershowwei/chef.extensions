@@ -62,6 +62,9 @@
     <Compile Include="..\Chef.Extensions.DbAccess\QueryObject.cs">
       <Link>QueryObject.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.DbAccess\UserDefinedAttribute.cs">
+      <Link>UserDefinedAttribute.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -13,6 +13,7 @@
     <Compile Include="..\Chef.Extensions.DbAccess\IDataAccess.cs" Link="IDataAccess.cs" />
     <Compile Include="..\Chef.Extensions.DbAccess\IDataAccessFactory.cs" Link="IDataAccessFactory.cs" />
     <Compile Include="..\Chef.Extensions.DbAccess\QueryObject.cs" Link="QueryObject.cs" />
+    <Compile Include="..\Chef.Extensions.DbAccess\UserDefinedAttribute.cs" Link="UserDefinedAttribute.cs" />
   </ItemGroup>
 
   <ItemGroup>

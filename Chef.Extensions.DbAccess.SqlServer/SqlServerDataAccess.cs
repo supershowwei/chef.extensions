@@ -2432,16 +2432,17 @@ FETCH NEXT {taken.Value} ROWS ONLY";
 
         private (string, DataTable) ConvertToTableValuedParameters(IEnumerable<T> values)
         {
-            var userDefinedTableAttribute = typeof(T).GetCustomAttribute<UserDefinedTableAttribute>(true);
+            var userDefinedAttribute = typeof(T).GetCustomAttribute<UserDefinedAttribute>(true);
 
-            if (userDefinedTableAttribute == null) throw new ArgumentException("Must has UserDefinedTableAttribute.");
+            if (userDefinedAttribute == null) throw new ArgumentException("Must has UserDefinedAttribute.");
 
-            var tableType = userDefinedTableAttribute.Name;
+            var tableType = userDefinedAttribute.TableType;
+
             var columns = SqlServerDataAccessFactory.Instance.GetUserDefinedTable(tableType);
 
             if (string.IsNullOrEmpty(tableType) || columns == null)
             {
-                throw new ArgumentException("Must add UserDefinedTableType.");
+                throw new ArgumentException("Must configure user-defined table type.");
             }
 
             var dataTable = new DataTable();

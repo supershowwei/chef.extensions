@@ -1588,7 +1588,7 @@ namespace Chef.Extensions.Tests
                                             new List<AdvertisementSetting>()))
                 .Should()
                 .Throw<ArgumentException>()
-                .WithMessage("Must has UserDefinedTableAttribute.");
+                .WithMessage("Must has UserDefinedAttribute.");
         }
 
         [TestMethod]
@@ -1840,7 +1840,7 @@ namespace Chef.Extensions.Tests
     }
 
     [ConnectionString(@"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Club;Integrated Security=True")]
-    [UserDefinedTable("ClubType")]
+    [UserDefined(TableType = "ClubType")]
     internal class Club
     {
         [Column("ClubID")]

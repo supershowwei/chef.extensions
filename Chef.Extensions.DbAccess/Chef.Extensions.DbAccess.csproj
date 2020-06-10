@@ -51,6 +51,7 @@
     <Compile Include="IDataAccessFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryObject.cs" />
+    <Compile Include="UserDefinedAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
