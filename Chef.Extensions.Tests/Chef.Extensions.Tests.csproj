@@ -29,6 +29,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,6 +38,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Dapper, Version=1.50.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -68,7 +70,7 @@
     <Compile Include="DecimalTest.cs" />
     <Compile Include="StringTest.cs" />
     <Compile Include="SqlServerDataAccess.StatementExtension.Test.cs">
-        <DependentUpon>SqlServerDataAccessTest.cs</DependentUpon>
+      <DependentUpon>SqlServerDataAccessTest.cs</DependentUpon>
     </Compile>
     <Compile Include="SqlServerDataAccessTest.cs" />
   </ItemGroup>

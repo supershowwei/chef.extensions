@@ -466,6 +466,16 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToSearchCondition_for_Multiply_Update_use_CSharp_71_Syntax_Default()
+        {
+            Expression<Func<Member, bool>> predicate = x => x.Id == 0 && x.FirstName == default && x.LastName.Equals(default);
+
+            var searchCondition = predicate.ToSearchCondition();
+
+            searchCondition.Should().Be("(([Id] = {=Id}) AND ([first_name] = @FirstName)) AND ([last_name] = @LastName)");
+        }
+
+        [TestMethod]
         public void Test_ToSearchCondition_for_Multiply_Update_use_Contains_will_Throw_ArgumentException()
         {
             Expression<Func<Member, bool>> predicate = x =>
