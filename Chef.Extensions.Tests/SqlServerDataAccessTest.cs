@@ -31,7 +31,7 @@ namespace Chef.Extensions.Tests
             SqlServerDataAccessFactory.Instance.AddConnectionString("Advertisement2", @"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Advertisement;Integrated Security=True");
             SqlServerDataAccessFactory.Instance.AddConnectionString("Advertisement3", @"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Advertisement;Integrated Security=True");
 
-            SqlServerDataAccessFactory.Instance.AddUserDefinedTable<Club>(
+            SqlServerDataAccessFactory.Instance.AddUserDefinedTable(
                 "ClubType",
                 new Dictionary<string, System.Type> { ["ClubID"] = typeof(int), ["Name"] = typeof(string), ["IsActive"] = typeof(bool) });
         }
@@ -1588,7 +1588,7 @@ namespace Chef.Extensions.Tests
                                             new List<AdvertisementSetting>()))
                 .Should()
                 .Throw<ArgumentException>()
-                .WithMessage("Must add UserDefinedTableType.");
+                .WithMessage("Must has UserDefinedTableAttribute.");
         }
 
         [TestMethod]
@@ -1840,6 +1840,7 @@ namespace Chef.Extensions.Tests
     }
 
     [ConnectionString(@"Data Source=(LocalDb)\MSSQLLocalDB;Initial Catalog=Club;Integrated Security=True")]
+    [UserDefinedTable("ClubType")]
     internal class Club
     {
         [Column("ClubID")]

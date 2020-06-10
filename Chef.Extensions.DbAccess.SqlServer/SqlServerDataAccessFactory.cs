@@ -13,7 +13,7 @@ namespace Chef.Extensions.DbAccess.SqlServer
 
         private static readonly ConcurrentDictionary<string, string> ConnectionStrings = new ConcurrentDictionary<string, string>();
 
-        private static readonly ConcurrentDictionary<Type, (string, IEnumerable<DataColumn>)> UserDefinedTables = new ConcurrentDictionary<Type, (string, IEnumerable<DataColumn>)>();
+        private static readonly ConcurrentDictionary<string, IEnumerable<DataColumn>> UserDefinedTables = new ConcurrentDictionary<string, IEnumerable<DataColumn>>();
 
         private SqlServerDataAccessFactory()
         {
@@ -65,14 +65,14 @@ namespace Chef.Extensions.DbAccess.SqlServer
             ConnectionStrings.TryAdd(name, value);
         }
 
-        public void AddUserDefinedTable<T>(string type, IDictionary<string, Type> columns)
+        public void AddUserDefinedTable(string name, IDictionary<string, Type> columns)
         {
-            UserDefinedTables.TryAdd(typeof(T), (type, columns.Select(x => new DataColumn(x.Key, x.Value))));
+            UserDefinedTables.TryAdd(name, columns.Select(x => new DataColumn(x.Key, x.Value)));
         }
 
-        public (string, IEnumerable<DataColumn>) GetUserDefinedTable<T>()
+        public IEnumerable<DataColumn> GetUserDefinedTable(string name)
         {
-            return UserDefinedTables.ContainsKey(typeof(T)) ? UserDefinedTables[typeof(T)] : (null, null);
+            return UserDefinedTables.ContainsKey(name) ? UserDefinedTables[name] : null;
         }
 
         internal string GetConnectionString(string nameOrConnectionString)

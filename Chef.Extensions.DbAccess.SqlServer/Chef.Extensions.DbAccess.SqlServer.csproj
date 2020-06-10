@@ -62,6 +62,7 @@
     <Compile Include="SqlBuilder.cs" />
     <Compile Include="SqlServerDataAccess.cs" />
     <Compile Include="SqlServerDataAccessFactory.cs" />
+    <Compile Include="UserDefinedTableAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -79,6 +79,9 @@
     <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\SqlServerDataAccessFactory.cs">
       <Link>SqlServerDataAccessFactory.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.DbAccess.SqlServer\UserDefinedTableAttribute.cs">
+      <Link>UserDefinedTableAttribute.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
