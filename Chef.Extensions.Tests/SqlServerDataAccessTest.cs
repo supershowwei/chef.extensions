@@ -36,7 +36,6 @@ namespace Chef.Extensions.Tests
                 new Dictionary<string, System.Type> { ["ClubID"] = typeof(int), ["Name"] = typeof(string), ["IsActive"] = typeof(bool) });
         }
 
-
         [TestMethod]
         public async Task Test_QueryOneAsync_use_String_Comparison()
         {

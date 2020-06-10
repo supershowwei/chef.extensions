@@ -562,6 +562,16 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public void Test_ToGroupingColumns_should_not_has_AS_Syntax()
+        {
+            Expression<Func<Member, Department, Member, object>> columnExpr = (x, y, z) => new { x.Id, x.FirstName, y.Name };
+
+            var columns = columnExpr.ToGroupingColumns(new[] { "m1", "d1", "m2" });
+
+            columns.Should().Be("[m1].[Id], [m1].[first_name], [d1].[Name]");
+        }
+
+        [TestMethod]
         public void Test_ToGroupingColumns_with_Three_Tables()
         {
             Expression<Func<Member, Department, Member, object>> columnExpr = (x, y, z) => new { x.Id, y.Name };

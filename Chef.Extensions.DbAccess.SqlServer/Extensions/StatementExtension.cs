@@ -141,9 +141,7 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
                 var columnAttribute = memberExpr.Member.GetCustomAttribute<ColumnAttribute>();
                 var columnName = columnAttribute?.Name;
 
-                var statement = string.IsNullOrEmpty(columnName)
-                                    ? $"[{memberExpr.Member.Name}]"
-                                    : $"[{columnName}] AS [{memberExpr.Member.Name}]";
+                var statement = string.IsNullOrEmpty(columnName) ? $"[{memberExpr.Member.Name}]" : $"[{columnName}]";
 
                 if (!string.IsNullOrEmpty(alias)) statement = string.Concat($"{alias}.", statement);
 
