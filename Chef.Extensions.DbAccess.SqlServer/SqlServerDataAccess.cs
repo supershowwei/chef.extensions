@@ -31,8 +31,8 @@ namespace Chef.Extensions.DbAccess
     {
         private static readonly ConcurrentDictionary<Type, PropertyInfo[]> RequiredColumns = new ConcurrentDictionary<Type, PropertyInfo[]>();
         private static readonly ConcurrentDictionary<string, Delegate> Setters = new ConcurrentDictionary<string, Delegate>();
-        private static readonly Regex ServerRegex = new Regex(@"(Server|Data Source)=([^;]+)", RegexOptions.IgnoreCase);
-        private static readonly Regex DatabaseRegex = new Regex(@"(Database|Initial Catalog)=([^;]+)", RegexOptions.IgnoreCase);
+        private static readonly Regex ServerRegex = new Regex(@"(Server|Data Source)=[\s]*([^;]+)[\s]*;", RegexOptions.IgnoreCase);
+        private static readonly Regex DatabaseRegex = new Regex(@"(Database|Initial Catalog)=[\s]*([^;]+)[\s]*;", RegexOptions.IgnoreCase);
         private readonly string connectionString;
         private readonly string tableName;
         private readonly string alias;
@@ -2391,37 +2391,40 @@ FETCH NEXT {taken.Value} ROWS ONLY";
 
             var server = ServerRegex.Match(this.connectionString).Groups[2].Value.Trim();
             var database = DatabaseRegex.Match(this.connectionString).Groups[2].Value.Trim();
-
-            ConnectionStringAttribute rightConnectionStringAttr = null;
-            string rightConnectionString = null;
+            var rightServer = server;
+            var rightDatabase = database;
+            var rightSchema = "dbo";
 
             foreach (var connectionStringAttr in typeof(TRight).GetCustomAttributes<ConnectionStringAttribute>())
             {
-                rightConnectionString = SqlServerDataAccessFactory.Instance.GetConnectionString(connectionStringAttr.ConnectionString);
+                var rightConnectionString = SqlServerDataAccessFactory.Instance.GetConnectionString(connectionStringAttr.ConnectionString);
 
-                if (rightConnectionString.ToLower().Contains(server.ToLower()))
+                if (rightConnectionString.IndexOf(server, StringComparison.CurrentCultureIgnoreCase) >= 0)
                 {
-                    rightConnectionStringAttr = connectionStringAttr;
+                    rightServer = ServerRegex.Match(rightConnectionString).Groups[2].Value.Trim();
+                    rightDatabase = DatabaseRegex.Match(rightConnectionString).Groups[2].Value.Trim();
+                    rightSchema = connectionStringAttr.Schema;
 
                     break;
                 }
             }
 
-            if (rightConnectionStringAttr == null) throw new ArgumentException("Table is not in the same database server.");
-
-            var rightDatabase = DatabaseRegex.Match(rightConnectionString).Groups[2].Value.Trim();
+            if (!string.Equals(rightServer, server, StringComparison.CurrentCultureIgnoreCase))
+            {
+                throw new ArgumentException("Table is not in the same database server.");
+            }
 
             switch (joinType)
             {
                 case JoinType.Inner:
                     return string.Equals(database, rightDatabase, StringComparison.CurrentCultureIgnoreCase)
                                ? string.Concat("\r\n", condition.ToInnerJoin<TRight>(aliases, null, null))
-                               : string.Concat("\r\n", condition.ToInnerJoin<TRight>(aliases, rightDatabase, rightConnectionStringAttr.Schema));
+                               : string.Concat("\r\n", condition.ToInnerJoin<TRight>(aliases, rightDatabase, rightSchema));
 
                 case JoinType.Left:
                     return string.Equals(database, rightDatabase, StringComparison.CurrentCultureIgnoreCase)
                                ? string.Concat("\r\n", condition.ToLeftJoin<TRight>(aliases, null, null))
-                               : string.Concat("\r\n", condition.ToLeftJoin<TRight>(aliases, rightDatabase, rightConnectionStringAttr.Schema));
+                               : string.Concat("\r\n", condition.ToLeftJoin<TRight>(aliases, rightDatabase, rightSchema));
 
                 default: throw new ArgumentOutOfRangeException(nameof(joinType), "Unsupported join type.");
             }

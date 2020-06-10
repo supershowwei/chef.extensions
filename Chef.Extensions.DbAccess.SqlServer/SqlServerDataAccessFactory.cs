@@ -27,7 +27,7 @@ namespace Chef.Extensions.DbAccess.SqlServer
 
             if (connectionStringAttributes.Any() && connectionStringAttributes.Count() > 1)
             {
-                throw new ArgumentException("Must indicate named connection string.");
+                throw new ArgumentException("Must indicate connection string.");
             }
 
             var connectionStringAttribute = connectionStringAttributes.SingleOrDefault();
@@ -46,20 +46,18 @@ namespace Chef.Extensions.DbAccess.SqlServer
 
         public IDataAccess<T> Create<T>(string nameOrConnectionString)
         {
-            var connectionStringAttributes = typeof(T).GetCustomAttributes<ConnectionStringAttribute>(true);
+            var connectionStringAttribute = typeof(T).GetCustomAttributes<ConnectionStringAttribute>(true).SingleOrDefault(x => x.ConnectionString == nameOrConnectionString);
 
-            var connectionStringAttribute = connectionStringAttributes.SingleOrDefault(x => x.ConnectionString == nameOrConnectionString);
-
-            if (connectionStringAttribute == null)
+            if (connectionStringAttribute != null)
             {
-                throw new ArgumentException("Must add connection string.");
+                var connectionString = ConnectionStrings.ContainsKey(connectionStringAttribute.ConnectionString)
+                                           ? ConnectionStrings[connectionStringAttribute.ConnectionString]
+                                           : connectionStringAttribute.ConnectionString;
+
+                return new SqlServerDataAccess<T>(connectionString);
             }
 
-            var connectionString = ConnectionStrings.ContainsKey(connectionStringAttribute.ConnectionString)
-                                       ? ConnectionStrings[connectionStringAttribute.ConnectionString]
-                                       : connectionStringAttribute.ConnectionString;
-
-            return new SqlServerDataAccess<T>(connectionString);
+            return new SqlServerDataAccess<T>(nameOrConnectionString);
         }
 
         public void AddConnectionString(string name, string value)

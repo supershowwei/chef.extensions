@@ -619,7 +619,7 @@ namespace Chef.Extensions.Tests
             DataAccessFactory.Invoking(factory => factory.Create<AdvertisementSetting>())
                 .Should()
                 .Throw<ArgumentException>()
-                .WithMessage("Must indicate named connection string.");
+                .WithMessage("Must indicate connection string.");
         }
 
         [TestMethod]
