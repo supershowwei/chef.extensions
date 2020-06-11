@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
@@ -86,7 +87,10 @@ namespace Chef.Extensions.DbAccess.Fluent
         {
             var replacer = new ExpressionReplacer();
 
-            predicate = replacer.Replace(predicate, me.Predicate);
+            if (!SameParameterNames(predicate.Parameters, me.Predicate.Parameters))
+            {
+                predicate = replacer.Replace(predicate, me.Predicate);
+            }
 
             me.Predicate = Expression.Lambda<Func<T, bool>>(Expression.AndAlso(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
@@ -97,7 +101,10 @@ namespace Chef.Extensions.DbAccess.Fluent
         {
             var replacer = new ExpressionReplacer();
 
-            predicate = replacer.Replace(predicate, me.Predicate);
+            if (!SameParameterNames(predicate.Parameters, me.Predicate.Parameters))
+            {
+                predicate = replacer.Replace(predicate, me.Predicate);
+            }
 
             me.Predicate = Expression.Lambda<Func<T, bool>>(Expression.OrElse(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
@@ -339,7 +346,10 @@ namespace Chef.Extensions.DbAccess.Fluent
         {
             var replacer = new ExpressionReplacer();
 
-            predicate = replacer.Replace(predicate, me.Predicate);
+            if (!SameParameterNames(predicate.Parameters, me.Predicate.Parameters))
+            {
+                predicate = replacer.Replace(predicate, me.Predicate);
+            }
 
             me.Predicate = Expression.Lambda<Func<T, TSecond, bool>>(Expression.AndAlso(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
@@ -350,7 +360,10 @@ namespace Chef.Extensions.DbAccess.Fluent
         {
             var replacer = new ExpressionReplacer();
 
-            predicate = replacer.Replace(predicate, me.Predicate);
+            if (!SameParameterNames(predicate.Parameters, me.Predicate.Parameters))
+            {
+                predicate = replacer.Replace(predicate, me.Predicate);
+            }
 
             me.Predicate = Expression.Lambda<Func<T, TSecond, bool>>(Expression.OrElse(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
@@ -475,7 +488,10 @@ namespace Chef.Extensions.DbAccess.Fluent
         {
             var replacer = new ExpressionReplacer();
 
-            predicate = replacer.Replace(predicate, me.Predicate);
+            if (!SameParameterNames(predicate.Parameters, me.Predicate.Parameters))
+            {
+                predicate = replacer.Replace(predicate, me.Predicate);
+            }
 
             me.Predicate = Expression.Lambda<Func<T, TSecond, TThird, bool>>(Expression.AndAlso(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
@@ -486,7 +502,10 @@ namespace Chef.Extensions.DbAccess.Fluent
         {
             var replacer = new ExpressionReplacer();
 
-            predicate = replacer.Replace(predicate, me.Predicate);
+            if (!SameParameterNames(predicate.Parameters, me.Predicate.Parameters))
+            {
+                predicate = replacer.Replace(predicate, me.Predicate);
+            }
 
             me.Predicate = Expression.Lambda<Func<T, TSecond, TThird, bool>>(Expression.OrElse(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
@@ -611,7 +630,10 @@ namespace Chef.Extensions.DbAccess.Fluent
         {
             var replacer = new ExpressionReplacer();
 
-            predicate = replacer.Replace(predicate, me.Predicate);
+            if (!SameParameterNames(predicate.Parameters, me.Predicate.Parameters))
+            {
+                predicate = replacer.Replace(predicate, me.Predicate);
+            }
 
             me.Predicate = Expression.Lambda<Func<T, TSecond, TThird, TFourth, bool>>(Expression.AndAlso(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
@@ -622,7 +644,10 @@ namespace Chef.Extensions.DbAccess.Fluent
         {
             var replacer = new ExpressionReplacer();
 
-            predicate = replacer.Replace(predicate, me.Predicate);
+            if (!SameParameterNames(predicate.Parameters, me.Predicate.Parameters))
+            {
+                predicate = replacer.Replace(predicate, me.Predicate);
+            }
 
             me.Predicate = Expression.Lambda<Func<T, TSecond, TThird, TFourth, bool>>(Expression.OrElse(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
@@ -747,7 +772,10 @@ namespace Chef.Extensions.DbAccess.Fluent
         {
             var replacer = new ExpressionReplacer();
 
-            predicate = replacer.Replace(predicate, me.Predicate);
+            if (!SameParameterNames(predicate.Parameters, me.Predicate.Parameters))
+            {
+                predicate = replacer.Replace(predicate, me.Predicate);
+            }
 
             me.Predicate = Expression.Lambda<Func<T, TSecond, TThird, TFourth, TFifth, bool>>(Expression.AndAlso(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
@@ -758,7 +786,10 @@ namespace Chef.Extensions.DbAccess.Fluent
         {
             var replacer = new ExpressionReplacer();
 
-            predicate = replacer.Replace(predicate, me.Predicate);
+            if (!SameParameterNames(predicate.Parameters, me.Predicate.Parameters))
+            {
+                predicate = replacer.Replace(predicate, me.Predicate);
+            }
 
             me.Predicate = Expression.Lambda<Func<T, TSecond, TThird, TFourth, TFifth, bool>>(Expression.OrElse(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
@@ -883,7 +914,10 @@ namespace Chef.Extensions.DbAccess.Fluent
         {
             var replacer = new ExpressionReplacer();
 
-            predicate = replacer.Replace(predicate, me.Predicate);
+            if (!SameParameterNames(predicate.Parameters, me.Predicate.Parameters))
+            {
+                predicate = replacer.Replace(predicate, me.Predicate);
+            }
 
             me.Predicate = Expression.Lambda<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>(Expression.AndAlso(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
@@ -894,7 +928,10 @@ namespace Chef.Extensions.DbAccess.Fluent
         {
             var replacer = new ExpressionReplacer();
 
-            predicate = replacer.Replace(predicate, me.Predicate);
+            if (!SameParameterNames(predicate.Parameters, me.Predicate.Parameters))
+            {
+                predicate = replacer.Replace(predicate, me.Predicate);
+            }
 
             me.Predicate = Expression.Lambda<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>(Expression.OrElse(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
@@ -1003,7 +1040,10 @@ namespace Chef.Extensions.DbAccess.Fluent
         {
             var replacer = new ExpressionReplacer();
 
-            predicate = replacer.Replace(predicate, me.Predicate);
+            if (!SameParameterNames(predicate.Parameters, me.Predicate.Parameters))
+            {
+                predicate = replacer.Replace(predicate, me.Predicate);
+            }
 
             me.Predicate = Expression.Lambda<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>>(Expression.AndAlso(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
@@ -1014,7 +1054,10 @@ namespace Chef.Extensions.DbAccess.Fluent
         {
             var replacer = new ExpressionReplacer();
 
-            predicate = replacer.Replace(predicate, me.Predicate);
+            if (!SameParameterNames(predicate.Parameters, me.Predicate.Parameters))
+            {
+                predicate = replacer.Replace(predicate, me.Predicate);
+            }
 
             me.Predicate = Expression.Lambda<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>>(Expression.OrElse(me.Predicate.Body, predicate.Body), me.Predicate.Parameters);
 
@@ -1109,6 +1152,18 @@ namespace Chef.Extensions.DbAccess.Fluent
         }
 
         #endregion
+
+        private static bool SameParameterNames(IList<ParameterExpression> parameters1, IList<ParameterExpression> parameters2)
+        {
+            if (parameters1.Count != parameters2.Count) return false;
+
+            for (var i = 0; i < parameters1.Count; i++)
+            {
+                if (parameters1[i].Name != parameters2[i].Name) return false;
+            }
+
+            return true;
+        }
     }
 
     internal class ExpressionReplacer : ExpressionVisitor
