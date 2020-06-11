@@ -1061,6 +1061,18 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_CountAsync_with_Join_Two_Tables()
+        {
+            var userDataAccess = DataAccessFactory.Create<User>();
+
+            var totalUserCount = await userDataAccess.CountAsync(null);
+            var userCount = await userDataAccess.InnerJoin(x => x.Department, (x, y) => x.DepartmentId == y.DepId).CountAsync();
+
+            totalUserCount.Should().Be(4);
+            userCount.Should().Be(3);
+        }
+
+        [TestMethod]
         public async Task Test_ExistsAsync()
         {
             var clubDataAccess = DataAccessFactory.Create<Club>();

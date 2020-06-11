@@ -434,6 +434,16 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me.DataAccess.QueryAsync(me.SecondJoin, me.Predicate, me.OrderExpressions, me.Selector, me.GroupingColumns, me.GroupingSelector, me.Skipped, me.Taken);
         }
 
+        public static int Count<T, TSecond>(this QueryObject<T, TSecond> me)
+        {
+            return me.DataAccess.Count(me.SecondJoin, me.Predicate);
+        }
+
+        public static Task<int> CountAsync<T, TSecond>(this QueryObject<T, TSecond> me)
+        {
+            return me.DataAccess.CountAsync(me.SecondJoin, me.Predicate);
+        }
+
         #endregion
 
         #region QueryObject<T, TSecond, TThird>Extension
@@ -558,6 +568,16 @@ namespace Chef.Extensions.DbAccess.Fluent
         public static Task<List<T>> QueryAsync<T, TSecond, TThird>(this QueryObject<T, TSecond, TThird> me)
         {
             return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.Predicate, me.OrderExpressions, me.Selector, me.GroupingColumns, me.GroupingSelector, me.Skipped, me.Taken);
+        }
+
+        public static int Count<T, TSecond, TThird>(this QueryObject<T, TSecond, TThird> me)
+        {
+            return me.DataAccess.Count(me.SecondJoin, me.ThirdJoin, me.Predicate);
+        }
+
+        public static Task<int> CountAsync<T, TSecond, TThird>(this QueryObject<T, TSecond, TThird> me)
+        {
+            return me.DataAccess.CountAsync(me.SecondJoin, me.ThirdJoin, me.Predicate);
         }
 
         #endregion
@@ -686,6 +706,16 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.GroupingColumns, me.GroupingSelector, me.Skipped, me.Taken);
         }
 
+        public static int Count<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me)
+        {
+            return me.DataAccess.Count(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate);
+        }
+
+        public static Task<int> CountAsync<T, TSecond, TThird, TFourth>(this QueryObject<T, TSecond, TThird, TFourth> me)
+        {
+            return me.DataAccess.CountAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.Predicate);
+        }
+
         #endregion
 
         #region QueryObject<T, TSecond, TThird, TFourth, TFifth>Extension
@@ -810,6 +840,16 @@ namespace Chef.Extensions.DbAccess.Fluent
         public static Task<List<T>> QueryAsync<T, TSecond, TThird, TFourth, TFifth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth> me)
         {
             return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.GroupingColumns, me.GroupingSelector, me.Skipped, me.Taken);
+        }
+
+        public static int Count<T, TSecond, TThird, TFourth, TFifth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth> me)
+        {
+            return me.DataAccess.Count(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.Predicate);
+        }
+
+        public static Task<int> CountAsync<T, TSecond, TThird, TFourth, TFifth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth> me)
+        {
+            return me.DataAccess.CountAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.Predicate);
         }
 
         #endregion
@@ -938,6 +978,16 @@ namespace Chef.Extensions.DbAccess.Fluent
             return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.Predicate, me.OrderExpressions, me.Selector, me.GroupingColumns, me.GroupingSelector, me.Skipped, me.Taken);
         }
 
+        public static int Count<T, TSecond, TThird, TFourth, TFifth, TSixth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth> me)
+        {
+            return me.DataAccess.Count(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.Predicate);
+        }
+
+        public static Task<int> CountAsync<T, TSecond, TThird, TFourth, TFifth, TSixth>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth> me)
+        {
+            return me.DataAccess.CountAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.Predicate);
+        }
+
         #endregion
 
         #region QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>Extension
@@ -1046,6 +1096,16 @@ namespace Chef.Extensions.DbAccess.Fluent
         public static Task<List<T>> QueryAsync<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> me)
         {
             return me.DataAccess.QueryAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.SeventhJoin, me.Predicate, me.OrderExpressions, me.Selector, me.GroupingColumns, me.GroupingSelector, me.Skipped, me.Taken);
+        }
+
+        public static int Count<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> me)
+        {
+            return me.DataAccess.Count(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.SeventhJoin, me.Predicate);
+        }
+
+        public static Task<int> CountAsync<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(this QueryObject<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh> me)
+        {
+            return me.DataAccess.CountAsync(me.SecondJoin, me.ThirdJoin, me.FourthJoin, me.FifthJoin, me.SixthJoin, me.SeventhJoin, me.Predicate);
         }
 
         #endregion

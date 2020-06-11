@@ -977,6 +977,261 @@ WHERE ";
             return this.ExecuteQueryOneAsync<int>(sql, parameters);
         }
 
+        public virtual int Count<TSecond>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            Expression<Func<T, TSecond, bool>> predicate)
+        {
+            return this.CountAsync(secondJoin, predicate).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual Task<int> CountAsync<TSecond>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            Expression<Func<T, TSecond, bool>> predicate)
+        {
+            var aliases = new[] { this.alias, GenerateAlias(typeof(TSecond), 2) };
+
+            SqlBuilder sql = $@"
+SELECT COUNT(*)
+FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            sql += ";";
+
+            return this.ExecuteQueryOneAsync<int>(sql, parameters);
+        }
+
+        public virtual int Count<TSecond, TThird>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            Expression<Func<T, TSecond, TThird, bool>> predicate)
+        {
+            return this.CountAsync(secondJoin, thirdJoin, predicate).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual Task<int> CountAsync<TSecond, TThird>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            Expression<Func<T, TSecond, TThird, bool>> predicate)
+        {
+            var aliases = new[] { this.alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3) };
+
+            SqlBuilder sql = $@"
+SELECT COUNT(*)
+FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            sql += ";";
+
+            return this.ExecuteQueryOneAsync<int>(sql, parameters);
+        }
+
+        public virtual int Count<TSecond, TThird, TFourth>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate)
+        {
+            return this.CountAsync(secondJoin, thirdJoin, fourthJoin, predicate).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual Task<int> CountAsync<TSecond, TThird, TFourth>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, bool>> predicate)
+        {
+            var aliases = new[] { this.alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4) };
+
+            SqlBuilder sql = $@"
+SELECT COUNT(*)
+FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            sql += ";";
+
+            return this.ExecuteQueryOneAsync<int>(sql, parameters);
+        }
+
+        public virtual int Count<TSecond, TThird, TFourth, TFifth>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate)
+        {
+            return this.CountAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, predicate).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual Task<int> CountAsync<TSecond, TThird, TFourth, TFifth>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>> predicate)
+        {
+            var aliases = new[] { this.alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5) };
+
+            SqlBuilder sql = $@"
+SELECT COUNT(*)
+FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            sql += ";";
+
+            return this.ExecuteQueryOneAsync<int>(sql, parameters);
+        }
+
+        public virtual int Count<TSecond, TThird, TFourth, TFifth, TSixth>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> predicate)
+        {
+            return this.CountAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, sixthJoin, predicate).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual Task<int> CountAsync<TSecond, TThird, TFourth, TFifth, TSixth>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>> predicate)
+        {
+            var aliases = new[] { this.alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5), GenerateAlias(typeof(TSixth), 6) };
+
+            SqlBuilder sql = $@"
+SELECT COUNT(*)
+FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TSixth>(sixthJoin.Item2, sixthJoin.Item3, aliases);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            sql += ";";
+
+            return this.ExecuteQueryOneAsync<int>(sql, parameters);
+        }
+
+        public virtual int Count<TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>>, JoinType) seventhJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>> predicate)
+        {
+            return this.CountAsync(secondJoin, thirdJoin, fourthJoin, fifthJoin, sixthJoin, seventhJoin, predicate).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        public virtual Task<int> CountAsync<TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>(
+            (Expression<Func<T, TSecond>>, Expression<Func<T, TSecond, bool>>, JoinType) secondJoin,
+            (Expression<Func<T, TSecond, TThird>>, Expression<Func<T, TSecond, TThird, bool>>, JoinType) thirdJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth>>, Expression<Func<T, TSecond, TThird, TFourth, bool>>, JoinType) fourthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, bool>>, JoinType) fifthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, bool>>, JoinType) sixthJoin,
+            (Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh>>, Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>>, JoinType) seventhJoin,
+            Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, bool>> predicate)
+        {
+            var aliases = new[] { this.alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5), GenerateAlias(typeof(TSixth), 6), GenerateAlias(typeof(TSeventh), 7) };
+
+            SqlBuilder sql = $@"
+SELECT COUNT(*)
+FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TSixth>(sixthJoin.Item2, sixthJoin.Item3, aliases);
+            sql += this.GenerateJoinStatement<TSeventh>(seventhJoin.Item2, seventhJoin.Item3, aliases);
+
+            var parameters = new Dictionary<string, object>();
+
+            var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
+
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                sql += @"
+WHERE ";
+                sql += searchCondition;
+            }
+
+            sql += ";";
+
+            return this.ExecuteQueryOneAsync<int>(sql, parameters);
+        }
+
         public virtual bool Exists(Expression<Func<T, bool>> predicate)
         {
             return this.ExistsAsync(predicate).ConfigureAwait(false).GetAwaiter().GetResult();
@@ -1379,6 +1634,8 @@ WHERE ";
             int? skipped = null,
             int? taken = null)
         {
+            if (groupingColumns != null && groupingSelector == null) throw new ArgumentException("Must has grouping selection.");
+
             SqlBuilder sql = $@"
 SELECT {(taken.HasValue && !skipped.HasValue ? string.Concat("TOP(", taken, ") ") : string.Empty)}";
 
@@ -1743,6 +2000,8 @@ FETCH NEXT {taken.Value} ROWS ONLY";
             int? skipped = null,
             int? taken = null)
         {
+            if (groupingColumns != null && groupingSelector == null) throw new ArgumentException("Must has grouping selection.");
+
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2) };
 
             SqlBuilder sql = $@"
@@ -1845,6 +2104,8 @@ FETCH NEXT {taken.Value} ROWS ONLY";
             int? skipped = null,
             int? taken = null)
         {
+            if (groupingColumns != null && groupingSelector == null) throw new ArgumentException("Must has grouping selection.");
+
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3) };
 
             SqlBuilder sql = $@"
@@ -1950,6 +2211,8 @@ FETCH NEXT {taken.Value} ROWS ONLY";
             int? skipped = null,
             int? taken = null)
         {
+            if (groupingColumns != null && groupingSelector == null) throw new ArgumentException("Must has grouping selection.");
+
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4) };
 
             SqlBuilder sql = $@"
@@ -2058,6 +2321,8 @@ FETCH NEXT {taken.Value} ROWS ONLY";
             int? skipped = null,
             int? taken = null)
         {
+            if (groupingColumns != null && groupingSelector == null) throw new ArgumentException("Must has grouping selection.");
+
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5) };
 
             SqlBuilder sql = $@"
@@ -2169,6 +2434,8 @@ FETCH NEXT {taken.Value} ROWS ONLY";
             int? skipped = null,
             int? taken = null)
         {
+            if (groupingColumns != null && groupingSelector == null) throw new ArgumentException("Must has grouping selection.");
+
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5), GenerateAlias(typeof(TSixth), 6) };
 
             SqlBuilder sql = $@"
@@ -2283,6 +2550,8 @@ FETCH NEXT {taken.Value} ROWS ONLY";
             int? skipped = null,
             int? taken = null)
         {
+            if (groupingColumns != null && groupingSelector == null) throw new ArgumentException("Must has grouping selection.");
+
             var aliases = new[] { alias, GenerateAlias(typeof(TSecond), 2), GenerateAlias(typeof(TThird), 3), GenerateAlias(typeof(TFourth), 4), GenerateAlias(typeof(TFifth), 5), GenerateAlias(typeof(TSixth), 6), GenerateAlias(typeof(TSeventh), 7) };
 
             SqlBuilder sql = $@"
