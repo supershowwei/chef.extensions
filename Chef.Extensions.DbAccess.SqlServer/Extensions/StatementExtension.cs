@@ -1135,7 +1135,14 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
             {
                 if (memberExpr.Member.MemberType == MemberTypes.Field)
                 {
-                    return ((FieldInfo)memberExpr.Member).GetValue((memberExpr.Expression as ConstantExpression)?.Value);
+                    if (memberExpr.Expression is MemberExpression)
+                    {
+                        return ((FieldInfo)memberExpr.Member).GetValue(ExtractConstant(memberExpr.Expression));
+                    }
+                    else
+                    {
+                        return ((FieldInfo)memberExpr.Member).GetValue((memberExpr.Expression as ConstantExpression)?.Value);
+                    }
                 }
 
                 if (memberExpr.Member.MemberType == MemberTypes.Property)
