@@ -119,12 +119,12 @@ namespace Chef.Extensions.String
 
         public static string ToUrlBase64(this string me)
         {
-            return Convert.ToBase64String(Encoding.UTF8.GetBytes(me)).Replace("=", "!").Replace("+", "-").Replace("/", "_");
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(me)).Replace("=", ".").Replace("+", "-").Replace("/", "_");
         }
 
         public static string ToUrlBase64(this string me, Encoding encoding)
         {
-            return Convert.ToBase64String(encoding.GetBytes(me)).Replace("=", "!").Replace("+", "-").Replace("/", "_");
+            return Convert.ToBase64String(encoding.GetBytes(me)).Replace("=", ".").Replace("+", "-").Replace("/", "_");
         }
 
         public static string Base64Decode(this string me)
@@ -139,12 +139,12 @@ namespace Chef.Extensions.String
 
         public static string UrlBase64Decode(this string me)
         {
-            return Encoding.UTF8.GetString(Convert.FromBase64String(me.Replace("!", "=").Replace("-", "+").Replace("_", "/")));
+            return Encoding.UTF8.GetString(Convert.FromBase64String(me.Replace(".", "=").Replace("-", "+").Replace("_", "/")));
         }
 
         public static string UrlBase64Decode(this string me, Encoding encoding)
         {
-            return encoding.GetString(Convert.FromBase64String(me.Replace("!", "=").Replace("-", "+").Replace("_", "/")));
+            return encoding.GetString(Convert.FromBase64String(me.Replace(".", "=").Replace("-", "+").Replace("_", "/")));
         }
 
         public static string[] Split(this string me, params string[] separator)

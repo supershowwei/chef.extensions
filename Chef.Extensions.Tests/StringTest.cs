@@ -44,7 +44,7 @@ namespace Chef.Extensions.Tests
 
             var result = input.ToUrlBase64();
 
-            result.Should().Be("MTIzNDU2N-S4gOS6jOS4ieWbm-S6lOWFreS4gw!!");
+            result.Should().Be("MTIzNDU2N-S4gOS6jOS4ieWbm-S6lOWFreS4gw..");
         }
 
         [TestMethod]
@@ -60,7 +60,7 @@ namespace Chef.Extensions.Tests
         [TestMethod]
         public void Test_UrlBase64Decode()
         {
-            var input = "MTIzNDU2N-S4gOS6jOS4ieWbm-S6lOWFreS4gw!!";
+            var input = "MTIzNDU2N-S4gOS6jOS4ieWbm-S6lOWFreS4gw..";
 
             var result = input.UrlBase64Decode();
 
