@@ -62,5 +62,15 @@ namespace Chef.Extensions.Byte
         {
             me[me.Length - 1] = value;
         }
+
+        public static string ToUpperString(this byte[] me)
+        {
+            return BitConverter.ToString(me).Replace("-", string.Empty);
+        }
+
+        public static string ToLowerString(this byte[] me)
+        {
+            return BitConverter.ToString(me).Replace("-", string.Empty).ToLower();
+        }
     }
 }

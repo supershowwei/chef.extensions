@@ -85,3 +85,24 @@ Example:
     data.SetLast(0x06);
     
     // bytes is [0x01, 0x02, 0x03 0x04, 0x06].
+
+
+### ToUpperString()
+
+Same as `BitConverter.ToString("bytes").Replace("-", string.Empty)`.
+
+Example:
+
+    var result = Encoding.UTF8.GetBytes("abcde~!@#$%").ToUpperString();
+    
+    // result is "61626364657E2140232425".
+
+### ToLowerString()
+
+Same as `BitConverter.ToString("bytes").Replace("-", string.Empty).ToLower()`.
+
+Example:
+
+    var result = Encoding.UTF8.GetBytes("abcde~!@#$%").ToLowerString();
+    
+    // result is "61626364657e2140232425".
