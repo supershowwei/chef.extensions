@@ -117,6 +117,16 @@ namespace Chef.Extensions.String
             return Convert.ToBase64String(encoding.GetBytes(me));
         }
 
+        public static string ToUrlBase64(this string me)
+        {
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(me)).Replace("=", string.Empty).Replace("+", "-").Replace("/", "_");
+        }
+
+        public static string ToUrlBase64(this string me, Encoding encoding)
+        {
+            return Convert.ToBase64String(encoding.GetBytes(me)).Replace("=", string.Empty).Replace("+", "-").Replace("/", "_");
+        }
+
         public static string Base64Decode(this string me)
         {
             return Encoding.UTF8.GetString(Convert.FromBase64String(me));
@@ -125,6 +135,16 @@ namespace Chef.Extensions.String
         public static string Base64Decode(this string me, Encoding encoding)
         {
             return encoding.GetString(Convert.FromBase64String(me));
+        }
+
+        public static string UrlBase64Decode(this string me)
+        {
+            return Encoding.UTF8.GetString(Convert.FromBase64String(me.Replace("-", "+").Replace("_", "/")));
+        }
+
+        public static string UrlBase64Decode(this string me, Encoding encoding)
+        {
+            return encoding.GetString(Convert.FromBase64String(me.Replace("-", "+").Replace("_", "/")));
         }
 
         public static string[] Split(this string me, params string[] separator)
