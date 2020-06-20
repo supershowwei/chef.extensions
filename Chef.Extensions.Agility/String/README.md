@@ -191,7 +191,7 @@ Example:
 
     var result = "1234567一二三四五六七".ToUrlBase64();
     
-    // result is "MTIzNDU2N-S4gOS6jOS4ieWbm-S6lOWFreS4gw"
+    // result is "MTIzNDU2N-S4gOS6jOS4ieWbm-S6lOWFreS4gw!!"
 
 ### ToUrlBase64(Encoding encoding)
 
@@ -229,7 +229,7 @@ Decode a string of Base64 to string for url.（Encoding is UTF8）
 
 Example:
 
-    var result = "MTIzNDU2N+S4gOS6jOS4ieWbm+S6lOWFreS4gw".UrlBase64Decode();
+    var result = "MTIzNDU2N+S4gOS6jOS4ieWbm+S6lOWFreS4gw!!".UrlBase64Decode();
     
     // result is "1234567一二三四五六七".
 

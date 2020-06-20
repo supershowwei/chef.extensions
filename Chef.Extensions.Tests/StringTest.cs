@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Chef.Extensions.String;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,6 +35,36 @@ namespace Chef.Extensions.Tests
             var input = "1[2]345[6[7]]";
 
             input.Remove("[", "]").Should().Be("1234567");
+        }
+
+        [TestMethod]
+        public void Test_ToUrlBase64()
+        {
+            var input = "1234567一二三四五六七";
+
+            var result = input.ToUrlBase64();
+
+            result.Should().Be("MTIzNDU2N-S4gOS6jOS4ieWbm-S6lOWFreS4gw!!");
+        }
+
+        [TestMethod]
+        public void Test_ToUrlBase64_use_Big5_Encoding()
+        {
+            var input = "1234567一二三四五六七";
+
+            var result = input.ToUrlBase64(Encoding.GetEncoding("Big5"));
+
+            result.Should().Be("MTIzNDU2N6RApEekVKV8pK2ku6RD");
+        }
+
+        [TestMethod]
+        public void Test_UrlBase64Decode()
+        {
+            var input = "MTIzNDU2N-S4gOS6jOS4ieWbm-S6lOWFreS4gw!!";
+
+            var result = input.UrlBase64Decode();
+
+            result.Should().Be("1234567一二三四五六七");
         }
     }
 }
