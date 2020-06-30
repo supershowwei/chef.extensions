@@ -23,7 +23,7 @@ namespace Chef.Extensions.DbAccess
             throw new NotImplementedException();
         }
 
-        public TColumn Count<TColumn>(Expression<Func<T, TColumn>> countSelector)
+        public int Count<TColumn>(Expression<Func<T, TColumn>> countSelector)
         {
             throw new NotImplementedException();
         }
@@ -56,7 +56,7 @@ namespace Chef.Extensions.DbAccess
             throw new NotImplementedException();
         }
 
-        public TColumn Count<TColumn>(Expression<Func<T, TSecond, TColumn>> countSelector)
+        public int Count<TColumn>(Expression<Func<T, TSecond, TColumn>> countSelector)
         {
             throw new NotImplementedException();
         }
@@ -89,7 +89,7 @@ namespace Chef.Extensions.DbAccess
             throw new NotImplementedException();
         }
 
-        public TColumn Count<TColumn>(Expression<Func<T, TSecond, TThird, TColumn>> countSelector)
+        public int Count<TColumn>(Expression<Func<T, TSecond, TThird, TColumn>> countSelector)
         {
             throw new NotImplementedException();
         }
@@ -122,7 +122,7 @@ namespace Chef.Extensions.DbAccess
             throw new NotImplementedException();
         }
 
-        public TColumn Count<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TColumn>> countSelector)
+        public int Count<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TColumn>> countSelector)
         {
             throw new NotImplementedException();
         }
@@ -155,7 +155,7 @@ namespace Chef.Extensions.DbAccess
             throw new NotImplementedException();
         }
 
-        public TColumn Count<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TColumn>> countSelector)
+        public int Count<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TColumn>> countSelector)
         {
             throw new NotImplementedException();
         }
@@ -188,7 +188,7 @@ namespace Chef.Extensions.DbAccess
             throw new NotImplementedException();
         }
 
-        public TColumn Count<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TColumn>> countSelector)
+        public int Count<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TColumn>> countSelector)
         {
             throw new NotImplementedException();
         }
@@ -221,7 +221,7 @@ namespace Chef.Extensions.DbAccess
             throw new NotImplementedException();
         }
 
-        public TColumn Count<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TColumn>> countSelector)
+        public int Count<TColumn>(Expression<Func<T, TSecond, TThird, TFourth, TFifth, TSixth, TSeventh, TColumn>> countSelector)
         {
             throw new NotImplementedException();
         }

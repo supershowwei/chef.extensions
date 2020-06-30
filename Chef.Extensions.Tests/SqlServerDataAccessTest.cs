@@ -173,7 +173,7 @@ namespace Chef.Extensions.Tests
                              Id = g.Select((a, b, c) => a.Id),
                              Name = g.Select((m, n, o) => m.Name),
                              DepartmentName = g.Select((x, y, z) => y.Name),
-                             SubordinateCount = g.Count((qq, kk, gg) => gg.Id),
+                             SubordinateCount = g.Count((qq, kk, gg) => gg.Name),
                              MaxSubordinateId = g.Max((o, p, q) => q.Id),
                              MinSubordinateId = g.Min((us, dep, u) => u.Id),
                              SumSubordinateAge = g.Sum((xx, yy, zz) => zz.Age),
