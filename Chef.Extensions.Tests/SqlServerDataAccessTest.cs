@@ -907,6 +907,26 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryAsync_use_List_Contains_with_And()
+        {
+            var clubDataAccess = DataAccessFactory.Create<Club>();
+
+            var ids = new List<int> { 17, 25 };
+            var active = true;
+
+            var clubs = await clubDataAccess.Where(x => ids.Contains(x.Id))
+                            .And(x => x.IsActive == active)
+                            .Select(x => new { x.Name })
+                            .QueryAsync();
+
+            clubs.Count.Should().Be(2);
+            clubs[0].Id.Should().Be(0);
+            clubs[1].Id.Should().Be(0);
+            clubs[0].Name.Should().Be("吳淑娟");
+            clubs[1].Name.Should().Be("鄧偉成");
+        }
+
+        [TestMethod]
         public async Task Test_QueryAsync_with_use_Pagination_QueryObject()
         {
             var clubDataAccess = DataAccessFactory.Create<Club>();

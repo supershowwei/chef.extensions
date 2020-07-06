@@ -967,35 +967,6 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
 
                     sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, parameterType, parameters)}", alias);
                 }
-                else if (methodFullName.Equals("System.Linq.Enumerable.Contains"))
-                {
-                    var argumentExpr = (MemberExpression)methodCallExpr.Arguments[1];
-
-                    if (Attribute.IsDefined(argumentExpr.Member, typeof(NotMappedAttribute)))
-                    {
-                        throw new ArgumentException("Member can not applied [NotMapped].");
-                    }
-
-                    var parameterExpr = (ParameterExpression)argumentExpr.Expression;
-
-                    var alias = aliasMap[parameterExpr.Name];
-                    var columnAttribute = argumentExpr.Member.GetCustomAttribute<ColumnAttribute>();
-                    var columnName = columnAttribute?.Name ?? argumentExpr.Member.Name;
-                    var parameterType = (argumentExpr.Member as PropertyInfo)?.PropertyType ?? argumentExpr.Member.DeclaringType;
-
-                    var array = ExtractArray(methodCallExpr);
-
-                    foreach (var item in array)
-                    {
-                        if (parameters == null) throw new ArgumentException($"'{nameof(parameters)}' can not be null.");
-
-                        SetParameter(argumentExpr.Member, item, columnAttribute, parameters, out var parameterName);
-
-                        sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, parameterType, parameters)} OR ", alias);
-                    }
-
-                    sb.Remove(sb.Length - 4, 4);
-                }
                 else if (methodFullName.IsLikeOperator())
                 {
                     var memberExpr = (MemberExpression)methodCallExpr.Object;
@@ -1030,6 +1001,37 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
                     {
                         sb.AliasAppend($"[{columnName}] LIKE '%' + {GenerateParameterStatement(parameterName, parameterType, parameters)}", alias);
                     }
+                }
+                else if (methodFullName.EndsWith(".Contains"))
+                {
+                    var argumentExpr = methodCallExpr.Object == null
+                                           ? (MemberExpression)methodCallExpr.Arguments[1]
+                                           : (MemberExpression)methodCallExpr.Arguments[0];
+
+                    if (Attribute.IsDefined(argumentExpr.Member, typeof(NotMappedAttribute)))
+                    {
+                        throw new ArgumentException("Member can not applied [NotMapped].");
+                    }
+
+                    var parameterExpr = (ParameterExpression)argumentExpr.Expression;
+
+                    var alias = aliasMap[parameterExpr.Name];
+                    var columnAttribute = argumentExpr.Member.GetCustomAttribute<ColumnAttribute>();
+                    var columnName = columnAttribute?.Name ?? argumentExpr.Member.Name;
+                    var parameterType = (argumentExpr.Member as PropertyInfo)?.PropertyType ?? argumentExpr.Member.DeclaringType;
+
+                    var array = ExtractArray(methodCallExpr.Object ?? methodCallExpr.Arguments[0]);
+
+                    foreach (var item in array)
+                    {
+                        if (parameters == null) throw new ArgumentException($"'{nameof(parameters)}' can not be null.");
+
+                        SetParameter(argumentExpr.Member, item, columnAttribute, parameters, out var parameterName);
+
+                        sb.AliasAppend($"[{columnName}] = {GenerateParameterStatement(parameterName, parameterType, parameters)} OR ", alias);
+                    }
+
+                    sb.Remove(sb.Length - 4, 4);
                 }
             }
         }
@@ -1176,9 +1178,9 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
             }
         }
 
-        private static IEnumerable ExtractArray(MethodCallExpression methodCallExpr)
+        private static IEnumerable ExtractArray(Expression expr)
         {
-            switch (methodCallExpr.Arguments[0])
+            switch (expr)
             {
                 case NewArrayExpression newArrayExpr: return newArrayExpr.Expressions.Select(e => ExtractConstant(e)).ToArray();
                 case MemberExpression arrayExpr: return (IEnumerable)ExtractConstant(arrayExpr);
