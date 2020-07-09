@@ -994,9 +994,9 @@ WHERE ";
 SELECT COUNT(*)
 FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
 
-            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-
             var parameters = new Dictionary<string, object>();
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases, parameters);
 
             var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
 
@@ -1031,10 +1031,10 @@ WHERE ";
 SELECT COUNT(*)
 FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
 
-            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-
             var parameters = new Dictionary<string, object>();
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases, parameters);
 
             var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
 
@@ -1071,11 +1071,11 @@ WHERE ";
 SELECT COUNT(*)
 FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
 
-            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
-
             var parameters = new Dictionary<string, object>();
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases, parameters);
 
             var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
 
@@ -1114,12 +1114,12 @@ WHERE ";
 SELECT COUNT(*)
 FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
 
-            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
-
             var parameters = new Dictionary<string, object>();
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases, parameters);
 
             var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
 
@@ -1160,13 +1160,13 @@ WHERE ";
 SELECT COUNT(*)
 FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
 
-            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TSixth>(sixthJoin.Item2, sixthJoin.Item3, aliases);
-
             var parameters = new Dictionary<string, object>();
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TSixth>(sixthJoin.Item2, sixthJoin.Item3, aliases, parameters);
 
             var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
 
@@ -1209,14 +1209,14 @@ WHERE ";
 SELECT COUNT(*)
 FROM {this.tableName} [{this.alias}] WITH (NOLOCK)";
 
-            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TSixth>(sixthJoin.Item2, sixthJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TSeventh>(seventhJoin.Item2, seventhJoin.Item3, aliases);
-
             var parameters = new Dictionary<string, object>();
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TSixth>(sixthJoin.Item2, sixthJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TSeventh>(seventhJoin.Item2, seventhJoin.Item3, aliases, parameters);
 
             var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
 
@@ -2035,9 +2035,9 @@ SELECT ";
             sql += $@"
 FROM {tableName} [{alias}] WITH (NOLOCK)";
 
-            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-
             var parameters = new Dictionary<string, object>();
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases, parameters);
 
             var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
 
@@ -2139,10 +2139,10 @@ SELECT ";
             sql += $@"
 FROM {tableName} [{alias}] WITH (NOLOCK)";
 
-            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-
             var parameters = new Dictionary<string, object>();
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases, parameters);
 
             var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
 
@@ -2246,11 +2246,11 @@ SELECT ";
             sql += $@"
 FROM {tableName} [{alias}] WITH (NOLOCK)";
 
-            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
-
             var parameters = new Dictionary<string, object>();
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases, parameters);
 
             var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
 
@@ -2356,12 +2356,12 @@ SELECT ";
             sql += $@"
 FROM {tableName} [{alias}] WITH (NOLOCK)";
 
-            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
-
             var parameters = new Dictionary<string, object>();
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases, parameters);
 
             var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
 
@@ -2469,13 +2469,13 @@ SELECT ";
             sql += $@"
 FROM {tableName} [{alias}] WITH (NOLOCK)";
 
-            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TSixth>(sixthJoin.Item2, sixthJoin.Item3, aliases);
-
             var parameters = new Dictionary<string, object>();
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TSixth>(sixthJoin.Item2, sixthJoin.Item3, aliases, parameters);
 
             var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
 
@@ -2585,14 +2585,14 @@ SELECT ";
             sql += $@"
 FROM {tableName} [{alias}] WITH (NOLOCK)";
 
-            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TSixth>(sixthJoin.Item2, sixthJoin.Item3, aliases);
-            sql += this.GenerateJoinStatement<TSeventh>(seventhJoin.Item2, seventhJoin.Item3, aliases);
-
             var parameters = new Dictionary<string, object>();
+
+            sql += this.GenerateJoinStatement<TSecond>(secondJoin.Item2, secondJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TThird>(thirdJoin.Item2, thirdJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TFourth>(fourthJoin.Item2, fourthJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TFifth>(fifthJoin.Item2, fifthJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TSixth>(sixthJoin.Item2, sixthJoin.Item3, aliases, parameters);
+            sql += this.GenerateJoinStatement<TSeventh>(seventhJoin.Item2, seventhJoin.Item3, aliases, parameters);
 
             var searchCondition = predicate == null ? string.Empty : predicate.ToSearchCondition(aliases, parameters);
 
@@ -2651,7 +2651,7 @@ FETCH NEXT {taken.Value} ROWS ONLY";
             return (sql, parameters, splitOn, secondSetter, thirdSetter, fourthSetter, fifthSetter, sixthSetter, seventhSetter);
         }
 
-        private string GenerateJoinStatement<TRight>(LambdaExpression condition, JoinType joinType, string[] aliases)
+        private string GenerateJoinStatement<TRight>(LambdaExpression condition, JoinType joinType, string[] aliases, IDictionary<string, object> parameters)
         {
             if (condition == null)
             {
@@ -2687,13 +2687,13 @@ FETCH NEXT {taken.Value} ROWS ONLY";
             {
                 case JoinType.Inner:
                     return string.Equals(database, rightDatabase, StringComparison.CurrentCultureIgnoreCase)
-                               ? string.Concat("\r\n", condition.ToInnerJoin<TRight>(aliases, null, null))
-                               : string.Concat("\r\n", condition.ToInnerJoin<TRight>(aliases, rightDatabase, rightSchema));
+                               ? string.Concat("\r\n", condition.ToInnerJoin<TRight>(aliases, null, null, parameters))
+                               : string.Concat("\r\n", condition.ToInnerJoin<TRight>(aliases, rightDatabase, rightSchema, parameters));
 
                 case JoinType.Left:
                     return string.Equals(database, rightDatabase, StringComparison.CurrentCultureIgnoreCase)
-                               ? string.Concat("\r\n", condition.ToLeftJoin<TRight>(aliases, null, null))
-                               : string.Concat("\r\n", condition.ToLeftJoin<TRight>(aliases, rightDatabase, rightSchema));
+                               ? string.Concat("\r\n", condition.ToLeftJoin<TRight>(aliases, null, null, parameters))
+                               : string.Concat("\r\n", condition.ToLeftJoin<TRight>(aliases, rightDatabase, rightSchema, parameters));
 
                 default: throw new ArgumentOutOfRangeException(nameof(joinType), "Unsupported join type.");
             }

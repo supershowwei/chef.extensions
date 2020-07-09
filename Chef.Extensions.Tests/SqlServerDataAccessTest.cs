@@ -659,6 +659,43 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
+        public async Task Test_QueryAsync_with_InnerJoin_Two_Tables_use_Constant_in_On_Condition_use_QueryObjet()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var result = await memberDataAccess.InnerJoin(x => x.Department, (x, y) => x.DepartmentId == y.DepId && (x.DepartmentId == 2 || x.DepartmentId == 3))
+                             .Where((x, y) => new[] { 1, 2 }.Contains(x.Id))
+                             .Select((x, y) => new { x.Id, y.DepId, x.Name, DepartmentName = y.Name })
+                             .QueryAsync();
+
+            result.Count.Should().Be(2);
+            result[0].Name.Should().Be("Johnny");
+            result[0].Department.DepId.Should().Be(3);
+            result[1].Name.Should().Be("Amy");
+            result[1].Department.DepId.Should().Be(2);
+        }
+
+        [TestMethod]
+        public async Task Test_QueryAsync_with_InnerJoin_Two_Tables_use_Property_in_On_Condition_use_QueryObjet()
+        {
+            var memberDataAccess = DataAccessFactory.Create<User>();
+
+            var depId = 2;
+            var dep = new { Id = 3 };
+
+            var result = await memberDataAccess.InnerJoin(x => x.Department, (x, y) => x.DepartmentId == y.DepId && (x.DepartmentId == depId || x.DepartmentId == dep.Id))
+                             .Where((x, y) => new[] { 1, 2 }.Contains(x.Id))
+                             .Select((x, y) => new { x.Id, y.DepId, x.Name, DepartmentName = y.Name })
+                             .QueryAsync();
+
+            result.Count.Should().Be(2);
+            result[0].Name.Should().Be("Johnny");
+            result[0].Department.DepId.Should().Be(3);
+            result[1].Name.Should().Be("Amy");
+            result[1].Department.DepId.Should().Be(2);
+        }
+
+        [TestMethod]
         public async Task Test_QueryAsync_use_OrderBy_with_InnerJoin_Two_Tables_use_QueryObjet()
         {
             var memberDataAccess = DataAccessFactory.Create<User>();

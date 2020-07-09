@@ -454,12 +454,12 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
             return sb.ToString();
         }
 
-        public static string ToInnerJoin<TRight>(this LambdaExpression me, string database, string schema)
+        public static string ToInnerJoin<TRight>(this LambdaExpression me, string database, string schema, IDictionary<string, object> parameters)
         {
-            return ToInnerJoin<TRight>(me, new string[] { }, database, schema);
+            return ToInnerJoin<TRight>(me, new string[] { }, database, schema, parameters);
         }
 
-        public static string ToInnerJoin<TRight>(this LambdaExpression me, string[] aliases, string database, string schema)
+        public static string ToInnerJoin<TRight>(this LambdaExpression me, string[] aliases, string database, string schema, IDictionary<string, object> parameters)
         {
             var aliasMap = GenerateAliasMap(me.Parameters, aliases);
 
@@ -481,17 +481,17 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
 
             sb.Append(" WITH (NOLOCK) ON ");
 
-            ParseJoinCodition(me.Body, aliasMap, sb);
+            ParseJoinCondition(me.Body, aliasMap, sb, parameters);
 
             return sb.ToString();
         }
 
-        public static string ToLeftJoin<TRight>(this LambdaExpression me, string database, string schema)
+        public static string ToLeftJoin<TRight>(this LambdaExpression me, string database, string schema, IDictionary<string, object> parameters)
         {
-            return ToLeftJoin<TRight>(me, new string[] { }, database, schema);
+            return ToLeftJoin<TRight>(me, new string[] { }, database, schema, parameters);
         }
 
-        public static string ToLeftJoin<TRight>(this LambdaExpression me, string[] aliases, string database, string schema)
+        public static string ToLeftJoin<TRight>(this LambdaExpression me, string[] aliases, string database, string schema, IDictionary<string, object> parameters)
         {
             var aliasMap = GenerateAliasMap(me.Parameters, aliases);
 
@@ -513,7 +513,7 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
 
             sb.Append(" WITH (NOLOCK) ON ");
 
-            ParseJoinCodition(me.Body, aliasMap, sb);
+            ParseJoinCondition(me.Body, aliasMap, sb, parameters);
 
             return sb.ToString();
         }
@@ -1036,7 +1036,7 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
             }
         }
 
-        private static void ParseJoinCodition(Expression expr, IDictionary<string, string> aliasMap, StringBuilder sb)
+        private static void ParseJoinCondition(Expression expr, IDictionary<string, string> aliasMap, StringBuilder sb, IDictionary<string, object> parameters)
         {
             if (expr is BinaryExpression binaryExpr)
             {
@@ -1044,7 +1044,7 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
                 {
                     sb.Append("(");
 
-                    ParseJoinCodition(binaryExpr.Left, aliasMap, sb);
+                    ParseJoinCondition(binaryExpr.Left, aliasMap, sb, parameters);
 
                     switch (binaryExpr.NodeType)
                     {
@@ -1057,17 +1057,27 @@ namespace Chef.Extensions.DbAccess.SqlServer.Extensions
                             break;
                     }
 
-                    ParseJoinCodition(binaryExpr.Right, aliasMap, sb);
+                    ParseJoinCondition(binaryExpr.Right, aliasMap, sb, parameters);
 
                     sb.Append(")");
                 }
                 else
                 {
-                    ParseJoinCodition(binaryExpr.Left, aliasMap, sb);
+                    switch (binaryExpr.Right)
+                    {
+                        case ConstantExpression _:
+                        case MemberExpression right when right.Expression.NodeType != ExpressionType.Parameter:
+                            ParseCondition(binaryExpr, aliasMap, sb, parameters);
+                            break;
 
-                    sb.Append($" {MapOperator(binaryExpr.NodeType)} ");
+                        default:
+                            ParseJoinCondition(binaryExpr.Left, aliasMap, sb, parameters);
 
-                    ParseJoinCodition(binaryExpr.Right, aliasMap, sb);
+                            sb.Append($" {MapOperator(binaryExpr.NodeType)} ");
+
+                            ParseJoinCondition(binaryExpr.Right, aliasMap, sb, parameters);
+                            break;
+                    }
                 }
             }
             else
