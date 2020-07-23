@@ -71,3 +71,40 @@ Example:
     var result = 1.NotExists(new[] { 1, 2, 3 }, (a, b) => a == b);
     
     // result is false.
+
+### To&lt;TTarget&gt;()
+
+Simple Object-Object Mapping.
+
+Example:
+
+    A a = new A();
+    
+    var result = a.To<B>();
+    
+    // result is B that properties same as A are already set.
+
+### To&lt;TTarget&gt;(TTarget existed)
+
+Simple Object-Object Mapping, but keep properties with non-default value in existed.
+
+Example:
+
+    A a = new A();
+    
+    var result = a.To<B>();
+    
+    // result is B that properties same as A are already set, but keep properties with non-default value in B.
+
+### To&lt;TSource, TTarget&gt;(Func&lt;TSource, TTarget&gt; convert)
+
+Simple Object-Object Mapping using custom converter.
+
+Example:
+
+    A a = new A();
+    
+    var result = a.To(x => new B());
+    
+    // result is B using "x => new B()" delegate function.
+

@@ -56,10 +56,10 @@ namespace Chef.Extensions.Tests
         {
             var member = new Member { Id = 99 };
 
-            var user = member.To<User>(
+            var user = member.To(
                 obj =>
                     {
-                        var m = (Member)obj;
+                        var m = obj;
 
                         return new User { Id = m.Id };
                     });

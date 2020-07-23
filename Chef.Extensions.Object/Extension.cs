@@ -169,8 +169,10 @@ namespace Chef.Extensions.Object
             return converter(me, existed);
         }
 
-        public static TTarget To<TTarget>(this object me, Func<object, TTarget> convert)
+        public static TTarget To<TSource, TTarget>(this TSource me, Func<TSource, TTarget> convert)
         {
+            if (me == null) return default(TTarget);
+
             return convert(me);
         }
     }
