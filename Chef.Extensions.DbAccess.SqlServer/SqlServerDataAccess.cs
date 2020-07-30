@@ -45,6 +45,8 @@ namespace Chef.Extensions.DbAccess
             this.alias = GenerateAlias(typeof(T), 1);
         }
 
+        public Action<string, IDictionary<string, object>> OutputSql { get; set; }
+
         public virtual T QueryOne(
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
@@ -67,6 +69,8 @@ namespace Chef.Extensions.DbAccess
             int? taken = null)
         {
             var (sql, parameters) = GenerateQueryStatement(this.tableName, this.alias, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken);
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             return this.ExecuteQueryOneAsync<T>(sql, parameters);
         }
@@ -105,6 +109,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             if (groupingSelector != null)
             {
@@ -169,6 +175,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             if (groupingSelector != null)
             {
@@ -237,6 +245,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             if (groupingSelector != null)
             {
@@ -309,6 +319,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             if (groupingSelector != null)
             {
@@ -385,6 +397,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             if (groupingSelector != null)
             {
@@ -467,6 +481,8 @@ namespace Chef.Extensions.DbAccess
                     skipped,
                     taken);
 
+            this.OutputSql?.Invoke(sql, parameters);
+
             if (groupingSelector != null)
             {
                 var result = await this.ExecuteQueryOneAsync<T>(sql, parameters);
@@ -521,6 +537,8 @@ namespace Chef.Extensions.DbAccess
         {
             var (sql, parameters) = GenerateQueryStatement(this.tableName, this.alias, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken);
 
+            this.OutputSql?.Invoke(sql, parameters);
+
             return this.ExecuteQueryAsync<T>(sql, parameters);
         }
 
@@ -558,6 +576,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             if (groupingSelector != null)
             {
@@ -622,6 +642,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             if (groupingSelector != null)
             {
@@ -690,6 +712,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             if (groupingSelector != null)
             {
@@ -762,6 +786,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             if (groupingSelector != null)
             {
@@ -838,6 +864,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             if (groupingSelector != null)
             {
@@ -919,6 +947,8 @@ namespace Chef.Extensions.DbAccess
                 skipped,
                 taken);
 
+            this.OutputSql?.Invoke(sql, parameters);
+
             if (groupingSelector != null)
             {
                 var result = await this.ExecuteQueryAsync<T>(sql, parameters);
@@ -974,6 +1004,8 @@ WHERE ";
 
             sql += ";";
 
+            this.OutputSql?.Invoke(sql, parameters);
+
             return this.ExecuteQueryOneAsync<int>(sql, parameters);
         }
 
@@ -1008,6 +1040,8 @@ WHERE ";
             }
 
             sql += ";";
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             return this.ExecuteQueryOneAsync<int>(sql, parameters);
         }
@@ -1046,6 +1080,8 @@ WHERE ";
             }
 
             sql += ";";
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             return this.ExecuteQueryOneAsync<int>(sql, parameters);
         }
@@ -1087,6 +1123,8 @@ WHERE ";
             }
 
             sql += ";";
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             return this.ExecuteQueryOneAsync<int>(sql, parameters);
         }
@@ -1131,6 +1169,8 @@ WHERE ";
             }
 
             sql += ";";
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             return this.ExecuteQueryOneAsync<int>(sql, parameters);
         }
@@ -1178,6 +1218,8 @@ WHERE ";
             }
 
             sql += ";";
+
+            this.OutputSql?.Invoke(sql, parameters);
 
             return this.ExecuteQueryOneAsync<int>(sql, parameters);
         }
@@ -1229,6 +1271,8 @@ WHERE ";
 
             sql += ";";
 
+            this.OutputSql?.Invoke(sql, parameters);
+
             return this.ExecuteQueryOneAsync<int>(sql, parameters);
         }
 
@@ -1262,6 +1306,8 @@ WHERE ";
         ELSE 0
     END AS BIT);";
 
+            this.OutputSql?.Invoke(sql, parameters);
+
             return this.ExecuteQueryOneAsync<bool>(sql, parameters);
         }
 
@@ -1284,6 +1330,8 @@ WHERE ";
 INSERT INTO {this.tableName}({columnList})
     VALUES ({valueList});";
 
+            this.OutputSql?.Invoke(sql, null);
+
             return this.ExecuteCommandAsync(sql, value);
         }
 
@@ -1299,6 +1347,8 @@ INSERT INTO {this.tableName}({columnList})
             var sql = $@"
 INSERT INTO {this.tableName}({columnList})
     VALUES ({valueList});";
+
+            this.OutputSql?.Invoke(sql, null);
 
             return this.ExecuteCommandAsync(sql, parameters);
         }
@@ -1322,6 +1372,8 @@ INSERT INTO {this.tableName}({columnList})
 INSERT INTO {this.tableName}({columnList})
     VALUES ({valueList});";
 
+            this.OutputSql?.Invoke(sql, null);
+
             return Transaction.Current != null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
         }
 
@@ -1337,6 +1389,8 @@ INSERT INTO {this.tableName}({columnList})
             var sql = $@"
 INSERT INTO {this.tableName}({columnList})
     VALUES ({valueList});";
+
+            this.OutputSql?.Invoke(sql, null);
 
             return Transaction.Current != null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
         }
@@ -1363,6 +1417,8 @@ INSERT INTO {this.tableName}({columnList})
     SELECT {ColumnRegex.Replace(columnList, "$0 = tvp.$0")}
     FROM @TableVariable tvp;";
 
+            this.OutputSql?.Invoke(sql, null);
+
             return this.ExecuteCommandAsync(sql, new { TableVariable = tableVariable.AsTableValuedParameter(tableType) });
         }
 
@@ -1382,6 +1438,8 @@ INSERT INTO {this.tableName}({columnList})
     SELECT {ColumnRegex.Replace(columnList, "$0 = tvp.$0")}
     FROM @TableVariable tvp;";
 
+            this.OutputSql?.Invoke(sql, null);
+
             return this.ExecuteCommandAsync(sql, new { TableVariable = tableVariable.AsTableValuedParameter(tableType) });
         }
 
@@ -1400,6 +1458,8 @@ SET ";
 WHERE ";
             sql += predicate.ToSearchCondition(parameters);
             sql += ";";
+
+            this.OutputSql?.Invoke(sql, null);
 
             return this.ExecuteCommandAsync(sql, parameters);
         }
@@ -1422,6 +1482,8 @@ WHERE ";
             sql += predicateTemplate.ToSearchCondition();
             sql += ";";
 
+            this.OutputSql?.Invoke(sql, null);
+
             return Transaction.Current != null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
         }
 
@@ -1443,6 +1505,8 @@ SET {ColumnRegex.Replace(columnList, "$0 = tvp.$0")}
 FROM {this.tableName} t
 INNER JOIN @TableVariable tvp
     ON {ColumnValueRegex.Replace(searchCondition, "t.$1 = tvp.$1")};";
+
+            this.OutputSql?.Invoke(sql, null);
 
             return this.ExecuteCommandAsync(sql, new { TableVariable = tableVariable.AsTableValuedParameter(tableType) });
         }
@@ -1473,6 +1537,8 @@ IF @@rowcount = 0
             VALUES ({valueList});
     END";
 
+            this.OutputSql?.Invoke(sql, null);
+
             return Transaction.Current != null ? this.ExecuteCommandAsync(sql, parameters) : this.ExecuteTransactionalCommandAsync(sql, parameters);
         }
 
@@ -1501,6 +1567,8 @@ IF @@rowcount = 0
         INSERT INTO {this.tableName}({columnList})
             VALUES ({valueList});
     END";
+
+            this.OutputSql?.Invoke(sql, null);
 
             return Transaction.Current != null ? this.ExecuteCommandAsync(sql, values) : this.ExecuteTransactionalCommandAsync(sql, values);
         }
@@ -1536,6 +1604,8 @@ INSERT INTO {this.tableName}({columnList})
             FROM {this.tableName} t WITH (NOLOCK)
             WHERE {ColumnValueRegex.Replace(searchCondition, "t.$1 = tvp.$1")});";
 
+            this.OutputSql?.Invoke(sql, null);
+
             return Transaction.Current != null
                        ? this.ExecuteCommandAsync(sql, new { TableVariable = tableVariable.AsTableValuedParameter(tableType) })
                        : this.ExecuteTransactionalCommandAsync(sql,  new { TableVariable = tableVariable.AsTableValuedParameter(tableType) });
@@ -1552,6 +1622,8 @@ INSERT INTO {this.tableName}({columnList})
 DELETE FROM {this.tableName}
 WHERE ";
             sql += predicate.ToSearchCondition(out var parameters);
+
+            this.OutputSql?.Invoke(sql, null);
 
             return this.ExecuteCommandAsync(sql, parameters);
         }

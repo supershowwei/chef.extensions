@@ -19,6 +19,8 @@ namespace Chef.Extensions.DbAccess
 
     public interface IDataAccess<T>
     {
+        Action<string, IDictionary<string, object>> OutputSql { get; set; }
+
         T QueryOne(
             Expression<Func<T, bool>> predicate,
             IEnumerable<(Expression<Func<T, object>>, Sortord)> orderings = null,
