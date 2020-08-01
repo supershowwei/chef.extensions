@@ -39,6 +39,11 @@ namespace Chef.Extensions.DbAccess.SqlServer
             this.builder.Append(sql);
         }
 
+        public void Replace(string oldValue, string newValue)
+        {
+            this.builder.Replace(oldValue, newValue);
+        }
+
         public override string ToString()
         {
             return this.builder.ToString();

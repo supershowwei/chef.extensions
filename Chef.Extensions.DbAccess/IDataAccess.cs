@@ -19,6 +19,8 @@ namespace Chef.Extensions.DbAccess
 
     public interface IDataAccess<T>
     {
+        bool IsDirtyRead { get; set; }
+
         Action<string, IDictionary<string, object>> OutputSql { get; set; }
 
         T QueryOne(

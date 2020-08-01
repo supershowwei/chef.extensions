@@ -43,7 +43,11 @@ namespace Chef.Extensions.DbAccess
 
             this.tableName = typeof(T).GetCustomAttribute<TableAttribute>()?.Name ?? typeof(T).Name;
             this.alias = GenerateAlias(typeof(T), 1);
+
+            this.IsDirtyRead = true;
         }
+
+        public bool IsDirtyRead { get; set; }
 
         public Action<string, IDictionary<string, object>> OutputSql { get; set; }
 
@@ -69,6 +73,8 @@ namespace Chef.Extensions.DbAccess
             int? taken = null)
         {
             var (sql, parameters) = GenerateQueryStatement(this.tableName, this.alias, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken);
+
+            if (!this.IsDirtyRead) sql = sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -109,6 +115,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            if (!this.IsDirtyRead) sql = sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -175,6 +183,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            if (!this.IsDirtyRead) sql = sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -245,6 +255,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            if (!this.IsDirtyRead) sql = sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -319,6 +331,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            if (!this.IsDirtyRead) sql = sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -397,6 +411,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            if (!this.IsDirtyRead) sql = sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -481,6 +497,8 @@ namespace Chef.Extensions.DbAccess
                     skipped,
                     taken);
 
+            if (!this.IsDirtyRead) sql = sql.Replace(" WITH (NOLOCK)", string.Empty);
+
             this.OutputSql?.Invoke(sql, parameters);
 
             if (groupingSelector != null)
@@ -537,6 +555,8 @@ namespace Chef.Extensions.DbAccess
         {
             var (sql, parameters) = GenerateQueryStatement(this.tableName, this.alias, predicate, orderings, selector, groupingColumns, groupingSelector, skipped, taken);
 
+            if (!this.IsDirtyRead) sql = sql.Replace(" WITH (NOLOCK)", string.Empty);
+
             this.OutputSql?.Invoke(sql, parameters);
 
             return this.ExecuteQueryAsync<T>(sql, parameters);
@@ -576,6 +596,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            if (!this.IsDirtyRead) sql = sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -642,6 +664,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            if (!this.IsDirtyRead) sql = sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -712,6 +736,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            if (!this.IsDirtyRead) sql = sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -786,6 +812,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            if (!this.IsDirtyRead) sql = sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -864,6 +892,8 @@ namespace Chef.Extensions.DbAccess
                 groupingSelector,
                 skipped,
                 taken);
+
+            if (!this.IsDirtyRead) sql = sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -947,6 +977,8 @@ namespace Chef.Extensions.DbAccess
                 skipped,
                 taken);
 
+            if (!this.IsDirtyRead) sql = sql.Replace(" WITH (NOLOCK)", string.Empty);
+
             this.OutputSql?.Invoke(sql, parameters);
 
             if (groupingSelector != null)
@@ -1004,6 +1036,8 @@ WHERE ";
 
             sql += ";";
 
+            if (!this.IsDirtyRead) sql.Replace(" WITH (NOLOCK)", string.Empty);
+
             this.OutputSql?.Invoke(sql, parameters);
 
             return this.ExecuteQueryOneAsync<int>(sql, parameters);
@@ -1040,6 +1074,8 @@ WHERE ";
             }
 
             sql += ";";
+
+            if (!this.IsDirtyRead) sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -1080,6 +1116,8 @@ WHERE ";
             }
 
             sql += ";";
+
+            if (!this.IsDirtyRead) sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -1123,6 +1161,8 @@ WHERE ";
             }
 
             sql += ";";
+
+            if (!this.IsDirtyRead) sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -1169,6 +1209,8 @@ WHERE ";
             }
 
             sql += ";";
+
+            if (!this.IsDirtyRead) sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -1218,6 +1260,8 @@ WHERE ";
             }
 
             sql += ";";
+
+            if (!this.IsDirtyRead) sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
@@ -1271,6 +1315,8 @@ WHERE ";
 
             sql += ";";
 
+            if (!this.IsDirtyRead) sql.Replace(" WITH (NOLOCK)", string.Empty);
+
             this.OutputSql?.Invoke(sql, parameters);
 
             return this.ExecuteQueryOneAsync<int>(sql, parameters);
@@ -1305,6 +1351,8 @@ WHERE ";
             sql += @") THEN 1
         ELSE 0
     END AS BIT);";
+
+            if (!this.IsDirtyRead) sql.Replace(" WITH (NOLOCK)", string.Empty);
 
             this.OutputSql?.Invoke(sql, parameters);
 
