@@ -5,7 +5,7 @@ namespace Chef.Extensions.DateTime
 {
     public static class Extension
     {
-        private static readonly System.DateTime InitialTime = new System.DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly System.DateTime Jan1st1970 = new System.DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public static bool Between(this System.DateTime me, System.DateTime begin, System.DateTime end, bool exclusiveEnd = false)
         {
@@ -163,7 +163,7 @@ namespace Chef.Extensions.DateTime
 
         public static long ToUnixTimestamp(this System.DateTime me)
         {
-            return Convert.ToInt64(me.ToUniversalTime().Subtract(InitialTime).TotalMilliseconds);
+            return Convert.ToInt64(me.ToUniversalTime().Subtract(Jan1st1970).TotalMilliseconds);
         }
 
         public static System.DateTime DateOfThisWeek(this System.DateTime me, DayOfWeek dayOfWeek)
