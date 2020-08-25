@@ -164,16 +164,22 @@ namespace Chef.Extensions.String
 
         public static bool IsMatch(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
         {
+            if (string.IsNullOrEmpty(me)) return false;
+
             return Regex.IsMatch(me, pattern, options);
         }
 
         public static Match Match(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
         {
+            if (string.IsNullOrEmpty(me)) return System.Text.RegularExpressions.Match.Empty;
+
             return Regex.Match(me, pattern, options);
         }
 
         public static Match[] Matches(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
         {
+            if (string.IsNullOrEmpty(me)) return new Match[0];
+
             return Regex.Matches(me, pattern, options).Cast<Match>().ToArray();
         }
 
