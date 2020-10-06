@@ -243,6 +243,27 @@ Example:
     
     // result is "1234567一二三四五六七".
 
+
+### TryUrlBase64Decode(out string result)
+
+Try decode a string of Base64 to string for url.（Encoding is UTF8）
+
+Example:
+
+    var success = "MTIzNDU2N+S4gOS6jOS4ieWbm+S6lOWFreS4gw..".TryUrlBase64Decode(out var result);
+    
+    // success is "True", result is "1234567一二三四五六七".
+
+### TryUrlBase64Decode(Encoding encoding, out string result)
+
+Try decode a string of Base64 to string for url.
+
+Example:
+
+    var success = "MTIzNDU2N6RApEekVKV8pK2ku6RD".TryUrlBase64Decode(Encoding.GetEncoding("Big5"), out var result);
+    
+    // success is "True", result is "1234567一二三四五六七".
+
 ### Split(params string[] separator)
 
 Split a string using string separators.

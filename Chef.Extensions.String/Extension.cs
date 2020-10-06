@@ -147,6 +147,42 @@ namespace Chef.Extensions.String
             return encoding.GetString(Convert.FromBase64String(me.Replace(".", "=").Replace("-", "+").Replace("_", "/")));
         }
 
+        public static bool TryUrlBase64Decode(this string me, out string result)
+        {
+            result = default(string);
+
+            try
+            {
+                result = UrlBase64Decode(me);
+
+                return true;
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return false;
+        }
+
+        public static bool TryUrlBase64Decode(this string me, Encoding encoding, out string result)
+        {
+            result = default(string);
+
+            try
+            {
+                result = UrlBase64Decode(me, encoding);
+
+                return true;
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return false;
+        }
+
         public static string[] Split(this string me, params string[] separator)
         {
             return me.Split(separator, StringSplitOptions.None);
