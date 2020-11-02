@@ -198,11 +198,36 @@ namespace Chef.Extensions.String
             return me.Split(separator, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        public static bool IsMatch(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
+        public static bool IsMatch(this string me, string pattern)
+        {
+            return IsMatch(me, pattern, RegexOptions.IgnoreCase);
+        }
+
+        public static bool IsMatch(this string me, string pattern, RegexOptions options)
         {
             if (string.IsNullOrEmpty(me)) return false;
 
             return Regex.IsMatch(me, pattern, options);
+        }
+
+        public static bool IsMatch(this string me, string pattern, out Match match)
+        {
+            return IsMatch(me, pattern, RegexOptions.IgnoreCase, out match);
+        }
+
+        public static bool IsMatch(this string me, string pattern, RegexOptions options, out Match match)
+        {
+            match = default(Match);
+
+            if (string.IsNullOrEmpty(me)) return false;
+
+            match = Regex.Match(me, pattern, options);
+
+            if (match.Success) return true;
+
+            match = default(Match);
+
+            return false;
         }
 
         public static Match Match(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
