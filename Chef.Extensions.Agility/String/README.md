@@ -294,13 +294,43 @@ Example:
     
     // result is ["1","2","3","4"]
 
-### IsMatch(string pattern, , RegexOptions options = RegexOptions.IgnoreCase)
+### IsMatch(string pattern)
 
 Return true if regular expression matched, otherwise return false. Default is case insensitive.
 
 Example:
 
     var result = "qwerTYUiop".IsMatch("tyu");
+    
+    // result is true.
+
+### IsMatch(string pattern, RegexOptions options)
+
+Return true if regular expression matched.
+
+Example:
+
+    var result = "qwerTYUiop".IsMatch("tyu", RegexOptions.IgnoreCase);
+    
+    // result is true.
+
+### IsMatch(string pattern, out Match match)
+
+Return true if regular expression matched and out Match.
+
+Example:
+
+    var result = "qwerTYUiop".IsMatch("tyu", out var match);
+    
+    // result is true.
+
+### IsMatch(string pattern, RegexOptions options, out Match match)
+
+Return true if regular expression matched and out Match.
+
+Example:
+
+    var result = "qwerTYUiop".IsMatch("tyu", RegexOptions.IgnoreCase, out var match);
     
     // result is true.
 
