@@ -117,4 +117,65 @@ namespace Chef.Extensions.Tests
             string.Empty.IsNumeric().Should().BeFalse();
         }
     }
+
+    internal class Member
+    {
+        public int Id { get; set; }
+
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
+        public double Seniority { get; set; }
+
+        public int Age { get; set; }
+
+        public int SubordinateCount { get; set; }
+
+        public int MaxSubordinateId { get; set; }
+
+        public int SubordinateId { get; set; }
+
+        public Member Subordinate { get; set; }
+
+        public string IgnoredColumn { get; set; }
+    }
+
+    internal class User
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+
+        public int Age { get; set; }
+
+        public string Phone { get; set; }
+
+        public string Address { get; set; }
+
+        public int SubordinateCount { get; set; }
+
+        public int MaxSubordinateId { get; set; }
+
+        public int SubordinateId { get; set; }
+
+        public User Subordinate { get; set; }
+
+        public int DepartmentId { get; set; }
+
+        public Department Department { get; set; }
+
+        public int ManagerId { get; set; }
+
+        public User Manager { get; set; }
+
+        public User Self { get; set; }
+    }
+
+    internal class Department
+    {
+        public int DepId { get; set; }
+
+        public string Name { get; set; }
+    }
 }
