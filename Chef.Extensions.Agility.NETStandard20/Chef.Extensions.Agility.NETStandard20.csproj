@@ -15,6 +15,7 @@
     <Compile Include="..\Chef.Extensions.Dictionary\Extension.cs" Link="Dictionary\Extension.cs" />
     <Compile Include="..\Chef.Extensions.Double\Extension.cs" Link="Double\Extension.cs" />
     <Compile Include="..\Chef.Extensions.Enum\Extension.cs" Link="Enum\Extension.cs" />
+    <Compile Include="..\Chef.Extensions.Float\Extension.cs" Link="Float\Extension.cs" />
     <Compile Include="..\Chef.Extensions.IEnumerable\Extension.cs" Link="IEnumerable\Extension.cs" />
     <Compile Include="..\Chef.Extensions.Int\Extension.cs" Link="Int\Extension.cs" />
     <Compile Include="..\Chef.Extensions.Long\Extension.cs" Link="Long\Extension.cs" />
@@ -38,6 +39,7 @@
     <Folder Include="IEnumerable\" />
     <Folder Include="Int\" />
     <Folder Include="Long\" />
+    <Folder Include="Float\" />
     <Folder Include="XElement\" />
     <Folder Include="Type\" />
     <Folder Include="String\" />

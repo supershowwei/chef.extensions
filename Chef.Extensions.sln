@@ -71,6 +71,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chef.Extensions.Agility.NET
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chef.Extensions.Dapper.NETStandard20", "Chef.Extensions.Dapper.NETStandard20\Chef.Extensions.Dapper.NETStandard20.csproj", "{ACBA1758-BA60-4614-8FAF-2E53B21820A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Float", "Chef.Extensions.Float\Chef.Extensions.Float.csproj", "{C6A21DC8-1F3C-445F-8D48-2BAE55360587}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -351,6 +353,14 @@ Global
 		{ACBA1758-BA60-4614-8FAF-2E53B21820A3}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
 		{ACBA1758-BA60-4614-8FAF-2E53B21820A3}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
 		{ACBA1758-BA60-4614-8FAF-2E53B21820A3}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{C6A21DC8-1F3C-445F-8D48-2BAE55360587}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6A21DC8-1F3C-445F-8D48-2BAE55360587}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6A21DC8-1F3C-445F-8D48-2BAE55360587}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6A21DC8-1F3C-445F-8D48-2BAE55360587}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6A21DC8-1F3C-445F-8D48-2BAE55360587}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{C6A21DC8-1F3C-445F-8D48-2BAE55360587}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{C6A21DC8-1F3C-445F-8D48-2BAE55360587}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{C6A21DC8-1F3C-445F-8D48-2BAE55360587}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
