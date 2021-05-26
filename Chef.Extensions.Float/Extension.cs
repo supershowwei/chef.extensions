@@ -4,40 +4,43 @@ namespace Chef.Extensions.Float
 {
     public static class Extension
     {
-        public static int Round(this float me, MidpointRounding mode = MidpointRounding.AwayFromZero)
+        public static float Round(this float me, MidpointRounding mode = MidpointRounding.AwayFromZero)
         {
-            return Convert.ToInt32(Math.Round(me, mode));
+            return Convert.ToSingle(Math.Round(me, mode));
         }
 
         public static float Round(this float me, int digits, MidpointRounding mode = MidpointRounding.AwayFromZero)
         {
-            var power = Convert.ToInt32(Math.Pow(10, digits));
-
-            return Convert.ToSingle(Math.Round(me * power, mode)) / power;
+            return Convert.ToSingle(Math.Round(me, digits, mode));
         }
 
-        public static int RoundUp(this float me)
+        public static float RoundUp(this float me)
         {
-            return Convert.ToInt32(Math.Ceiling(me));
+            return Convert.ToSingle(Math.Ceiling(me));
         }
 
         public static float RoundUp(this float me, int digits)
         {
-            var power = Convert.ToInt32(Math.Pow(10, digits));
+            var power = Math.Pow(10, digits);
 
-            return Convert.ToSingle(Math.Ceiling(me * power)) / power;
+            return Convert.ToSingle(Math.Ceiling(me * power) / power);
         }
 
-        public static int RoundDown(this float me)
+        public static float RoundDown(this float me)
         {
-            return Convert.ToInt32(Math.Floor(me));
+            return Convert.ToSingle(Math.Floor(me));
         }
 
         public static float RoundDown(this float me, int digits)
         {
-            var power = Convert.ToInt32(Math.Pow(10, digits));
+            var power = Math.Pow(10, digits);
 
-            return Convert.ToSingle(Math.Floor(me * power)) / power;
+            return Convert.ToSingle(Math.Floor(me * power) / power);
+        }
+
+        public static float Truncate(this float me)
+        {
+            return Convert.ToSingle(Math.Truncate(me));
         }
 
         public static int ToInt32(this float me)

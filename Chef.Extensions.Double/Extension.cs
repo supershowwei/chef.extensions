@@ -4,9 +4,9 @@ namespace Chef.Extensions.Double
 {
     public static class Extension
     {
-        public static int Round(this double me, MidpointRounding mode = MidpointRounding.AwayFromZero)
+        public static double Round(this double me, MidpointRounding mode = MidpointRounding.AwayFromZero)
         {
-            return Convert.ToInt32(Math.Round(me, mode));
+            return Math.Round(me, mode);
         }
 
         public static double Round(this double me, int digits, MidpointRounding mode = MidpointRounding.AwayFromZero)
@@ -14,9 +14,9 @@ namespace Chef.Extensions.Double
             return Math.Round(me, digits, mode);
         }
 
-        public static int RoundUp(this double me)
+        public static double RoundUp(this double me)
         {
-            return Convert.ToInt32(Math.Ceiling(me));
+            return Math.Ceiling(me);
         }
 
         public static double RoundUp(this double me, int digits)
@@ -26,9 +26,9 @@ namespace Chef.Extensions.Double
             return Math.Ceiling(me * power) / power;
         }
 
-        public static int RoundDown(this double me)
+        public static double RoundDown(this double me)
         {
-            return Convert.ToInt32(Math.Floor(me));
+            return Math.Floor(me);
         }
 
         public static double RoundDown(this double me, int digits)
@@ -36,6 +36,11 @@ namespace Chef.Extensions.Double
             var power = Math.Pow(10, digits);
 
             return Math.Floor(me * power) / power;
+        }
+
+        public static double Truncate(this double me)
+        {
+            return Math.Truncate(me);
         }
 
         public static int ToInt32(this double me)
