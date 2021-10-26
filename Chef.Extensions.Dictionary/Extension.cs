@@ -108,5 +108,19 @@ namespace Chef.Extensions.Dictionary
                 me.Remove(me.Keys.Last());
             }
         }
+
+        public static bool TryGetValue<TKey, TValue>(this IDictionary<TKey, object> me, TKey key, out TValue value)
+        {
+            value = default(TValue);
+
+            if (me.TryGetValue(key, out object objValue))
+            {
+                value = (TValue)objValue;
+
+                return true;
+            }
+
+            return false;
+        }
     }
 }
