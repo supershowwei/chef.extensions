@@ -146,3 +146,20 @@ Example:
     dict.RollingRemove(1);
     
     // dict is { 1: "1" }.
+
+### TryGetValue&lt;TKey, TValue&gt;(TKey key, out TValue value)
+
+This TryGetValue() is on IDictionary&lt;TKey, object&gt;.
+
+Example:
+
+    var dict = new Dictionary<int, object>();
+    
+    dict.Add(1, "1");
+    dict.Add(2, "2");
+    dict.Add(3, "3");
+    
+    var result = dict.TryGetValue<int, string>(1, out string value);
+    
+    // result is True.
+    // value is "1".
