@@ -116,6 +116,18 @@ namespace Chef.Extensions.Tests
             true.IsNumeric().Should().BeFalse();
             string.Empty.IsNumeric().Should().BeFalse();
         }
+
+        [TestMethod]
+        public void Test_Is_And_Or()
+        {
+            var member = new Member { Id = 1 };
+
+            ((bool)member.Is(x => x.Id == 1)).Should().BeTrue();
+            ((bool)member.Is(x => x.Id == 1).And(x => x.Id > 0)).Should().BeTrue();
+            ((bool)member.Is(x => x.Id == 1).Or(x => x.Id != 0)).Should().BeTrue();
+            ((bool)member.Is(x => x.Id == 1).And(false)).Should().BeFalse();
+            ((bool)member.Is(x => x.Id == 1).Or(false)).Should().BeTrue();
+        }
     }
 
     internal class Member

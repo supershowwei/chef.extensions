@@ -77,6 +77,9 @@
     <Compile Include="..\Chef.Extensions.Long\Extension.cs">
       <Link>Long\Extension.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.Object\Boole.cs">
+      <Link>Object\Boole.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.Object\Extension.cs">
       <Link>Object\Extension.cs</Link>
     </Compile>

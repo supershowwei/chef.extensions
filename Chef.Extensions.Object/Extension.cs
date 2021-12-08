@@ -175,5 +175,35 @@ namespace Chef.Extensions.Object
 
             return convert(me);
         }
+
+        public static Boole<T> Is<T>(this T me, Func<T, bool> booleFunc)
+        {
+            return new Boole<T>(me, booleFunc(me));
+        }
+
+        public static Boole<T> Is<T>(this T me, bool booleValue)
+        {
+            return new Boole<T>(me, booleValue);
+        }
+
+        public static Boole<T> And<T>(this Boole<T> me, Func<T, bool> booleFunc)
+        {
+            return !me.Value ? me : new Boole<T>(me.Logic, me.Value && booleFunc(me.Logic));
+        }
+
+        public static Boole<T> And<T>(this Boole<T> me, bool booleValue)
+        {
+            return !me.Value ? me : new Boole<T>(me.Logic, me.Value && booleValue);
+        }
+
+        public static Boole<T> Or<T>(this Boole<T> me, Func<T, bool> booleFunc)
+        {
+            return me.Value ? me : new Boole<T>(me.Logic, me.Value || booleFunc(me.Logic));
+        }
+
+        public static Boole<T> Or<T>(this Boole<T> me, bool booleValue)
+        {
+            return me.Value ? me : new Boole<T>(me.Logic, me.Value || booleValue);
+        }
     }
 }
