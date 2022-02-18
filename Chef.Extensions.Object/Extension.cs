@@ -65,9 +65,7 @@ namespace Chef.Extensions.Object
 
                         body.Add(Expression.Assign(outputVariable, Expression.New(outputType)));
 
-                        var properties = inputType.GetProperties();
-
-                        foreach (var property in properties)
+                        foreach (var property in inputType.GetProperties())
                         {
                             // 跳過唯寫屬性及索引子
                             if (!property.CanRead || property.GetIndexParameters().Length != 0) continue;
