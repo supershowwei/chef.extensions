@@ -26,7 +26,7 @@ namespace Chef.Extensions.Object
                                                                     };
 
         private static readonly ConcurrentDictionary<string, Delegate> ObjectConverter = new ConcurrentDictionary<string, Delegate>();
-        private static readonly ConcurrentDictionary<string, Func<object, ExpandoObject>> ExpandoConverter = new ConcurrentDictionary<string, Func<object, ExpandoObject>>();
+        private static readonly ConcurrentDictionary<System.Type, Func<object, ExpandoObject>> ExpandoConverter = new ConcurrentDictionary<System.Type, Func<object, ExpandoObject>>();
 
         public static bool IsNotNull(this object me)
         {
@@ -44,10 +44,9 @@ namespace Chef.Extensions.Object
         public static ExpandoObject ToExpando(this object me)
         {
             var converter = ExpandoConverter.GetOrAdd(
-                me.GetType().FullName,
-                converterKey =>
+                me.GetType(),
+                inputType =>
                     {
-                        var inputType = me.GetType();
                         var outputType = typeof(ExpandoObject);
 
                         var tryAddMemberMethod = outputType.GetMethod(
