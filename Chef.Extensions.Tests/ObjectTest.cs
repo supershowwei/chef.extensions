@@ -1,5 +1,4 @@
-﻿using System;
-using Chef.Extensions.Object;
+﻿using Chef.Extensions.Object;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -22,7 +21,7 @@ namespace Chef.Extensions.Tests
         public void Test_To_Convert_Member_To_User()
         {
             var member = new Member { Id = 99 };
-            
+
             var user = member.To<User>();
 
             user.Id.Should().Be(99);
@@ -32,7 +31,7 @@ namespace Chef.Extensions.Tests
         public void Test_To_Convert_Member_To_User_Again()
         {
             var member = new Member { Id = 99 };
-            
+
             var user = member.To<User>();
 
             user.Id.Should().Be(99);
@@ -44,7 +43,7 @@ namespace Chef.Extensions.Tests
             var member = new Member { Id = 99 };
             var user = new User { Id = 88, Name = "abc" };
 
-            var mappedUser = member.To<User>(user);
+            var mappedUser = member.To(user);
 
             mappedUser.Should().BeSameAs(user);
             mappedUser.Id.Should().Be(88);
@@ -102,13 +101,13 @@ namespace Chef.Extensions.Tests
             uint.MaxValue.IsNumeric().Should().BeTrue();
             ((uint?)3).IsNumeric().Should().BeTrue();
             long.MaxValue.IsNumeric().Should().BeTrue();
-            ((long?)4).IsNumeric().Should().BeTrue();
+            4.IsNumeric().Should().BeTrue();
             ulong.MaxValue.IsNumeric().Should().BeTrue();
             ((ulong?)5).IsNumeric().Should().BeTrue();
             float.MaxValue.IsNumeric().Should().BeTrue();
             ((float?)1.1).IsNumeric().Should().BeTrue();
             double.MaxValue.IsNumeric().Should().BeTrue();
-            ((double?)2.2).IsNumeric().Should().BeTrue();
+            2.2.IsNumeric().Should().BeTrue();
             decimal.MaxValue.IsNumeric().Should().BeTrue();
             ((decimal?)3.3).IsNumeric().Should().BeTrue();
 
@@ -127,6 +126,17 @@ namespace Chef.Extensions.Tests
             ((bool)member.Is(x => x.Id == 1).Or(x => x.Id != 0)).Should().BeTrue();
             ((bool)member.Is(x => x.Id == 1).And(false)).Should().BeFalse();
             ((bool)member.Is(x => x.Id == 1).Or(false)).Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void Test_ToExpando()
+        {
+            var department = new Department();
+
+            dynamic expando = department.ToExpando();
+
+            ((int)expando.DepId).Should().Be(0);
+            ((string)expando.Name).Should().BeNullOrEmpty();
         }
     }
 

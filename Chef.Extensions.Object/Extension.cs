@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Chef.Extensions.Object
 {
@@ -25,6 +26,7 @@ namespace Chef.Extensions.Object
                                                                     };
 
         private static readonly ConcurrentDictionary<string, Delegate> ObjectConverter = new ConcurrentDictionary<string, Delegate>();
+        private static readonly ConcurrentDictionary<string, Func<object, ExpandoObject>> ExpandoConverter = new ConcurrentDictionary<string, Func<object, ExpandoObject>>();
 
         public static bool IsNotNull(this object me)
         {
@@ -41,14 +43,53 @@ namespace Chef.Extensions.Object
 
         public static ExpandoObject ToExpando(this object me)
         {
-            IDictionary<string, object> expando = new ExpandoObject();
+            var converter = ExpandoConverter.GetOrAdd(
+                me.GetType().FullName,
+                converterKey =>
+                    {
+                        var inputType = me.GetType();
+                        var outputType = typeof(ExpandoObject);
 
-            foreach (var property in me.GetType().GetProperties())
-            {
-                expando.Add(property.Name, property.GetValue(me));
-            }
+                        var tryAddMemberMethod = outputType.GetMethod(
+                            "TryAddMember",
+                            BindingFlags.NonPublic | BindingFlags.Instance,
+                            null,
+                            new[] { typeof(string), typeof(object) },
+                            null);
 
-            return (ExpandoObject)expando;
+                        var inputParam = Expression.Parameter(typeof(object), "input");
+                        var inputVariable = Expression.Convert(inputParam, inputType);
+                        var outputVariable = Expression.Variable(outputType, "output");
+
+                        var body = new List<Expression>();
+
+                        body.Add(Expression.Assign(outputVariable, Expression.New(outputType)));
+
+                        var properties = inputType.GetProperties();
+
+                        foreach (var property in properties)
+                        {
+                            // 跳過唯寫屬性及索引子
+                            if (!property.CanRead || property.GetIndexParameters().Length != 0) continue;
+
+                            var key = Expression.Constant(property.Name);
+                            var value = Expression.Property(inputVariable, property);
+
+                            var valueAsObject = Expression.Convert(value, typeof(object));
+
+                            body.Add(Expression.Call(outputVariable, tryAddMemberMethod, key, valueAsObject));
+                        }
+
+                        body.Add(outputVariable);
+
+                        var block = Expression.Block(new[] { outputVariable }, body);
+
+                        var lambdaExpression = Expression.Lambda<Func<object, ExpandoObject>>(block, inputParam);
+
+                        return lambdaExpression.Compile();
+                    });
+
+            return converter(me);
         }
 
         public static bool IsNumeric(this object me)
