@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 using Chef.Extensions.String;
 using FluentAssertions;
@@ -38,33 +39,14 @@ namespace Chef.Extensions.Tests
         }
 
         [TestMethod]
-        public void Test_ToUrlBase64()
+        public void Test_Base64UrlEncode_and_Base64UrlDecode()
         {
-            var input = "1234567一二三四五六七";
+            for (var i = 0; i < 100; i++)
+            {
+                var s = BitConverter.ToString(SHA512.Create().ComputeHash(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString())));
 
-            var result = input.ToUrlBase64();
-
-            result.Should().Be("MTIzNDU2N-S4gOS6jOS4ieWbm-S6lOWFreS4gw..");
-        }
-
-        [TestMethod]
-        public void Test_ToUrlBase64_use_Big5_Encoding()
-        {
-            var input = "1234567一二三四五六七";
-
-            var result = input.ToUrlBase64(Encoding.GetEncoding("Big5"));
-
-            result.Should().Be("MTIzNDU2N6RApEekVKV8pK2ku6RD");
-        }
-
-        [TestMethod]
-        public void Test_UrlBase64Decode()
-        {
-            var input = "MTIzNDU2N-S4gOS6jOS4ieWbm-S6lOWFreS4gw..";
-
-            var result = input.UrlBase64Decode();
-
-            result.Should().Be("1234567一二三四五六七");
+                s.Base64UrlEncode().Base64UrlDecode().Should().Be(s);
+            }
         }
     }
 }

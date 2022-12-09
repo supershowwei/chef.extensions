@@ -87,12 +87,12 @@ namespace Chef.Extensions.String
             return sb.ToString();
         }
 
-        public static string ToBase32(this string me)
+        public static string Base32Encode(this string me)
         {
             return Base32.Encode(me, Encoding.UTF8);
         }
 
-        public static string ToBase32(this string me, Encoding encoding)
+        public static string Base32Encode(this string me, Encoding encoding)
         {
             return Base32.Encode(me, encoding);
         }
@@ -107,24 +107,14 @@ namespace Chef.Extensions.String
             return Base32.Decode(me, encoding);
         }
 
-        public static string ToBase64(this string me)
+        public static string Base64Encode(this string me)
         {
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(me));
         }
 
-        public static string ToBase64(this string me, Encoding encoding)
+        public static string Base64Encode(this string me, Encoding encoding)
         {
             return Convert.ToBase64String(encoding.GetBytes(me));
-        }
-
-        public static string ToUrlBase64(this string me)
-        {
-            return Convert.ToBase64String(Encoding.UTF8.GetBytes(me)).Replace("=", ".").Replace("+", "-").Replace("/", "_");
-        }
-
-        public static string ToUrlBase64(this string me, Encoding encoding)
-        {
-            return Convert.ToBase64String(encoding.GetBytes(me)).Replace("=", ".").Replace("+", "-").Replace("/", "_");
         }
 
         public static string Base64Decode(this string me)
@@ -137,50 +127,128 @@ namespace Chef.Extensions.String
             return encoding.GetString(Convert.FromBase64String(me));
         }
 
-        public static string UrlBase64Decode(this string me)
+        public static string Base64UrlEncode(this string me)
         {
-            return Encoding.UTF8.GetString(Convert.FromBase64String(me.Replace(".", "=").Replace("-", "+").Replace("_", "/")));
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(me)).Replace("+", "-").Replace("/", "_").Replace("=", string.Empty);
         }
 
-        public static string UrlBase64Decode(this string me, Encoding encoding)
+        public static string Base64UrlEncode(this string me, Encoding encoding)
         {
-            return encoding.GetString(Convert.FromBase64String(me.Replace(".", "=").Replace("-", "+").Replace("_", "/")));
+            return Convert.ToBase64String(encoding.GetBytes(me)).Replace("+", "-").Replace("/", "_").Replace("=", string.Empty);
         }
 
-        public static bool TryUrlBase64Decode(this string me, out string result)
+        public static string Base64UrlDecode(this string me)
         {
-            result = default(string);
+            me = me.Replace("-", "+").Replace("_", "/");
+
+            switch (me.Length % 4)
+            {
+                case 0:
+                    break;
+                case 2:
+                    me = me.PadRight(me.Length + 2, '=');
+                    break;
+
+                case 3:
+                    me = me.PadRight(me.Length + 1, '=');
+                    break;
+
+                default:
+                    throw new ArgumentException("Incorrect string length.");
+            }
+
+            return Encoding.UTF8.GetString(Convert.FromBase64String(me));
+        }
+
+        public static string Base64UrlDecode(this string me, Encoding encoding)
+        {
+            me = me.Replace("-", "+").Replace("_", "/");
+
+            switch (me.Length % 4)
+            {
+                case 0:
+                    break;
+                case 2:
+                    me = me.PadRight(me.Length + 2, '=');
+                    break;
+
+                case 3:
+                    me = me.PadRight(me.Length + 1, '=');
+                    break;
+
+                default:
+                    throw new ArgumentException("Incorrect string length.");
+            }
+
+            return encoding.GetString(Convert.FromBase64String(me));
+        }
+
+        public static bool TryBase64UrlDecode(this string me, out string result)
+        {
+            result = default;
 
             try
             {
-                result = UrlBase64Decode(me);
+                me = me.Replace("-", "+").Replace("_", "/");
+
+                switch (me.Length % 4)
+                {
+                    case 0:
+                        break;
+                    case 2:
+                        me = me.PadRight(me.Length + 2, '=');
+                        break;
+
+                    case 3:
+                        me = me.PadRight(me.Length + 1, '=');
+                        break;
+
+                    default:
+                        throw new ArgumentException("Incorrect string length.");
+                }
+
+                result = Encoding.UTF8.GetString(Convert.FromBase64String(me));
 
                 return true;
             }
             catch
             {
-                // ignored
+                return false;
             }
-
-            return false;
         }
 
-        public static bool TryUrlBase64Decode(this string me, Encoding encoding, out string result)
+        public static bool TryBase64UrlDecode(this string me, Encoding encoding, out string result)
         {
-            result = default(string);
+            result = default;
 
             try
             {
-                result = UrlBase64Decode(me, encoding);
+                me = me.Replace("-", "+").Replace("_", "/");
+
+                switch (me.Length % 4)
+                {
+                    case 0:
+                        break;
+                    case 2:
+                        me = me.PadRight(me.Length + 2, '=');
+                        break;
+
+                    case 3:
+                        me = me.PadRight(me.Length + 1, '=');
+                        break;
+
+                    default:
+                        throw new ArgumentException("Incorrect string length.");
+                }
+
+                result = encoding.GetString(Convert.FromBase64String(me));
 
                 return true;
             }
             catch
             {
-                // ignored
+                return false;
             }
-
-            return false;
         }
 
         public static string[] Split(this string me, params string[] separator)
