@@ -145,6 +145,7 @@ namespace Chef.Extensions.String
             {
                 case 0:
                     break;
+
                 case 2:
                     me = me.PadRight(me.Length + 2, '=');
                     break;
@@ -168,6 +169,7 @@ namespace Chef.Extensions.String
             {
                 case 0:
                     break;
+
                 case 2:
                     me = me.PadRight(me.Length + 2, '=');
                     break;
@@ -195,6 +197,7 @@ namespace Chef.Extensions.String
                 {
                     case 0:
                         break;
+
                     case 2:
                         me = me.PadRight(me.Length + 2, '=');
                         break;
@@ -229,6 +232,7 @@ namespace Chef.Extensions.String
                 {
                     case 0:
                         break;
+
                     case 2:
                         me = me.PadRight(me.Length + 2, '=');
                         break;
