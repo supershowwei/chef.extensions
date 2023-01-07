@@ -28,11 +28,6 @@ namespace Chef.Extensions.Object
         private static readonly ConcurrentDictionary<string, Delegate> ObjectConverter = new ConcurrentDictionary<string, Delegate>();
         private static readonly ConcurrentDictionary<System.Type, Func<object, ExpandoObject>> ExpandoConverter = new ConcurrentDictionary<System.Type, Func<object, ExpandoObject>>();
 
-        public static bool IsNotNull(this object me)
-        {
-            return me != null;
-        }
-
         public static T? ToNullable<T>(this object me)
             where T : struct, IConvertible
         {
