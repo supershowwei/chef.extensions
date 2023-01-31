@@ -89,6 +89,9 @@
     <Compile Include="..\Chef.Extensions.String\Extension.cs">
       <Link>String\Extension.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.String\MediaTypes.cs">
+      <Link>String\MediaTypes.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.Type\Extension.cs">
       <Link>Type\Extension.cs</Link>
     </Compile>
