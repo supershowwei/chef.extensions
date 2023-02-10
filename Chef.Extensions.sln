@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2026
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.33214.272
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.String", "Chef.Extensions.String\Chef.Extensions.String.csproj", "{4A817E5A-0DCE-466A-9252-C5FB69EBF9C0}"
 EndProject
@@ -72,6 +72,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chef.Extensions.Dapper.NETStandard20", "Chef.Extensions.Dapper.NETStandard20\Chef.Extensions.Dapper.NETStandard20.csproj", "{ACBA1758-BA60-4614-8FAF-2E53B21820A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Float", "Chef.Extensions.Float\Chef.Extensions.Float.csproj", "{C6A21DC8-1F3C-445F-8D48-2BAE55360587}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chef.Extensions.Regex", "Chef.Extensions.Regex\Chef.Extensions.Regex.csproj", "{51396D10-4DFA-4CB5-95DD-E058E5D7B666}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -361,6 +363,14 @@ Global
 		{C6A21DC8-1F3C-445F-8D48-2BAE55360587}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
 		{C6A21DC8-1F3C-445F-8D48-2BAE55360587}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
 		{C6A21DC8-1F3C-445F-8D48-2BAE55360587}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
+		{51396D10-4DFA-4CB5-95DD-E058E5D7B666}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51396D10-4DFA-4CB5-95DD-E058E5D7B666}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51396D10-4DFA-4CB5-95DD-E058E5D7B666}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51396D10-4DFA-4CB5-95DD-E058E5D7B666}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51396D10-4DFA-4CB5-95DD-E058E5D7B666}.Release-NET451|Any CPU.ActiveCfg = Release|Any CPU
+		{51396D10-4DFA-4CB5-95DD-E058E5D7B666}.Release-NET451|Any CPU.Build.0 = Release|Any CPU
+		{51396D10-4DFA-4CB5-95DD-E058E5D7B666}.Release-NET461|Any CPU.ActiveCfg = Release|Any CPU
+		{51396D10-4DFA-4CB5-95DD-E058E5D7B666}.Release-NET461|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -83,6 +83,9 @@
     <Compile Include="..\Chef.Extensions.Object\Extension.cs">
       <Link>Object\Extension.cs</Link>
     </Compile>
+    <Compile Include="..\Chef.Extensions.Regex\Extension.cs">
+      <Link>Regex\Extension.cs</Link>
+    </Compile>
     <Compile Include="..\Chef.Extensions.String\Base32.cs">
       <Link>String\Base32.cs</Link>
     </Compile>

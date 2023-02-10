@@ -279,7 +279,7 @@ namespace Chef.Extensions.String
         {
             if (string.IsNullOrEmpty(me)) return false;
 
-            return Regex.IsMatch(me, pattern, options);
+            return System.Text.RegularExpressions.Regex.IsMatch(me, pattern, options);
         }
 
         public static bool IsMatch(this string me, string pattern, out Match match)
@@ -293,7 +293,7 @@ namespace Chef.Extensions.String
 
             if (string.IsNullOrEmpty(me)) return false;
 
-            match = Regex.Match(me, pattern, options);
+            match = System.Text.RegularExpressions.Regex.Match(me, pattern, options);
 
             if (match.Success) return true;
 
@@ -306,14 +306,14 @@ namespace Chef.Extensions.String
         {
             if (string.IsNullOrEmpty(me)) return System.Text.RegularExpressions.Match.Empty;
 
-            return Regex.Match(me, pattern, options);
+            return System.Text.RegularExpressions.Regex.Match(me, pattern, options);
         }
 
         public static Match[] Matches(this string me, string pattern, RegexOptions options = RegexOptions.IgnoreCase)
         {
             if (string.IsNullOrEmpty(me)) return new Match[0];
 
-            return Regex.Matches(me, pattern, options).Cast<Match>().ToArray();
+            return System.Text.RegularExpressions.Regex.Matches(me, pattern, options).Cast<Match>().ToArray();
         }
 
         public static T ParseEnum<T>(this string me) where T : struct, IConvertible
