@@ -72,5 +72,10 @@ namespace Chef.Extensions.Byte
         {
             return BitConverter.ToString(me).Replace("-", string.Empty).ToLower();
         }
+
+        public static string Base64UrlEncode(this byte[] me)
+        {
+            return Convert.ToBase64String(me).Replace("+", "-").Replace("/", "_").Replace("=", string.Empty);
+        }
     }
 }
